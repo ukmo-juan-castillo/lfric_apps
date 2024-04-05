@@ -33,13 +33,21 @@
     {% set checkpoint_dir = "$CYLC_WORKFLOW_SHARE_DIR/data" %}
     {% set bin_dir = destination_dir~
                      "/bin/"~
+                     task_ns.application~"/"~
+                     task_values["build_conf"] %}
+    {% set lib_dir = destination_dir~
+                     "/lib/"~
+                     task_ns.application~"/"~
+                     task_values["build_conf"] %}
+    {% set mod_dir = destination_dir~
+                     "/mod/"~
+                     task_ns.application~"/"~
                      task_values["build_conf"] %}
     {% if task_ns.conf_name == "canned" %}
         {% set mesh_dir = "$CYLC_TASK_WORK_DIR" %}
     {% else %}
         {% set mesh_dir = destination_dir~
-                        "/meshes/"~
-                        site_vars["mesh_build"][task_ns.platform] %}
+                          "/meshes" %}
     {% endif %}
     {% set task_output_dir = destination_dir~"/"~
                              task_ns.application~"/"~
@@ -49,8 +57,8 @@
                                  "-crun"~task_values["restart_no"] %}
     {% endif %}
     {% set working_dir = "$BUILD_ROOT/"~
-                         task_ns.compiler~"_"~
-                         task_ns.conf_name~"/"~
+                         task_values["build_conf"]~"/"~
+                         "$CYLC_WORKFLOW_ID/"~
                          task_ns.application %}
 
     {# Import macros to set custom directive values for this platform #}

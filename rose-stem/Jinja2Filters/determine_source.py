@@ -39,6 +39,7 @@ def determine_source(wc_loc, repo):
     # Read through the dependencies file and populate revision and source
     # variables for requested repo
     for line in dependencies_file:
+        line = line.strip()
         if line.startswith(f"export {repo}_rev"):
             rev = line.split("=")[1]
         if line.startswith(f"export {repo}_sources"):

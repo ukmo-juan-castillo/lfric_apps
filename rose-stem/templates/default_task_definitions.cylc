@@ -40,7 +40,7 @@
         {% elif task_dict["optlevel"] == "full-debug" %}
             {% do task_dict.update({"log_level": "trace"}) %}
         {% else %}
-            {% do task_dict.update({"log_level": "warn"}) %}
+            {% do task_dict.update({"log_level": "warning"}) %}
         {% endif %}
     {% else %}
         {% do task_dict.update({"log_level": "info"}) %}
@@ -128,7 +128,7 @@
 {% endif %}
 
 {% if "task_family" not in task_dict %}
-    {% if task.startswith("build") %}
+    {% if task.startswith("build") or task.startswith("fcm_make") %}
         {% do task_dict.update({"task_family": "build"}) %}
     {% else %}
         {% do task_dict.update({"task_family": generated_task_name}) %}
@@ -171,7 +171,9 @@
 
 
 {# If application is lfric_coupled read in default values specific to coupled runs #}
-{% include "templates/default_task_definitions_lfric_coupled.cylc" %}
+{% if task_ns.application == "lfric_coupled" %}
+    {% include "templates/default_task_definitions_lfric_coupled.cylc" %}
+{% endif %}
 
 
 {# ############################ #}

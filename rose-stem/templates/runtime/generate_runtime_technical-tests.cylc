@@ -19,15 +19,14 @@
 
 {# Set the family inheritance for this task #}
     {% set inherit = namespace(str="") %}
-    {% set inherit.str = "BUILD_"~task_ns.platform|upper %}
+    {% set inherit.str = "BUILD_"~task_ns.application|upper~"_"~task_ns.platform|upper %}
     {% for family in task_values["build_families"] %}
         {% set inherit.str = inherit.str~","~family|upper %}
     {% endfor %}
 
     {# Build Script #}
-    {% set build_script_str = "make -C $SOURCE_DIRECTORY "~
-                        "-j 6 "~mode~"/build APPS_ROOT_DIR=${APPS_ROOT_DIR} "~
-                        "CORE_ROOT_DIR=${CORE_ROOT_DIR}" %}
+    {% set build_script_str = "rm -rf $WORKING_DIR ; "~
+                              "make -C $SOURCE_DIRECTORY -j 6 "~mode~"/build" %}
 
     [[{{task}}]]
         inherit={{inherit.str|upper}}
@@ -39,6 +38,7 @@
             CORE_ROOT_DIR = $SOURCE_ROOT/core
             WORKING_DIR = {{working_dir}}/{{mode}}
             RDEF_PRECISION = {{task_values["precision"]["rdef"]}}
+            BIN_DIR = {{bin_dir}}
 
 
 {% else %}
@@ -56,9 +56,7 @@
     {% endfor %}
 
     {# Run script #}
-    {% set run_script_str = "make -C $SOURCE_DIRECTORY -j 6 "~
-                        mode~"/rerun APPS_ROOT_DIR=${APPS_ROOT_DIR} "~
-                        "CORE_ROOT_DIR=${CORE_ROOT_DIR}" %}
+    {% set run_script_str = "make -C $SOURCE_DIRECTORY -j 6 "~mode~"/rerun" %}
 
     [[{{task}}]]
         inherit={{inherit.str|upper}}
@@ -69,6 +67,7 @@
             APPS_ROOT_DIR = $SOURCE_ROOT/apps
             CORE_ROOT_DIR = $SOURCE_ROOT/core
             WORKING_DIR = {{working_dir}}/{{mode}}
+            BIN_DIR = {{bin_dir}}
 
 {% endif %}
 

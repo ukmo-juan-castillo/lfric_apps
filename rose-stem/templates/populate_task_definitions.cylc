@@ -85,6 +85,12 @@
                                      task_ns.application~"_"~
                                      task_ns.platform~"_"~
                                      task_dict["build_conf"] %}
+    {% elif task.startswith("fcm_make") and task_ns.application == "lfricinputs" %}
+        {% set generated_task_name = "fcm_make_"~
+                                     task_ns.application~"_"~
+                                     task_dict["app_name"]~"_"~
+                                     task_ns.platform~"_"~
+                                     task_dict["build_conf"] %}
     {% else %}
         {% set generated_task_name = task_ns.application~"_"~
                                      task_ns.conf_name~"_"~
@@ -103,6 +109,8 @@
 
     {% if task.startswith("build") %}
         {% set defined_task_name = "build" %}
+    {% elif task.startswith("fcm_make") %}
+        {% set defined_task_name = "fcm_make" %}
     {% else %}
         {% set defined_task_name = "run" %}
     {% endif %}

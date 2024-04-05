@@ -11,7 +11,7 @@
 
 {# Set the family inheritance for this task #}
 {% set inherit = namespace(str="") %}
-{% set inherit.str = "BUILD_"~task_ns.platform|upper~","~task_ns.platform|upper %}
+{% set inherit.str = "BUILD_"~task_ns.application|upper~"_"~task_ns.platform|upper~","~task_ns.platform|upper %}
 {% for family in task_values["build_families"] %}
     {% set inherit.str = inherit.str~","~family|upper %}
 {% endfor %}
@@ -32,6 +32,8 @@
             CORE_ROOT_DIR           = $SOURCE_ROOT/core
             DESTINATION_DIRECTORY   = {{destination_dir}}
             BIN_DIR                 = {{bin_dir}}
+            LIB_DIR                 = {{lib_dir}}
+            MOD_DIR                 = {{mod_dir}}
             MESH_DIR                = {{mesh_dir}}
             WORKING_DIR             = {{working_dir}}
             TARGET                  = build

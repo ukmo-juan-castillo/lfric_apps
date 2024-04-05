@@ -26,7 +26,7 @@
 {% macro set_memory(mem) %}
     {% set value = mem[0] %}
     {% set unit = mem[1] %}
-            --mem={{value}}{{unit[:1]}}
+            --mem-per-cpu={{value}}{{unit[:1]}}
 {% endmacro %}
 
 {% do LOG.debug("Finished in site/meto/macros/macros_spice.cylc") %}

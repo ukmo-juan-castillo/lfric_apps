@@ -13,15 +13,15 @@
                     'module use /data/users/lfric/software/modulefiles.rhel7' %}
 
 {% set spice_compiler_intel = 'module unload ifort/17.0_64 ; '~
-                              'module load environment/lfric/ifort/19.0_64/4' %}
+                              'module load environment/lfric/ifort/19.0_64/7' %}
 
-{% set spice_compiler_gnu = 'module load environment/lfric/gcc/11.2.0/4' %}
+{% set spice_compiler_gnu = 'module load environment/lfric/gcc/11.2.0/7' %}
 
 {% set spice_run = 'ulimit -s unlimited' %}
 
-{% set spice_scitools = 'module load scitools/production-os45-1' %}
+{% set spice_scitools = 'module load scitools/production-os46-3' %}
 
-{% set spice_tech = 'module load environment/lfric/common/12' %}
+{% set spice_tech = 'module load environment/lfric/common/15' %}
 
     [[SPICE_BASE]]
         platform = spice

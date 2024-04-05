@@ -109,7 +109,7 @@
                  "Task with error: "~app_conf_str) }}
     {% endif %}
 
-    {% set app_conf_str = app_conf_str|replace(application.name, "") %}
+    {% set app_conf_str = app_conf_str|replace(application.name, "", 1) %}
     {% if app_conf_str.startswith("_") %}
         {% set app_conf_str = app_conf_str[1:] %}
     {% endif %}

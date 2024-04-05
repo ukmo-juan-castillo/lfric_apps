@@ -277,6 +277,11 @@
     {% do task_dict.update({
         "placeholder": true,
     }) %}
+    {% if "full-debug" in task %}
+        {% do task_dict.update({
+            "wallclock": 30,
+        }) %}
+    {% endif %}
 
 {% endif %}
 

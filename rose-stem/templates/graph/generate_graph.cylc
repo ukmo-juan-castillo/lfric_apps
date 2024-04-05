@@ -96,6 +96,13 @@
         {% do graph_sections.append([
             "BUILD_"~platform|upper~":succeed-all?",
             housekeeping_task]) %}
+        {% if "lfricinputs" in requested_applications and
+              platform == site_vars["scripts_platform"] %}
+            {% do graph_sections.append([
+                "GENERATE_WEIGHTS:succeed-all?",
+                housekeeping_task
+                ]) %}
+        {% endif %}
     {% endfor %}
 {% endif %}
 

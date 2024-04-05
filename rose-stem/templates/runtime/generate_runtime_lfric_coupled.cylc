@@ -29,7 +29,7 @@
     {% else %}
     [[{{task}}]]
     {% endif %}
-        inherit=BUILD_{{task_ns.platform|upper}},{{task_ns.platform|upper}}_COUPLED_BUILD_INTEL
+        inherit=BUILD_{{task_ns.application|upper}}_{{task_ns.platform|upper}},{{task_ns.platform|upper}}_COUPLED_BUILD_INTEL
         script = rose task-run
         [[[environment]]]
             ROSE_TASK_APP = {{task_app}}
@@ -44,7 +44,7 @@
     {% else %}
     [[{{task}}]]
     {% endif %}
-        inherit=BUILD_{{task_ns.platform|upper}}, {{SITE|upper}}_FCM_MAKE
+        inherit=BUILD_{{task_ns.application|upper}}_{{task_ns.platform|upper}}, {{SITE|upper}}_FCM_MAKE
         script = rose task-run
         execution time limit = PT10M
         [[[environment]]]

@@ -23,11 +23,8 @@
         inherit={{inherit.str|upper}}
         script = 'rose task-run --app-key=plot'
         [[[environment]]]
-            DESTINATION_DIRECTORY = {{destination_dir}}
-            TASK_OUTPUT_DIR = {{task_output_dir}}
-            DESTINATION = $CYLC_WORKFLOW_SHARE_DIR/publish-{{task_ns.application}}-{{task_ns.platform}}
-            NODAL_DATA_DIR = $TASK_OUTPUT_DIR/results
-            PLOT_DIR       = $TASK_OUTPUT_DIR/plots
+            NODAL_DATA_DIR = {{task_output_dir}}/results
+            PLOT_DIR       = {{task_output_dir}}/plots
             PLOT_CONFIG    = {{task_values["plot_str"]}}
 
 {% elif task.startswith("check") %}

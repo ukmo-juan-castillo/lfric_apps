@@ -29,6 +29,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    args.groups = args.groups.split(",")
+
     if args.site not in SITE_GROUPS:
         message = (
             f"{args.site} is not currently checked by the "
@@ -37,6 +39,8 @@ if __name__ == "__main__":
         print(message)
         print(message, file=sys.stderr)
         sys.exit()
+
+    print("Groups Run With:", args.groups)
 
     required_group = SITE_GROUPS[args.site]
     if required_group not in args.groups:

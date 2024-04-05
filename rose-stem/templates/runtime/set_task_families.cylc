@@ -25,9 +25,14 @@
 
     {% for application in requested_applications %}
         {% for task in tasks_to_run %}
-            {% if application in task and platform in task and not task.startswith("build") %}
+            {% if application in task and platform in task %}
+                {% if not task.startswith("build") and not task.startswith("fcm_make") %}
     [[{{application|upper}}_{{platform|upper}}]]
-            inherit={{platform|upper}}
+        inherit={{platform|upper}}
+                {% else %}
+    [[BUILD_{{application|upper}}_{{platform|upper}}]]
+        inherit=BUILD_{{platform|upper}}
+                {% endif %}
             {% endif %}
         {% endfor %}
     {% endfor %}
