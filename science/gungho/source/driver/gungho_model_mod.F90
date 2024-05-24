@@ -18,6 +18,7 @@ module gungho_model_mod
   use check_configuration_mod,    only : get_required_stencil_depth, &
                                          check_any_shifted,          &
                                          check_any_wt_eqn_conservative
+  use energy_correction_config_mod, only : encorr_usage, encorr_usage_none
   use conservation_algorithm_mod, only : conservation_algorithm
   use constants_mod,              only : i_def, r_def, l_def, &
                                          PRECISION_REAL, r_second, str_def
@@ -205,6 +206,9 @@ contains
     use time_dimensions_mod,            only: sync_time_dimensions
     use boundaries_config_mod,          only: limited_area
     use formulation_config_mod,         only: use_physics
+    use initialization_config_mod, only: init_option, &
+                                         init_option_checkpoint_dump
+    use io_config_mod,                  only: checkpoint_read, checkpoint_write
 
     implicit none
     class(clock_type), intent(in) :: clock
@@ -217,6 +221,17 @@ contains
 
     call persistor%init(clock)
     call process_gungho_prognostics(persistor)
+    ! Add the temperature_correction_rate to the appropriate files
+    if ( encorr_usage /= encorr_usage_none ) then
+    if (checkpoint_write) then
+      call add_field( persistor%ckp_out, "temperature_correction_rate", "checkpoint_", "once", &
+                      id_as_name=.true.)
+    end if
+    if (checkpoint_read .or. init_option == init_option_checkpoint_dump) then
+      call add_field( persistor%ckp_inp, "temperature_correction_rate", "restart_", "once", &
+                      id_as_name=.true.)
+    end if
+    end if
     if (limited_area) call process_lbc_fields(persistor)
     if (use_physics) then
       call process_physics_prognostics(persistor)
