@@ -91,7 +91,7 @@ module iau_time_control_mod
 
     implicit none
     class(model_clock_type), intent(in)    :: model_clock
-    integer(kind=r_def)                    :: iau_weight
+    real(kind=r_def)                       :: iau_weight
     integer(kind=i_def)                    :: iau_ts_num
 
     iau_ts_num = 0.0_i_def

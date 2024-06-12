@@ -121,12 +121,12 @@ contains
 
       do k = 0, nlayers
 
-        ! Call qsat_mix from UM routine
-        call qsat_mix( msat_out, temperature(map_wth(1) + k), pressure(map_wth(1) + k) )
-
         ! Apply limits depending on whether in troposphere
         if ( k <= i_trop ) then
         ! in troposphere
+
+          ! Call qsat_mix from UM routine
+          call qsat_mix( msat_out, temperature(map_wth(1) + k), pressure(map_wth(1) + k) )
 
           m_v(map_wth(1) + k) = MAX( m_v(map_wth(1) + k),msat_out * trop_min_rh )
 

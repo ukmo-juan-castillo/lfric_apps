@@ -49,8 +49,8 @@ contains
     call rho_r2_inc % copy_field_properties( wetrho_inc )
     call rho % copy_field_properties( rho_inc )
     call height_w3 % copy_field_properties( radius_w3 )
-    call invoke( a_plus_X( radius_w3, radius, height_w3 ) )
-    call invoke( X_divideby_Y( wetrho_inc, rho_r2_inc, radius_w3 ), &
+    call invoke( a_plus_X( radius_w3, radius, height_w3 ),          &
+                 X_divideby_Y( wetrho_inc, rho_r2_inc, radius_w3 ), &
                  inc_X_divideby_Y( wetrho_inc, radius_w3 ),         &
                  X_times_Y( rho_inc, wetrho_inc, one_minus_qs ),    &
                  inc_X_plus_bY( rho, iau_weight, rho_inc ) )

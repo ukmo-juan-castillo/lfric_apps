@@ -34,6 +34,7 @@ module update_iau_inc_alg_mod
   use mesh_mod,                         only : mesh_type
   use model_clock_mod,                  only : model_clock_type
   use moist_dyn_factors_alg_mod,        only : moist_dyn_factors_alg
+  use moist_dyn_mod,                    only : num_moist_factors
   use physics_mappings_alg_mod,         only : map_physics_scalars
   use planet_config_mod,                only : kappa, p_zero, one_over_kappa
   use printing_iau_mod,                 only : print_minmax_prog,        &
@@ -60,6 +61,7 @@ module update_iau_inc_alg_mod
   !> @ these increments to the appropriate prognostic_fields.
   !> @ Transformations from mixing ratios to specific humidity and inversely are used
   !> @param[in,out]  iau_fields         The collection of iau fields
+  !> @param[in]      moist_dyn          Moist_dynamics factors (for 1+sum(m_x))
   !> @param[in]      twod_mesh          Two dimensional mesh, used to calculate tropopause level
   !> @param[in,out]  prognostic_fields  The collection of prognostic fields
   !> @param[in]      derived_fields     The collection of derived fields
@@ -68,9 +70,9 @@ module update_iau_inc_alg_mod
   !> @param[in,out]  soil_fields        The collection of soil fields
   !> @param[in,out]  snow_fields        The collection of snow fields
   !> @param[in]      model_clock        The model clock, used to determine the IAU weight
-  subroutine add_iau_inc( iau_fields, twod_mesh, prognostic_fields, derived_fields, &
-                          cloud_fields, surface_fields, soil_fields, snow_fields, &
-                          model_clock )
+  subroutine add_iau_inc( iau_fields, moist_dyn, twod_mesh, prognostic_fields, &
+                          derived_fields, cloud_fields, surface_fields,        &
+                          soil_fields, snow_fields, model_clock )
 
     implicit none
 
@@ -80,6 +82,7 @@ module update_iau_inc_alg_mod
     type( field_collection_type ), intent(inout)       :: prognostic_fields
     type( field_collection_type ), intent(in)          :: derived_fields
     type( field_collection_type ), intent(inout)       :: cloud_fields
+    type( field_type ),            intent(in)          :: moist_dyn(num_moist_factors)
     type( field_collection_type ), intent(inout)       :: surface_fields
     type( field_collection_type ), intent(inout)       :: soil_fields
     type( field_collection_type ), intent(inout)       :: snow_fields
@@ -228,8 +231,9 @@ module update_iau_inc_alg_mod
     call print_meanrms_field( u, log_level_debug, 'wind' )
 
     ! Humidity mixing ratios
-    call iau_humidity_inc( q_inc, qcl_inc, qcf_inc, iau_weight, m_v, m_cl, m_ci, &
-                      m_r, m_s, m_g, one_minus_qs, cloud_fields )
+    call iau_humidity_inc( q_inc, qcl_inc, qcf_inc, moist_dyn, iau_weight, &
+                           m_v, m_cl, m_ci, m_r, m_s, m_g,                 &
+                           one_minus_qs, cloud_fields )
 
     call log_event( '- After iau_humidity_inc -', log_level_debug )
     call log_field_minmax( log_level_debug, 'm_v', m_v )
@@ -377,7 +381,8 @@ module update_iau_inc_alg_mod
     call print_minmax_iau( iau_fields, log_level_info )
     call print_meanrms_iau( iau_fields, log_level_info )
 
-    call add_iau_inc( iau_fields, twod_mesh, prognostic_fields, derived_fields, cloud_fields, &
+    call add_iau_inc( iau_fields, moist_dyn, twod_mesh, prognostic_fields, &
+                      derived_fields, cloud_fields,                        &
                       surface_fields, soil_fields, snow_fields, model_clock )
 
     ! Ensures that all prognostic fields are consistent

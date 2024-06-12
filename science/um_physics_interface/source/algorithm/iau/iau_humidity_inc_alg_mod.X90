@@ -17,6 +17,7 @@ module iau_humidity_inc_alg_mod
   use q_limit_test_kernel_mod,        only : q_limit_test_kernel_type
   use saturation_limit_kernel_mod,    only : saturation_limit_kernel_type
   use tropopause_limits_kernel_mod,   only : tropopause_limits_kernel_type
+  use moist_dyn_mod,                  only : num_moist_factors, total_mass
 
   implicit none
 
@@ -34,6 +35,7 @@ contains
   !> @param[in]     q_inc         Vapour specific humidity increment
   !> @param[in]     qcl_inc       Liquid specific humidity increment
   !> @param[in]     qcf_inc       Frozen specific humidity increment
+  !> @param[in]     moist_dyn     Moist_dynamics factors (for 1+sum(m_x))
   !> @param[in]     iau_weight    Weighting to apply to iau increment
   !> @param[in,out] m_v           Vapour mixing ratio
   !> @param[in,out] m_cl          Liquid mixing ratio
@@ -43,14 +45,16 @@ contains
   !> @param[in,out] m_g           Graupel mixing ratio
   !> @param[in,out] cloud_fields  The cloud scheme
   !> @param[out]    one_minus_qs  One minus total water content
-  subroutine iau_humidity_inc( q_inc, qcl_inc, qcf_inc, iau_weight, &
-                               m_v, m_cl, m_ci, m_r, m_s, m_g, one_minus_qs, cloud_fields )
+  subroutine iau_humidity_inc( q_inc, qcl_inc, qcf_inc, moist_dyn, iau_weight, &
+                               m_v, m_cl, m_ci, m_r, m_s, m_g, one_minus_qs,   &
+                               cloud_fields )
 
     implicit none
 
     ! Arguments
     type( field_collection_type ), intent(inout)   :: cloud_fields
     type( field_type ), intent(in)    :: q_inc, qcl_inc, qcf_inc
+    type( field_type ), intent(in)    :: moist_dyn(num_moist_factors)
     type( field_type ), intent(inout) :: m_v, m_cl, m_ci, m_r, m_s, m_g
     type( field_type ), intent(out)   :: one_minus_qs
     real( kind=r_def ), intent(in)    :: iau_weight
@@ -62,7 +66,6 @@ contains
     type( field_type )                :: q_r
     type( field_type )                :: q_s
     type( field_type )                :: q_g
-    type( field_type )                :: sum
 
     ! Pointers to the cloud fields
     type( field_type ), pointer :: area_fraction   => null()
@@ -71,7 +74,6 @@ contains
     type( field_type ), pointer :: cfl => null()
 
     ! Create local fields
-    call m_v % copy_field_properties( sum )
     call m_v % copy_field_properties( q_v )
     call m_v % copy_field_properties( q_cl )
     call m_v % copy_field_properties( q_ci )
@@ -86,27 +88,18 @@ contains
     call cloud_fields % get_field( 'frozen_fraction', cff )
     call cloud_fields % get_field( 'liquid_fraction', cfl )
 
-    ! Step 0: Calculate sum of mixing ratios (1+Sum m_x)
-    call invoke( setval_c( sum, 1.0_r_def ),       &
-                 inc_X_plus_Y( sum, m_v ),         &
-                 inc_X_plus_Y( sum, m_cl ),        &
-                 inc_X_plus_Y( sum, m_ci ),        &
-                 inc_X_plus_Y( sum, m_r ),         &
-                 inc_X_plus_Y( sum, m_s ),         &
-                 inc_X_plus_Y( sum, m_g ),         &
     ! Step 1: Calculate time level n specific quantities and save q_v for
     !         later use
-    ! q_x^n = m_x^n/(1 + sum)
-                 X_divideby_Y( q_v, m_v, sum ),    &
-                 X_divideby_Y( q_cl, m_cl, sum ),  &
-                 X_divideby_Y( q_ci, m_ci, sum ),  &
-                 X_divideby_Y( q_r, m_r, sum ),    &
-                 X_divideby_Y( q_s, m_s, sum ),    &
-                 X_divideby_Y( q_g, m_g, sum )     &
-               )
+    ! q_x^n = m_x^n/(moist_dyn(total_mass))
+    call invoke( X_divideby_Y( q_v, m_v, moist_dyn(total_mass) ),    &
+                 X_divideby_Y( q_cl, m_cl, moist_dyn(total_mass) ),  &
+                 X_divideby_Y( q_ci, m_ci, moist_dyn(total_mass) ),  &
+                 X_divideby_Y( q_r, m_r, moist_dyn(total_mass) ),    &
+                 X_divideby_Y( q_s, m_s, moist_dyn(total_mass) ),    &
+                 X_divideby_Y( q_g, m_g, moist_dyn(total_mass) ),    &
     ! Step 2: Increment to get the time level n+1 quantities
     ! q_x^n+1 = q_x^n + q_x_inc
-    call invoke( inc_X_plus_bY( q_v, iau_weight, q_inc ),       &
+                 inc_X_plus_bY( q_v, iau_weight, q_inc ),       &
                  inc_X_plus_bY( q_cl, iau_weight, qcl_inc ),    &
                  inc_X_plus_bY( q_ci, iau_weight, qcf_inc ),    &
     ! Step 3: Apply the lower limits to the updated qv, qcl and qci
@@ -114,25 +107,22 @@ contains
                                            area_fraction,          &
                                            bcf,                    &
                                            cff,                    &
-                                           cfl )                   &
-                )
+                                           cfl ),                  &
     ! Step 4a: Calculate sum of updated specfic quantities (1-Sum q_x)
-    ! Note that we re-use the 'sum' field here.
-    call invoke( setval_c( sum, 1.0_r_def ),       &
-                 inc_X_minus_Y( sum, q_v ),        &
-                 inc_X_minus_Y( sum, q_cl ),       &
-                 inc_X_minus_Y( sum, q_ci ),       &
-                 inc_X_minus_Y( sum, q_r ),        &
-                 inc_X_minus_Y( sum, q_s ),        &
-                 inc_X_minus_Y( sum, q_g ),        &
-                 setval_X(one_minus_qs, sum),      &
+                 setval_c( one_minus_qs, 1.0_r_def ),       &
+                 inc_X_minus_Y( one_minus_qs, q_v ),        &
+                 inc_X_minus_Y( one_minus_qs, q_cl ),       &
+                 inc_X_minus_Y( one_minus_qs, q_ci ),       &
+                 inc_X_minus_Y( one_minus_qs, q_r ),        &
+                 inc_X_minus_Y( one_minus_qs, q_s ),        &
+                 inc_X_minus_Y( one_minus_qs, q_g ),        &
     ! Step 4b: Convert back to time level n+1 mixing ratios
-                 X_divideby_Y( m_v, q_v, sum ),    &
-                 X_divideby_Y( m_cl, q_cl, sum ),  &
-                 X_divideby_Y( m_ci, q_ci, sum ),  &
-                 X_divideby_Y( m_r, q_r, sum ),    &
-                 X_divideby_Y( m_s, q_s, sum ),    &
-                 X_divideby_Y( m_g, q_g, sum )     &
+                 X_divideby_Y( m_v, q_v, one_minus_qs ),    &
+                 X_divideby_Y( m_cl, q_cl, one_minus_qs ),  &
+                 X_divideby_Y( m_ci, q_ci, one_minus_qs ),  &
+                 X_divideby_Y( m_r, q_r, one_minus_qs ),    &
+                 X_divideby_Y( m_s, q_s, one_minus_qs ),    &
+                 X_divideby_Y( m_g, q_g, one_minus_qs )     &
                  )
     nullify( area_fraction, bcf, cff, cfl )
 
@@ -185,17 +175,17 @@ contains
     call cloud_fields % get_field( 'liquid_fraction', cfl )
 
     ! Step 1: Remove supersaturation wrt water
-    call invoke( saturation_limit_kernel_type( m_v, temperature, pressure ) )
+    call invoke( saturation_limit_kernel_type( m_v, temperature, pressure ), &
 
     ! Step 2: Apply limits depending on whether in or above troposphere
-    call invoke( tropopause_limits_kernel_type( m_v, m_cl, m_ci, m_r, m_s, m_g,   &
-                                                cfl,                              &
-                                                cff,                              &
-                                                area_fraction,                    &
-                                                bcf,                              &
-                                                mv_earlier,                       &
-                                                temperature, pressure,            &
-                                                trop_level )                      &
+                 tropopause_limits_kernel_type( m_v, m_cl, m_ci, m_r, m_s, m_g,&
+                                                cfl,                           &
+                                                cff,                           &
+                                                area_fraction,                 &
+                                                bcf,                           &
+                                                mv_earlier,                    &
+                                                temperature, pressure,         &
+                                                trop_level )                   &
                )
 
     nullify( area_fraction, bcf, cff, cfl )

@@ -110,6 +110,8 @@ subroutine iau_pc2_cff_code( nlayers,                           &
 
           ! Update cff
           cff( map_wth(1) + k ) = cff ( map_wth(1) + k ) + del_cff
+          cff( map_wth(1) + k ) = max(min(cff(map_wth(1) + k), 1.0_r_def), &
+          0.0_r_def)
           ! Check that the liquid cloud fraction is constrained within 0 and 1
           cfl( map_wth(1) + k ) = max(min(cfl(map_wth(1) + k), 1.0_r_def), &
           0.0_r_def)
