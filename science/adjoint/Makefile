@@ -68,8 +68,15 @@ document-latex: ALWAYS
 ##############################################################################
 # Unit tests
 #
-unit-tests:
-	$(call MESSAGE,Testing,"There are no unit tests.")
+unit-tests/%: export BIN_DIR ?= $(PROJECT_DIR)/test
+unit-tests/%: export EXTERNAL_STATIC_LIBRARIES += pfunit
+unit-tests/%: export IMPORT_PARTS  = $(CORE_ROOT_DIR)/infrastructure
+unit-tests/%: export PROGRAMS = adjoint_unit_tests
+unit-tests/%: export PROJECT = adjoint
+unit-tests/%: export SOURCE_DIR = source
+unit-tests/%: export TEST_DIR = unit-test
+unit-tests/%: export WORKING_DIR := $(WORKING_DIR)/unit-tests
+unit-tests: unit-tests/run
 
 
 ##############################################################################

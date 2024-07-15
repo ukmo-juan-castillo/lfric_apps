@@ -272,11 +272,11 @@ contains
 
     use bell_orography_cartesian_mod,        only : bell_cartesian_type
     use orography_bell_cartesian_config_mod, only : mountain_height, &
-                                                      half_width_x,    &
-                                                      half_width_y,    &
-                                                      x_centre,        &
-                                                      y_centre,        &
-                                                      direction
+                                                    half_width_x,    &
+                                                    half_width_y,    &
+                                                    x_centre,        &
+                                                    y_centre,        &
+                                                    direction
 
     implicit none
 

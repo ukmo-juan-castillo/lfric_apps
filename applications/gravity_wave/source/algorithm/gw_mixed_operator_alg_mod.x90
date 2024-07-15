@@ -135,7 +135,7 @@ contains
     use dg_matrix_vector_kernel_mod,        only: dg_matrix_vector_kernel_type
     use initial_temperature_config_mod,     only: bvf_square
     use timestepping_config_mod,            only: dt, alpha
-    use enforce_bc_kernel_mod,              only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,          only: enforce_bc_kernel_type
     use gravity_wave_constants_config_mod,  only: cs_square,  &
                                                   b_space,    &
                                                   b_space_w0, &
@@ -143,7 +143,7 @@ contains
                                                   b_space_wtheta
     use fs_continuity_mod,                  only: W0, W2, W3, Wtheta
     use boundaries_config_mod,              only: limited_area
-    use operator_algebra_kernel_mod,        only: operator_setval_x_kernel_type
+    use sci_operator_algebra_kernel_mod,    only: operator_setval_x_kernel_type
 
     implicit none
 

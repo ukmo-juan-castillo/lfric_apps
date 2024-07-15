@@ -24,7 +24,7 @@ module compute_energetics_kernel_mod
                                 GH_SCALAR,                   &
                                 CELL_COLUMN, GH_QUADRATURE_XYoZ
   use constants_mod,     only : r_def, i_def
-  use driver_water_constants_mod,                                   &
+  use driver_water_constants_mod, &
                          only : Lv => latent_heat_h2o_condensation, &
                                 Lf => latent_heat_h2o_fusion
   use fs_continuity_mod, only : W2, W3, Wtheta
@@ -140,7 +140,7 @@ subroutine compute_energetics_code(                                           &
                                    ndf_pid, undf_pid, map_pid,                &
                                    nqp_h, nqp_v, wqp_h, wqp_v                 &
                                    )
-  use coordinate_jacobian_mod,  only: coordinate_jacobian
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian
 
   implicit none
 

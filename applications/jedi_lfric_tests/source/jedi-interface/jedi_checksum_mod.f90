@@ -9,7 +9,7 @@
 !>
 module jedi_checksum_mod
 
-  use checksum_alg_mod,                    only: checksum_alg
+  use sci_checksum_alg_mod,                only: checksum_alg
   use field_mod,                           only: field_type
   use jedi_lfric_tests_config_mod,         only: test_field
   use field_collection_mod,                only: field_collection_type

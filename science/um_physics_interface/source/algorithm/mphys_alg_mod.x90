@@ -13,7 +13,7 @@ module mphys_alg_mod
 
   ! xios output
   use io_config_mod,        only: write_diag, use_xios_io
-  use mphys_diagnostics_mod, &
+  use mphys_diagnostics_mod,                                  &
                             only: initialise_diags_for_mphys, &
                                   output_diags_for_mphys
   use constants_mod,        only: r_def, i_def

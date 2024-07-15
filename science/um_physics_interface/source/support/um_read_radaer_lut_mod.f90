@@ -29,23 +29,20 @@ contains
 
   subroutine um_read_radaer_lut( filename, aerosol_band, wavelength_band )
 
-    use constants_mod,                only:                                    &
-        str_long, i_def, r_um, i_um
+    use constants_mod,                only: str_long, i_def, r_um, i_um
 
-    use errormessagelength_mod,       only:                                    &
-        errormessagelength
+    use errormessagelength_mod,       only: errormessagelength
 
-    use filenamelength_mod,           only:                                    &
-        filenamelength
+    use filenamelength_mod,           only: filenamelength
 
-    use io_utility_mod,               only:                                    &
-        claim_io_unit, release_io_unit
+    use io_utility_mod,               only: claim_io_unit, &
+                                            release_io_unit
 
-    use log_mod,                      only:                                    &
-        log_event, LOG_LEVEL_ERROR, LOG_LEVEL_INFO
+    use log_mod,                      only: log_event,       &
+                                            LOG_LEVEL_ERROR, &
+                                            LOG_LEVEL_INFO
 
-    use ukca_radaer_populate_lut_mod, only:                                    &
-        ukca_radaer_populate_lut
+    use ukca_radaer_populate_lut_mod, only: ukca_radaer_populate_lut
 
     implicit none
 

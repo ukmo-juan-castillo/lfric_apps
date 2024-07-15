@@ -23,8 +23,8 @@ module initial_vorticity_v2_kernel_mod
   use constants_mod,           only: r_def, i_def
   use fs_continuity_mod,       only: W2, W3
   use kernel_mod,              only: kernel_type
-  use coordinate_jacobian_mod, only: coordinate_jacobian, &
-                                     coordinate_jacobian_inverse
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian, &
+                                         coordinate_jacobian_inverse
   use base_mesh_config_mod,    only: geometry,           &
                                      geometry_spherical, &
                                      f_lat

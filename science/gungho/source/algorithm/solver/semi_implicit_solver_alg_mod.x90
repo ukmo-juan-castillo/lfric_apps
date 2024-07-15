@@ -429,13 +429,13 @@ contains
     use field_mod,                     only: field_type
     use r_solver_field_mod,            only: r_solver_field_type
     use timestepping_config_mod,       only: dt, tau_r
-    use enforce_bc_kernel_mod,         only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,     only: enforce_bc_kernel_type
     use sci_mass_matrix_solver_alg_mod, &
                                        only: mass_matrix_solver_alg
     use sci_psykal_light_mod,          only: invoke_copy_to_rdef, &
                                              invoke_copy_to_rsolver, &
                                              invoke_inc_rdefX_plus_rsolverY
-    use field_minmax_alg_mod,          only: log_field_minmax
+    use sci_field_minmax_alg_mod,      only: log_field_minmax
 
     implicit none
 

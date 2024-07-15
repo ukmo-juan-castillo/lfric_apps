@@ -26,7 +26,7 @@ module eliminated_theta_q22_kernel_mod
                                      ANY_DISCONTINUOUS_SPACE_3
 
   use constants_mod,           only: i_def, r_def, r_solver
-  use coordinate_jacobian_mod, only: coordinate_jacobian
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian
   use fs_continuity_mod,       only: W2, Wtheta, Wchi
   use kernel_mod,              only: kernel_type
 

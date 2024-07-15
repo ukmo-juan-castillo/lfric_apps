@@ -6,28 +6,31 @@
 PROGRAM um2lfric
 
 ! lfricinputs modules
-USE lfricinp_lfric_driver_mod,          ONLY: lfricinp_initialise_lfric,       &
-                                              lfricinp_finalise_lfric, mesh,   &
-                                              twod_mesh, lfric_fields
-USE lfricinp_ancils_mod,                ONLY: lfricinp_create_ancil_fields,    &
-                                              ancil_fields
-USE lfricinp_create_lfric_fields_mod,   ONLY: lfricinp_create_lfric_fields
-USE lfricinp_um_grid_mod,               ONLY: um_grid
-USE lfricinp_datetime_mod,              ONLY: datetime
-USE lfricinp_initialise_mod,            ONLY: lfricinp_initialise
+USE lfricinp_lfric_driver_mod,     ONLY: lfricinp_initialise_lfric,     &
+                                         lfricinp_finalise_lfric, mesh, &
+                                         twod_mesh, lfric_fields
+USE lfricinp_ancils_mod,           ONLY: lfricinp_create_ancil_fields, &
+                                         ancil_fields
+USE lfricinp_create_lfric_fields_mod, &
+                                   ONLY: lfricinp_create_lfric_fields
+USE lfricinp_um_grid_mod,          ONLY: um_grid
+USE lfricinp_datetime_mod,         ONLY: datetime
+USE lfricinp_initialise_mod,       ONLY: lfricinp_initialise
 
 ! um2lfric modules
-USE um2lfric_namelist_mod,              ONLY: um2lfric_nl_fname,               &
-                                              um2lfric_config,                 &
-                                              required_lfric_namelists
-USE um2lfric_initialise_um2lfric_mod,   ONLY: um2lfric_initialise_um2lfric
-USE um2lfric_regrid_weights_mod,        ONLY: um2lfric_regrid_weightsfile_ctl
-USE um2lfric_init_masked_field_adjustments_mod,  ONLY:                         &
-                                       um2lfric_init_masked_field_adjustments
-USE um2lfric_regrid_and_output_data_mod,ONLY: um2lfric_regrid_and_output_data
-USE um2lfric_check_input_data_mod,      ONLY: um2lfric_check_input_data
-USE um2lfric_read_um_file_mod,          ONLY: um2lfric_close_um_file,          &
-                                              um_input_file
+USE um2lfric_namelist_mod,         ONLY: um2lfric_nl_fname, &
+                                         um2lfric_config,   &
+                                         required_lfric_namelists
+USE um2lfric_initialise_um2lfric_mod, &
+                                   ONLY: um2lfric_initialise_um2lfric
+USE um2lfric_regrid_weights_mod,   ONLY: um2lfric_regrid_weightsfile_ctl
+USE um2lfric_init_masked_field_adjustments_mod, &
+                                   ONLY: um2lfric_init_masked_field_adjustments
+USE um2lfric_regrid_and_output_data_mod, &
+                                   ONLY: um2lfric_regrid_and_output_data
+USE um2lfric_check_input_data_mod, ONLY: um2lfric_check_input_data
+USE um2lfric_read_um_file_mod,     ONLY: um2lfric_close_um_file, &
+                                         um_input_file
 
 IMPLICIT NONE
 

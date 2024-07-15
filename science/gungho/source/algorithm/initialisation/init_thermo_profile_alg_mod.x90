@@ -49,7 +49,7 @@ use profile_interp_kernel_mod,      only: profile_interp_kernel_type, &
                                           profile_data,               &
                                           profile_heights
 
-use random_perturb_kernel_mod,      only: random_perturb_kernel_type
+use sci_random_perturb_kernel_mod,  only: random_perturb_kernel_type
 
 implicit none
 

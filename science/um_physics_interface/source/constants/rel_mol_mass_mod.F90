@@ -10,10 +10,10 @@ module rel_mol_mass_mod
 
   use constants_mod, only: r_um
   use science_rel_mol_mass_mod, only: relative_molecular_mass_s,    &
-                                        relative_molecular_mass_h2o2, &
-                                        relative_molecular_mass_o3,   &
-                                        relative_molecular_mass_h2o,  &
-                                        relative_molecular_mass_dry_air
+                                      relative_molecular_mass_h2o2, &
+                                      relative_molecular_mass_o3,   &
+                                      relative_molecular_mass_h2o,  &
+                                      relative_molecular_mass_dry_air
 
   implicit none
 

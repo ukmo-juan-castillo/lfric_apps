@@ -8,49 +8,50 @@
 !>
 module gravity_wave_driver_mod
 
-  use base_mesh_config_mod,           only: prime_mesh_name
-  use driver_modeldb_mod,             only: modeldb_type
-  use constants_mod,                  only: i_def, r_def
-  use gravity_wave_infrastructure_mod,only: initialise_infrastructure, &
-                                            finalise_infrastructure
+  use base_mesh_config_mod,     only: prime_mesh_name
+  use driver_modeldb_mod,       only: modeldb_type
+  use constants_mod,            only: i_def, r_def
+  use gravity_wave_infrastructure_mod,                           &
+                                only: initialise_infrastructure, &
+                                       finalise_infrastructure
   use create_gravity_wave_prognostics_mod, &
-                                      only: create_gravity_wave_prognostics
-  use field_mod,                      only: field_type
-  use function_space_chain_mod,       only: function_space_chain_type
-  use gravity_wave_constants_config_mod, &
-                                      only: b_space,       &
-                                            b_space_w0,    &
-                                            b_space_w3,    &
-                                            b_space_wtheta
+                                only: create_gravity_wave_prognostics
+  use field_mod,                only: field_type
+  use function_space_chain_mod, only: function_space_chain_type
+  use gravity_wave_constants_config_mod,             &
+                                only: b_space,       &
+                                      b_space_w0,    &
+                                      b_space_w3,    &
+                                      b_space_wtheta
   use gravity_wave_diagnostics_driver_mod, &
-                                      only: gravity_wave_diagnostics_driver
-  use gw_init_fields_alg_mod,         only: gw_init_fields_alg
-  use gravity_wave_alg_mod,           only: gravity_wave_alg_init, &
-                                            gravity_wave_alg_step, &
-                                            gravity_wave_alg_final
-  use io_config_mod,                  only: write_diag,            &
-                                            checkpoint_read,       &
-                                            checkpoint_write,      &
-                                            diagnostic_frequency,  &
-                                            use_xios_io,           &
-                                            nodal_output_on_w3
-  use io_context_mod,                 only: io_context_type
-  use runtime_constants_mod,          only: create_runtime_constants
-  use checksum_alg_mod,               only : checksum_alg
+                                only: gravity_wave_diagnostics_driver
+  use gw_init_fields_alg_mod,   only: gw_init_fields_alg
+  use gravity_wave_alg_mod,     only: gravity_wave_alg_init, &
+                                      gravity_wave_alg_step, &
+                                      gravity_wave_alg_final
+  use io_config_mod,            only: write_diag,            &
+                                      checkpoint_read,       &
+                                      checkpoint_write,      &
+                                      diagnostic_frequency,  &
+                                      use_xios_io,           &
+                                      nodal_output_on_w3
+  use io_context_mod,           only: io_context_type
+  use runtime_constants_mod,    only: create_runtime_constants
+  use sci_checksum_alg_mod,     only: checksum_alg
 
-  use boundaries_config_mod,          only: limited_area
-  use log_mod,                        only: log_event,           &
-                                            log_level_always,    &
-                                            log_level_info,      &
-                                            log_level_trace,     &
-                                            log_level_error,     &
-                                            log_scratch_space
-  use mesh_mod,                       only: mesh_type
-  use mesh_collection_mod,            only: mesh_collection
-  use mpi_mod,                        only: mpi_type
-  use namelist_collection_mod,        only: namelist_collection_type
-  use io_mod,                         only: ts_fname
-  use files_config_mod,               only: checkpoint_stem_name
+  use boundaries_config_mod,    only: limited_area
+  use log_mod,                  only: log_event,        &
+                                      log_level_always, &
+                                      log_level_info,   &
+                                      log_level_trace,  &
+                                      log_level_error,  &
+                                      log_scratch_space
+  use mesh_mod,                 only: mesh_type
+  use mesh_collection_mod,      only: mesh_collection
+  use mpi_mod,                  only: mpi_type
+  use namelist_collection_mod,  only: namelist_collection_type
+  use io_mod,                   only: ts_fname
+  use files_config_mod,         only: checkpoint_stem_name
 
   implicit none
 

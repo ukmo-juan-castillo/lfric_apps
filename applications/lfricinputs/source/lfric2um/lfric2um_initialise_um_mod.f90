@@ -86,7 +86,7 @@ SUBROUTINE lfric2um_set_fixed_length_header(um_output_file, um_grid)
 USE f_shum_fieldsfile_mod, ONLY: f_shum_fixed_length_header_len
 
 USE f_shum_fixed_length_header_indices_mod, ONLY:                        &
- data_set_format_version,  sub_model,  vert_coord_type, horiz_grid_type, &
+                                                                        data_set_format_version,  sub_model,  vert_coord_type, horiz_grid_type, &
  dataset_type, run_identifier, calendar, projection_number, model_version, &
  grid_staggering, sub_model, t1_year, t1_month, t1_day, t1_hour, t1_minute, &
  t1_second, t2_year, t2_month, t2_day, t2_hour, t2_minute, t2_second, &

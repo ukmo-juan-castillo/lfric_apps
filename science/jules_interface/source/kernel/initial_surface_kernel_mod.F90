@@ -20,10 +20,10 @@ module initial_surface_kernel_mod
   use kernel_mod,    only: kernel_type
 
   use jules_control_init_mod, only: n_land_tile, &
-       n_sea_tile, n_sea_ice_tile, &
+                                    n_sea_tile, n_sea_ice_tile, &
        first_sea_tile, first_sea_ice_tile, n_surf_tile
   use ideal_surface_config_mod, only: surf_tile_fracs, surf_tile_temps, &
-       canopy_height_in => canopy_height, leaf_area_index_in => leaf_area_index
+                                      canopy_height_in => canopy_height, leaf_area_index_in => leaf_area_index
   use jules_surface_types_mod, only: npft
   use nvegparm, only: emis_nvg
   use pftparm, only: emis_pft

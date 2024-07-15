@@ -1,10 +1,12 @@
+--- applications/adjoint_tests/working/psyad/kernel/core_dynamics/tl_sample_eos_pressure_kernel_mod.F90.orig	2024-07-06 10:11:39.820659027 +0100
++++ applications/adjoint_tests/working/psyad/kernel/core_dynamics/tl_sample_eos_pressure_kernel_mod.F90	2024-07-06 10:12:29.711887754 +0100
 @@ -79,7 +79,7 @@
                                   ndf_wt, undf_wt, map_wt, wt_basis             &
                                   )
  
--  use tl_calc_exner_pointwise_mod,only: tl_calc_exner_pointwise
-+  !RF use tl_calc_exner_pointwise_mod,only: tl_calc_exner_pointwise
-   use coordinate_jacobian_mod, only: coordinate_jacobian
+-  use tl_calc_exner_pointwise_mod, only: tl_calc_exner_pointwise
++  !RF use tl_calc_exner_pointwise_mod, only: tl_calc_exner_pointwise
+   use sci_coordinate_jacobian_mod, only: coordinate_jacobian
  
    implicit none
 @@ -111,9 +111,12 @@

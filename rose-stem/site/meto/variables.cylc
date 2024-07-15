@@ -22,6 +22,7 @@
                                                "lfric_coupled",
                                                "jedi_lfric_interface",
                                                "coupled_interface",
+                                               "adjoint",
                                                "adjoint_tests",
                                                "ngarch"]}) %}
 

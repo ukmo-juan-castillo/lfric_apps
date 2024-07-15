@@ -75,7 +75,7 @@ contains
 
     ! This section is where the code for a self-contained test should be put
 
-    use matrix_vector_kernel_mod, only : matrix_vector_code
+    use sci_matrix_vector_kernel_mod, only : matrix_vector_code
 
     implicit none
 

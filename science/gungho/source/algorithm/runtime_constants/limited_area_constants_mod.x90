@@ -35,8 +35,8 @@ module limited_area_constants_mod
                                                LOG_LEVEL_DEBUG
   use mesh_collection_mod,               only: mesh_collection
   use mesh_mod,                          only: mesh_type
-  use restrict_scalar_masked_kernel_mod, only: restrict_scalar_masked_kernel_type
-  use restrict_masked_w2_kernel_mod,     only: restrict_masked_w2_kernel_type
+  use sci_restrict_scalar_masked_kernel_mod, only: restrict_scalar_masked_kernel_type
+  use sci_restrict_masked_w2_kernel_mod, only: restrict_masked_w2_kernel_type
   use runtime_tools_mod,                 only: primary_mesh_label,     &
                                                twod_mesh_label
   use timer_mod,                         only: timer

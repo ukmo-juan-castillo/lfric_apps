@@ -59,7 +59,7 @@ CONTAINS
   SUBROUTINE check_command_line_errors(icode_32)
 
     USE log_mod,         ONLY: log_event, LOG_LEVEL_INFO, LOG_LEVEL_ERROR,     &
-                           log_scratch_space
+                               log_scratch_space
     IMPLICIT NONE
 
     INTEGER(KIND=int32), INTENT(IN OUT):: icode_32

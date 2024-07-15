@@ -79,8 +79,8 @@ subroutine tl_sample_eos_pressure_code(nlayers,                                &
                                  ndf_wt, undf_wt, map_wt, wt_basis             &
                                  )
 
-  use tl_calc_exner_pointwise_mod,only: tl_calc_exner_pointwise
-  use coordinate_jacobian_mod, only: coordinate_jacobian
+  use tl_calc_exner_pointwise_mod, only: tl_calc_exner_pointwise
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian
 
   implicit none
 

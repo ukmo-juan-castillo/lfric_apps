@@ -80,7 +80,7 @@ subroutine rotation_vector_sphere(ndf_chi, ngp_h, ngp_v, chi_1, chi_2, chi_3, &
 ! Compute the rotation vector Omega = (0, 2*cos(lat), 2*sin(lat)) on quadrature points
 !-------------------------------------------------------------------------------
 
-use chi_transform_mod,       only: chi2llr
+use sci_chi_transform_mod,   only: chi2llr
 use coord_transform_mod,     only: sphere2cart_vector
 
 implicit none

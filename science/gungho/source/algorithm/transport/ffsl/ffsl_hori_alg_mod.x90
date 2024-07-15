@@ -45,7 +45,7 @@ module ffsl_hori_alg_mod
   use check_configuration_mod,          only: get_required_stencil_depth
 
   ! Kernels
-  use average_w2_to_w2b_kernel_mod,     only: average_w2_to_w2b_kernel_type
+  use sci_average_w2_to_w2b_kernel_mod, only: average_w2_to_w2b_kernel_type
   use ffsl_flux_xy_kernel_mod,          only: ffsl_flux_xy_kernel_type
   use ffsl_flux_xy_spt_kernel_mod,      only: ffsl_flux_xy_spt_kernel_type
   use ffsl_unify_flux_kernel_mod,       only: ffsl_unify_flux_kernel_type

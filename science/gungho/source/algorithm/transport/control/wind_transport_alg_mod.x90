@@ -8,8 +8,8 @@
 module wind_transport_alg_mod
 
   use constants_mod,                  only: i_def, r_def
-  use dg_convert_hdiv_field_kernel_mod, only: dg_convert_hdiv_field_kernel_type
-  use enforce_bc_kernel_mod,          only: enforce_bc_kernel_type
+  use sci_dg_convert_hdiv_field_kernel_mod, only: dg_convert_hdiv_field_kernel_type
+  use sci_enforce_bc_kernel_mod,      only: enforce_bc_kernel_type
   use fem_constants_mod,              only: get_project_xdot_to_w2,  &
                                             get_project_ydot_to_w2,  &
                                             get_project_zdot_to_w2,  &
@@ -64,8 +64,8 @@ contains
     use dg_matrix_vector_kernel_mod,     only: dg_matrix_vector_kernel_type
     use dg_inc_matrix_vector_kernel_mod, only: dg_inc_matrix_vector_kernel_type
     use matrix_vector_kernel_mod,        only: matrix_vector_kernel_type
-    use average_w2b_to_w2_kernel_mod,    only: average_w2b_to_w2_kernel_type
-    use field_minmax_alg_mod,            only: log_field_minmax
+    use sci_average_w2b_to_w2_kernel_mod, only: average_w2b_to_w2_kernel_type
+    use sci_field_minmax_alg_mod,        only: log_field_minmax
 
     implicit none
 

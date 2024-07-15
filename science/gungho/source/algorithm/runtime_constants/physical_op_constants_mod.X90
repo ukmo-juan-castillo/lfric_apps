@@ -41,17 +41,17 @@ module physical_op_constants_mod
   use runtime_tools_mod,                  only: primary_mesh_label
 
   ! PsyKAl PSYClone kernels
-  use calc_delta_at_wtheta_kernel_mod,    only: calc_delta_at_wtheta_kernel_type
-  use calc_dz_centre_kernel_mod,          only: calc_dz_centre_kernel_type
-  use calc_dz_face_kernel_mod,            only: calc_dz_face_kernel_type
-  use calc_da_msl_proj_kernel_mod,        only: calc_da_msl_proj_kernel_type
+  use sci_calc_delta_at_wtheta_kernel_mod, only: calc_delta_at_wtheta_kernel_type
+  use sci_calc_dz_centre_kernel_mod,      only: calc_dz_centre_kernel_type
+  use sci_calc_dz_face_kernel_mod,        only: calc_dz_face_kernel_type
+  use sci_calc_da_msl_proj_kernel_mod,    only: calc_da_msl_proj_kernel_type
   use compute_coriolis_matrix_kernel_mod, only: compute_coriolis_matrix_kernel_type
   use compute_geopotential_kernel_mod,    only: compute_geopotential_kernel_type
-  use compute_map_u_operators_kernel_mod, only: compute_map_u_operators_kernel_type
-  use compute_sample_u_ops_kernel_mod,    only: compute_sample_u_ops_kernel_type
+  use sci_compute_map_u_operators_kernel_mod, only: compute_map_u_operators_kernel_type
+  use sci_compute_sample_u_ops_kernel_mod, only: compute_sample_u_ops_kernel_type
 
 #ifdef UM_PHYSICS
-  use project_ws_to_w1_operator_kernel_mod,  &
+  use sci_project_ws_to_w1_operator_kernel_mod, &
                                           only: project_ws_to_w1_operator_kernel_type
   use get_Pnm_star_kernel_mod,            only: get_Pnm_star_kernel_type
 #endif

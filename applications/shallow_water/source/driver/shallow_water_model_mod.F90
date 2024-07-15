@@ -10,7 +10,7 @@ module shallow_water_model_mod
   use add_mesh_map_mod,               only: assign_mesh_maps
   use assign_orography_field_mod,     only: assign_orography_field
   use check_configuration_mod,        only: get_required_stencil_depth
-  use checksum_alg_mod,               only: checksum_alg
+  use sci_checksum_alg_mod,           only: checksum_alg
   use conservation_algorithm_mod,     only: conservation_algorithm
   use constants_mod,                  only: i_def, str_def, r_def, &
                                             PRECISION_REAL, l_def

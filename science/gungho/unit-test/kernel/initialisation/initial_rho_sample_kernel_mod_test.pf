@@ -37,7 +37,7 @@ contains
 
     use base_mesh_config_mod,       only : geometry_planar, &
                                            topology_fully_periodic
-    use chi_transform_mod,          only : init_chi_transforms
+    use sci_chi_transform_mod,      only : init_chi_transforms
     use feign_config_mod,           only : feign_base_mesh_config,      &
                                            feign_finite_element_config, &
                                            feign_idealised_config,      &
@@ -86,7 +86,7 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine tearDown( this )
 
-    use chi_transform_mod, only: final_chi_transforms
+    use sci_chi_transform_mod, only: final_chi_transforms
     use configuration_mod, only: final_configuration
 
     implicit none

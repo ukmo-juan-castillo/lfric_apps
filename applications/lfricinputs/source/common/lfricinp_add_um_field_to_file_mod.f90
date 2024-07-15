@@ -9,27 +9,38 @@ MODULE lfricinp_add_um_field_to_file_mod
 USE, INTRINSIC :: iso_fortran_env, ONLY: real64, int64
 
 ! lfricinp modules
-USE lfricinp_stashmaster_mod, ONLY: get_stashmaster_item, grid, &
-    p_points, u_points, v_points, ozone_points, ppfc, sm_lbvc => lbvc, cfff,&
-    levelt, rho_levels, theta_levels, single_level, cfll, datat
-USE lfricinp_um_parameters_mod, ONLY: um_imdi, um_rmdi, rh_polelat, &
-    rh_polelong, ldc_zsea_theta, ldc_zsea_rho, ldc_c_theta, ldc_c_rho, &
-    rh_deltaEW, rh_deltaNS, ih_model_levels
-USE lfricinp_grid_type_mod, ONLY: lfricinp_grid_type
-USE lfricinp_um_level_codes_mod, ONLY: lfricinp_get_first_level_num
+USE lfricinp_stashmaster_mod,          ONLY: get_stashmaster_item, grid,   &
+                                             p_points, u_points, v_points, &
+                                             ozone_points,                 &
+                                             ppfc,                         &
+                                             sm_lbvc => lbvc,              &
+                                             cfff,                         &
+                                             levelt,                       &
+                                             rho_levels, theta_levels,     &
+                                             single_level,                 &
+                                             cfll,                         &
+                                             datat
+USE lfricinp_um_parameters_mod,        ONLY: um_imdi, um_rmdi,             &
+                                             rh_polelat, rh_polelong,      &
+                                             ldc_zsea_theta, ldc_zsea_rho, &
+                                             ldc_c_theta, ldc_c_rho,       &
+                                             rh_deltaEW, rh_deltaNS,       &
+                                             ih_model_levels
+USE lfricinp_grid_type_mod,            ONLY: lfricinp_grid_type
+USE lfricinp_um_level_codes_mod,       ONLY: lfricinp_get_first_level_num
 USE lfricinp_check_shumlib_status_mod, ONLY: shumlib
 
 
 ! lfric modules
 USE log_mod, ONLY : log_event, LOG_LEVEL_INFO, LOG_LEVEL_ERROR, &
-     log_scratch_space
+                    log_scratch_space
 
 ! shumlib modules
 USE f_shum_fieldsfile_mod, ONLY: f_shum_fixed_length_header_len
 USE f_shum_file_mod, ONLY: shum_file_type
 USE f_shum_field_mod, ONLY: shum_field_type
 USE f_shum_lookup_indices_mod, ONLY: &
-    lbyr, lbmon, lbdat, lbhr, lbmin, lbday, lbsec, lbyrd, lbmond, lbdatd, &
+                                    lbyr, lbmon, lbdat, lbhr, lbmin, lbday, lbsec, lbyrd, lbmond, lbdatd, &
     lbhrd, lbmind, lbdayd, lbsecd, lbtim, lbft, lbcode, lbhem,    &
     lbrow, lbnpt, lbpack, lbrel, lbfc, lbcfc, lbproc, lbvc, lbrvc, &
     lbtyp, lblev, lbrsvd1, lbrsvd2,        &
@@ -39,7 +50,7 @@ USE f_shum_lookup_indices_mod, ONLY: &
     bmks
 
 USE f_shum_fixed_length_header_indices_mod, ONLY:                        &
- vert_coord_type, horiz_grid_type, &
+                                                                        vert_coord_type, horiz_grid_type, &
  dataset_type, run_identifier, calendar, projection_number, model_version, &
  grid_staggering, sub_model, t1_year, t1_month, t1_day, t1_hour, t1_minute, &
  t1_second, t2_year, t2_month, t2_day, t2_hour, t2_minute, t2_second, &

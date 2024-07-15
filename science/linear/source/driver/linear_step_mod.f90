@@ -39,7 +39,7 @@ module linear_step_mod
   use timestepping_config_mod,        only : method, &
                                              method_semi_implicit, &
                                              method_rk
-  use field_minmax_alg_mod,           only : log_field_minmax
+  use sci_field_minmax_alg_mod,       only : log_field_minmax
 
   implicit none
 

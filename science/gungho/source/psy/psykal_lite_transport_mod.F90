@@ -331,7 +331,7 @@ end subroutine invoke_remap_on_extended_mesh_kernel_type
 !!        (a) it needs to run up to the full halo depth
 !!        (b) the field needs to be marked as clean afterwards
 SUBROUTINE invoke_extended_detj_at_w3_kernel_type(detj_at_w3_r_tran, chi_list, panel_id_list)
-  USE calc_detj_at_w3_kernel_mod, ONLY: calc_detj_at_w3_code
+  USE sci_calc_detj_at_w3_kernel_mod, ONLY: calc_detj_at_w3_code
   USE function_space_mod, ONLY: BASIS, DIFF_BASIS
   TYPE(r_tran_field_type), intent(in) :: detj_at_w3_r_tran
   TYPE(field_type), intent(in) :: chi_list(3), panel_id_list
@@ -552,7 +552,7 @@ END SUBROUTINE invoke_deep_X_divideby_Y
 !!        (b) the field needs to be marked as clean afterwards
 !! Ticket #4302 will investigate replacing this with redundant computation
 SUBROUTINE invoke_deep_shift_mass(mass_shifted, mass_prime)
-  USE shift_mass_w3_kernel_mod, ONLY: shift_mass_w3_code
+  USE sci_shift_mass_w3_kernel_mod, ONLY: shift_mass_w3_code
   TYPE(r_tran_field_type), intent(in) :: mass_shifted, mass_prime
   INTEGER(KIND=i_def) depth, clean_depth, max_depth
   INTEGER(KIND=i_def) cell

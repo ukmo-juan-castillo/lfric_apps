@@ -30,7 +30,7 @@ module tl_rk_alg_timestep_mod
   use mixing_config_mod,                  only: viscosity, viscosity_mu
   use model_clock_mod,                    only: model_clock_type
   use planet_config_mod,                  only: cp
-  use field_bundle_builtins_mod,          only: clone_bundle, &
+  use sci_field_bundle_builtins_mod,      only: clone_bundle, &
                                                 bundle_axpy,  &
                                                 bundle_axpby, &
                                                 add_bundle,   &
@@ -40,7 +40,7 @@ module tl_rk_alg_timestep_mod
                                                 get_coriolis, get_dx_at_w2
 
   ! PsyKAl PSYClone kernels
-  use enforce_bc_kernel_mod,              only: enforce_bc_kernel_type
+  use sci_enforce_bc_kernel_mod,          only: enforce_bc_kernel_type
   use pressure_gradient_bd_kernel_mod,    only: pressure_gradient_bd_kernel_type
   use hydrostatic_kernel_mod,             only: hydrostatic_kernel_type
   use kinetic_energy_gradient_kernel_mod, only: kinetic_energy_gradient_kernel_type
@@ -82,7 +82,7 @@ module tl_rk_alg_timestep_mod
   use io_config_mod,                      only: subroutine_timers
   use timer_mod,                          only: timer
 
-  use field_minmax_alg_mod,               only: log_field_minmax
+  use sci_field_minmax_alg_mod,           only: log_field_minmax
 
   implicit none
 

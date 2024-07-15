@@ -25,7 +25,7 @@ module gw_init_fields_alg_mod
 
   ! PsyKAl PSYClone kernels
   use initial_u_kernel_mod,              only: initial_u_kernel_type
-  use compute_mass_matrix_kernel_w2_mod, only: compute_mass_matrix_kernel_w2_type
+  use sci_compute_mass_matrix_kernel_w2_mod, only: compute_mass_matrix_kernel_w2_type
   use initial_buoyancy_kernel_mod,       only: initial_buoyancy_kernel_type
 
   ! Derived Types

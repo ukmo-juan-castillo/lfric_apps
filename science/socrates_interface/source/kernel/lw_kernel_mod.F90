@@ -251,8 +251,9 @@ subroutine lw_code(nlayers, n_profile,                                         &
     i_cloud_ice_type_lw, i_cloud_liq_type_lw, &
     cloud_vertical_decorr, constant_droplet_effective_radius, &
     liu_aparam, liu_bparam
-  use aerosol_config_mod, only: l_radaer, sulphuric_strat_climatology, &
-       easyaerosol_lw
+  use aerosol_config_mod, only: l_radaer,                    &
+                                sulphuric_strat_climatology, &
+                                easyaerosol_lw
   use jules_control_init_mod, only: n_surf_tile
   use socrates_init_mod, only: n_lw_band, &
     i_scatter_method_lw, &

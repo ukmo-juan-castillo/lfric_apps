@@ -10,12 +10,13 @@
 !!         to the corresponding nonlinear code, for multiple timesteps,
 !!         using the Taylor remainder convergence test.
 module tl_test_timesteps_alg_mod
-  use assign_field_random_kernel_mod, only: assign_field_random_kernel_type
+  use sci_assign_field_random_kernel_mod, &
+                                      only: assign_field_random_kernel_type
   use constants_mod,                  only: i_timestep, i_def, r_def, l_def, &
                                             str_def
   use field_array_mod,                only: field_array_type
   use field_mod,                      only: field_type
-  use field_bundle_builtins_mod,      only: clone_bundle
+  use sci_field_bundle_builtins_mod,  only: clone_bundle
   use field_collection_mod,           only: field_collection_type
   use finite_element_config_mod,      only: element_order
   use formulation_config_mod,         only: moisture_formulation,    &
@@ -47,8 +48,8 @@ module tl_test_timesteps_alg_mod
   use validity_test_config_mod,       only: number_gamma_values,     &
                                             update_ls_frequency
   use moist_dyn_factors_alg_mod,      only: moist_dyn_factors_alg
-  use tl_moist_dyn_factors_alg_mod,                                  &
-                                      only: tl_moist_dyn_factors_alg
+  use tl_moist_dyn_factors_alg_mod,   only: tl_moist_dyn_factors_alg
+
   implicit none
 
   private convergence_pass_string

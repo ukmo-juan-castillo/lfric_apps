@@ -44,7 +44,7 @@ module map_fd_to_prognostics_alg_mod
                                              get_u_lat_sample,     &
                                              get_u_up_sample
   use fs_continuity_mod,               only: W3, W2, W2broken
-  use sort_ref_kernel_mod,             only: sort_ref_kernel_type
+  use sci_sort_ref_kernel_mod,         only: sort_ref_kernel_type
   use timer_mod,                       only: timer
   use combine_w2_field_kernel_mod,     only: combine_w2_field_kernel_type
 
@@ -212,15 +212,18 @@ contains
   !> @param[in] u_up Upward Wind (FD)
   subroutine set_wind(u, u_lon, u_lat, u_up)
 
-    use convert_phys_to_hdiv_kernel_mod, only: convert_phys_to_hdiv_kernel_type
+    use sci_convert_phys_to_hdiv_kernel_mod, &
+                                         only: convert_phys_to_hdiv_kernel_type
     use dg_matrix_vector_kernel_mod,     only: dg_matrix_vector_kernel_type
     use dg_inc_matrix_vector_kernel_mod, only: dg_inc_matrix_vector_kernel_type
-    use enforce_bc_kernel_mod,           only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,       only: enforce_bc_kernel_type
     use sci_mass_matrix_solver_alg_mod,  only: mass_matrix_solver_alg
     use matrix_vector_kernel_mod,        only: matrix_vector_kernel_type
-    use average_w2b_to_w2_kernel_mod,    only: average_w2b_to_w2_kernel_type
-    use w3_to_w2_average_kernel_mod,     only: w3_to_w2_average_kernel_type
-    use w3_to_w2_correction_kernel_mod,  only: w3_to_w2_correction_kernel_type
+    use sci_average_w2b_to_w2_kernel_mod, &
+                                         only: average_w2b_to_w2_kernel_type
+    use sci_w3_to_w2_average_kernel_mod, only: w3_to_w2_average_kernel_type
+    use sci_w3_to_w2_correction_kernel_mod, &
+                                         only: w3_to_w2_correction_kernel_type
 
     implicit none
 
@@ -330,15 +333,20 @@ contains
   subroutine hydrostatic_balance(exner, rho, theta, u, moist_dyn, &
                                  eos_height, lbc_mask)
 
-    use dg_inc_matrix_vector_kernel_mod,   only : dg_inc_matrix_vector_kernel_type
-    use enforce_bc_kernel_mod,             only : enforce_bc_kernel_type
-    use hydrostatic_coriolis_kernel_mod,   only : hydrostatic_coriolis_kernel_type
-    use moist_dyn_mod,                     only : num_moist_factors
-    use matrix_vector_kernel_mod,          only : matrix_vector_kernel_type
-    use dg_convert_hdiv_field_kernel_mod,  only : dg_convert_hdiv_field_kernel_type
-    use nodal_xyz_coordinates_kernel_mod,  only : nodal_xyz_coordinates_kernel_type
-    use psykal_builtin_light_mod,          only : invoke_convert_cart2sphere_vector
-    use sci_mass_matrix_solver_alg_mod,    only : mass_matrix_solver_alg
+    use dg_inc_matrix_vector_kernel_mod, &
+                                       only : dg_inc_matrix_vector_kernel_type
+    use sci_enforce_bc_kernel_mod,     only : enforce_bc_kernel_type
+    use hydrostatic_coriolis_kernel_mod, &
+                                       only : hydrostatic_coriolis_kernel_type
+    use moist_dyn_mod,                 only : num_moist_factors
+    use matrix_vector_kernel_mod,      only : matrix_vector_kernel_type
+    use sci_dg_convert_hdiv_field_kernel_mod, &
+                                       only : dg_convert_hdiv_field_kernel_type
+    use sci_nodal_xyz_coordinates_kernel_mod, &
+                                       only : nodal_xyz_coordinates_kernel_type
+    use sci_psykal_builtin_light_mod,  only : invoke_convert_cart2sphere_vector
+    use sci_mass_matrix_solver_alg_mod, &
+                                       only : mass_matrix_solver_alg
 
     implicit none
 

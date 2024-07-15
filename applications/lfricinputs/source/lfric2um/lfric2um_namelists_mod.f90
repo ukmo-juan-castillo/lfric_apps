@@ -66,18 +66,22 @@ SUBROUTINE load_namelists(self)
 !  Populates UM grid object and prints out grid diagnostics.
 
 ! LFRic modules
-USE log_mod,          ONLY: log_event, LOG_LEVEL_ERROR, LOG_LEVEL_INFO
-USE constants_mod,    ONLY: imdi, rmdi
+USE log_mod,                    ONLY: log_event,       &
+                                      LOG_LEVEL_ERROR, &
+                                      LOG_LEVEL_INFO
+USE constants_mod,              ONLY: imdi, rmdi
 
 ! lfricinputs modules
-USE lfricinp_grid_namelist_mod, ONLY: grid, lambda_origin_targ,                &
-     phi_origin_targ, phi_pole, lambda_pole, delta_lambda_targ,                &
-     delta_phi_targ, points_lambda_targ, points_phi_targ,                      &
-     igrid_targ, rotated
-USE lfricinp_unit_handler_mod, ONLY: get_free_unit
+USE lfricinp_grid_namelist_mod, ONLY: grid,                                &
+                                      lambda_origin_targ, phi_origin_targ, &
+                                      phi_pole, lambda_pole,               &
+                                      delta_lambda_targ, delta_phi_targ,   &
+                                      points_lambda_targ, points_phi_targ, &
+                                      igrid_targ, rotated
+USE lfricinp_unit_handler_mod,  ONLY: get_free_unit
 
 ! lfric2um modules
-USE lfricinp_um_grid_mod, ONLY: um_grid
+USE lfricinp_um_grid_mod,       ONLY: um_grid
 
 IMPLICIT NONE
 CLASS(config) :: self

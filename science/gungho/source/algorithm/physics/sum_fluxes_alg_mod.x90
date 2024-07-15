@@ -7,7 +7,7 @@
 !>        representation
 module sum_fluxes_alg_mod
 
-  use multi_extract_kernel_mod, only: multi_extract_kernel_type
+  use sci_multi_extract_kernel_mod, only: multi_extract_kernel_type
 
   implicit none
 

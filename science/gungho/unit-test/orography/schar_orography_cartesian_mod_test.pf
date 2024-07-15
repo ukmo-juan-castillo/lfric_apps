@@ -60,8 +60,8 @@ contains
                                        feign_base_mesh_config,        &
                                        feign_initial_pressure_config, &
                                        feign_orography_schar_cartesian_config
-    use orography_schar_cartesian_config_mod, only : &
-                                       direction_x
+    use orography_schar_cartesian_config_mod, &
+                                       only : direction_x
 
     use initial_pressure_config_mod,   only : method_balanced
 

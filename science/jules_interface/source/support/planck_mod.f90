@@ -12,10 +12,11 @@ module planck_mod
 
   function planck(t, lambda)
 
-  use constants_mod, only : r_def
+  use constants_mod,                   only : r_def
 
-  use science_chemistry_constants_mod, only : &
-    boltzmann, planck_constant, speed_of_light
+  use science_chemistry_constants_mod, only : boltzmann,       &
+                                              planck_constant, &
+                                              speed_of_light
 
   implicit none
 

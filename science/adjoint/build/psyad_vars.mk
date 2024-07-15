@@ -44,13 +44,13 @@ all: export ACTIVE_opt_apply_variable_hx_kernel_mod        := lhs div_u t_e pres
 all: export ACTIVE_apply_elim_mixed_lp_operator_kernel_mod := theta exner u lhs_exner lhs_e \
                                                               t_e p_e u_e m3e_pe \
                                                               p3t_te q32_ue
-all: export ACTIVE_combine_w2_field_kernel_mod             := uvw w uv
-all: export ACTIVE_w2_to_w1_projection_kernel_mod          := v_w1 u_w2 vu res_dot_product wind
-all: export ACTIVE_sample_field_kernel_mod                 := field_1 field_2 f_at_node
-all: export ACTIVE_sample_flux_kernel_mod                  := flux u
-all: export ACTIVE_split_w2_field_kernel_mod               := uvw w uv
-all: export ACTIVE_strong_curl_kernel_mod                  := xi res_dot_product curl_u u
-all: export ACTIVE_matrix_vector_kernel_mod                := lhs lhs_e x x_e
-all: export ACTIVE_dg_inc_matrix_vector_kernel_mod         := lhs lhs_e x x_e
-all: export ACTIVE_transpose_matrix_vector_kernel_mod      := lhs lhs_e x x_e
-all: export ACTIVE_dg_matrix_vector_kernel_mod             := lhs lhs_e x x_e
+all: export ACTIVE_combine_w2_field_kernel_mod         := uvw w uv
+all: export ACTIVE_w2_to_w1_projection_kernel_mod      := v_w1 u_w2 vu res_dot_product wind
+all: export ACTIVE_sample_field_kernel_mod             := field_1 field_2 f_at_node
+all: export ACTIVE_sample_flux_kernel_mod              := flux u
+all: export ACTIVE_split_w2_field_kernel_mod           := uvw w uv
+all: export ACTIVE_strong_curl_kernel_mod              := xi res_dot_product curl_u u
+all: export ACTIVE_matrix_vector_kernel_mod            := lhs lhs_e x x_e
+all: export ACTIVE_dg_inc_matrix_vector_kernel_mod     := lhs lhs_e x x_e
+all: export ACTIVE_transpose_matrix_vector_kernel_mod  := lhs lhs_e x x_e
+all: export ACTIVE_dg_matrix_vector_kernel_mod         := lhs lhs_e x x_e

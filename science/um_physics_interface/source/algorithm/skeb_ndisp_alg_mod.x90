@@ -21,7 +21,7 @@ module skeb_ndisp_alg_mod
     use function_space_collection_mod,  only: function_space_collection
     ! xios output and timers
     use io_config_mod,             only: subroutine_timers, write_diag, &
-         use_xios_io
+                                         use_xios_io
     use timer_mod,                 only: timer
     ! configs and loging
     use base_mesh_config_mod,      only: geometry, &
@@ -72,17 +72,17 @@ module skeb_ndisp_alg_mod
   use finite_element_config_mod,          only: element_order
 
   ! Kernels to compute vectorial operations
-  use set_w1h_dofs_kernel_mod,            only: set_w1h_dofs_kernel_type
-  use enforce_bc_kernel_mod,              only: enforce_bc_kernel_type
-  use extract_uv_kernel_mod,              only: extract_uv_kernel_type
+  use sci_set_w1h_dofs_kernel_mod,        only: set_w1h_dofs_kernel_type
+  use sci_enforce_bc_kernel_mod,          only: enforce_bc_kernel_type
+  use sci_extract_uv_kernel_mod,          only: extract_uv_kernel_type
   use dg_matrix_vector_kernel_mod,        only: dg_matrix_vector_kernel_type
   use transpose_matrix_vector_kernel_mod, only: transpose_matrix_vector_kernel_type
   use strong_curl_kernel_mod,             only: strong_curl_kernel_type
   use sci_mass_matrix_solver_alg_mod,     only: mass_matrix_solver_alg
-  use dg_convert_hdiv_field_kernel_mod,   only: dg_convert_hdiv_field_kernel_type
+  use sci_dg_convert_hdiv_field_kernel_mod, only: dg_convert_hdiv_field_kernel_type
 
   ! kernels to compute norm in different spaces
-  use dot_product_of_components_kernel_mod, only :  dot_product_of_components_kernel_type
+  use sci_dot_product_of_components_kernel_mod, only :  dot_product_of_components_kernel_type
 
 
   implicit none

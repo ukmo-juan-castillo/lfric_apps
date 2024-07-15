@@ -20,23 +20,26 @@
 
 module gw_pressure_precon_alg_mod
 
-  use vector_mod,                      only : abstract_vector_type
-  use r_solver_field_mod,              only : r_solver_field_type
-  use log_mod,                         only : log_event, &
-                                              LOG_LEVEL_INFO, &
-                                              LOG_LEVEL_ERROR, &
-                                              log_scratch_space
-  use columnwise_operator_mod,         only : columnwise_operator_type
-  use constants_mod,                   only : i_def, r_solver, l_def
-  use operator_mod,                    only : operator_type
-  use operator_mod,                    only : r_solver_operator_type
+  use vector_mod,              only : abstract_vector_type
+  use r_solver_field_mod,      only : r_solver_field_type
+  use log_mod,                 only : log_event, &
+                                      LOG_LEVEL_INFO, &
+                                      LOG_LEVEL_ERROR, &
+                                      log_scratch_space
+  use columnwise_operator_mod, only : columnwise_operator_type
+  use constants_mod,           only : i_def, r_solver, l_def
+  use operator_mod,            only : operator_type
+  use operator_mod,            only : r_solver_operator_type
   use sci_hierarchical_preconditioner_mod, &
                                only : abstract_hierarchical_preconditioner_type
-  use sci_r_solver_field_vector_mod,   only : r_solver_field_vector_type
+  use sci_r_solver_field_vector_mod, &
+                               only : r_solver_field_vector_type
 
   ! Columnwise operator kernels
-  use columnwise_op_app_kernel_mod,    only : columnwise_op_app_kernel_type
-  use columnwise_op_appinv_kernel_mod, only : columnwise_op_appinv_kernel_type
+  use sci_columnwise_op_app_kernel_mod, &
+                               only : columnwise_op_app_kernel_type
+  use sci_columnwise_op_appinv_kernel_mod, &
+                               only : columnwise_op_appinv_kernel_type
 
   implicit none
 
@@ -124,19 +127,27 @@ contains
     use mesh_mod,                               only : mesh_type
     use mesh_collection_mod,                    only : mesh_collection
     use quadrature_xyoz_mod,                    only : quadrature_xyoz_type
-    use transpose_matrix_kernel_mod,            only : transpose_matrix_kernel_type
-    use enforce_operator_bc_kernel_mod,         only : enforce_operator_bc_kernel_type
-    use columnwise_op_asm_kernel_mod,           only : columnwise_op_asm_kernel_type
-    use columnwise_op_asm_diag_hmht_kernel_mod, only : columnwise_op_asm_diag_hmht_kernel_type
-    use columnwise_op_mul_kernel_mod,           only : columnwise_op_mul_kernel_type
-    use columnwise_op_scaledadd_kernel_mod,     only : columnwise_op_scaledadd_kernel_type
-    use columnwise_op_asm_m2v_lumped_inv_kernel_mod, &
-                                                only : columnwise_op_asm_m2v_lumped_inv_kernel_type
-    use operator_algebra_kernel_mod,            only : operator_setval_x_kernel_type
-    use compute_div_operator_kernel_mod,        only : compute_div_operator_kernel_type
-    use compute_mass_matrix_kernel_w_scalar_mod, &
-                                                only : compute_mass_matrix_kernel_w_scalar_type
-    use compute_mass_matrix_kernel_w2_mod,      only : compute_mass_matrix_kernel_w2_type
+    use sci_transpose_matrix_kernel_mod,        only : transpose_matrix_kernel_type
+    use sci_enforce_operator_bc_kernel_mod, &
+                                only : enforce_operator_bc_kernel_type
+    use sci_columnwise_op_asm_kernel_mod, &
+                                only : columnwise_op_asm_kernel_type
+    use sci_columnwise_op_asm_diag_hmht_kernel_mod, &
+                                only : columnwise_op_asm_diag_hmht_kernel_type
+    use sci_columnwise_op_mul_kernel_mod, &
+                                only : columnwise_op_mul_kernel_type
+    use sci_columnwise_op_scaledadd_kernel_mod, &
+                                only : columnwise_op_scaledadd_kernel_type
+    use sci_columnwise_op_asm_m2v_lumped_inv_krnl_mod, &
+                              only : columnwise_op_asm_m2v_lumped_inv_krnl_type
+    use sci_operator_algebra_kernel_mod, &
+                                only : operator_setval_x_kernel_type
+    use sci_compute_div_operator_kernel_mod, &
+                                only : compute_div_operator_kernel_type
+    use sci_compute_mass_matrix_kernel_w_scalar_mod, &
+                                only : compute_mass_matrix_kernel_w_scalar_type
+    use sci_compute_mass_matrix_kernel_w2_mod, &
+                                only : compute_mass_matrix_kernel_w2_type
 
     implicit none
 
@@ -256,8 +267,8 @@ contains
                  columnwise_op_asm_kernel_type( grad_v,                &
                                                 grad_v_cma ),          &
                  ! Lumped inverse vertical velocity mass matrix M_{u,z,inv}
-                 columnwise_op_asm_m2v_lumped_inv_kernel_type( mm_w2v, &
-                                                               mm_w2v_inv_diag_cma ), &
+                 columnwise_op_asm_m2v_lumped_inv_krnl_type( mm_w2v, &
+                                                             mm_w2v_inv_diag_cma ), &
                  ! Delta_h = diag_h(D_h.M_{u,h,inv}.D_h^T)
                  columnwise_op_asm_diag_hmht_kernel_type( div_h,       &
                                                           mm_w2h,      &

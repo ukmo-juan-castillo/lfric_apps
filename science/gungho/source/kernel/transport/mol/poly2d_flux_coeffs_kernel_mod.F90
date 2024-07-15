@@ -166,7 +166,7 @@ subroutine poly2d_flux_coeffs_code(one_layer,                  &
                                        geometry_spherical
   use poly_helper_functions_mod, only: buildadvcoeff, &
                                        local_distance_2d
-  use chi_transform_mod,         only: chir2xyz
+  use sci_chi_transform_mod,     only: chir2xyz
 
   implicit none
 

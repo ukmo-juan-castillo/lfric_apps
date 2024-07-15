@@ -7,35 +7,41 @@
 !>@brief A wrapper for mappings of FE fields to physics fields
 module physics_mappings_alg_mod
 
-  use base_mesh_config_mod,                  only: geometry, &
-                                                   geometry_spherical
-  use constants_mod,                         only: r_def, i_def
-  use fem_constants_mod,                     only: get_rmultiplicity
-  use field_mod,                             only: field_type
-  use finite_element_config_mod,             only: nqp_exact
-  use fs_continuity_mod,                     only: W3, WTHETA, W2, W2H
-  use function_space_mod,                    only: function_space_type
-  use function_space_collection_mod,         only: function_space_collection
-  use galerkin_projection_algorithm_mod,     only: galerkin_projection_algorithm
-  use geometric_constants_mod,               only: get_height, get_panel_id, &
-                                                   get_coordinates,          &
-                                                   get_face_selector_ew,     &
-                                                   get_face_selector_ns
-  use integer_field_mod,                     only: integer_field_type
-  use log_mod,                               only: LOG_LEVEL_ERROR, log_event, &
-                                                   LOG_LEVEL_DEBUG
-  use mesh_mod,                              only: mesh_type
-  use quadrature_xyoz_mod,                   only: quadrature_xyoz_type
-  use quadrature_rule_gaussian_mod,          only: quadrature_rule_gaussian_type
-  use physics_config_mod,                    only: sample_physics_scalars, &
-                                                   sample_physics_winds
-  use sample_w3_to_wtheta_kernel_mod,        only: sample_w3_to_wtheta_kernel_type
-  use sample_wtheta_to_w3_kernel_mod,        only: sample_wtheta_to_w3_kernel_type
-  use convert_hdiv_field_kernel_mod,         only: convert_hdiv_field_kernel_type
-  use dg_convert_hdiv_field_kernel_mod,      only: dg_convert_hdiv_field_kernel_type
-  use nodal_xyz_coordinates_kernel_mod,      only: nodal_xyz_coordinates_kernel_type
-  use psykal_builtin_light_mod,              only: invoke_convert_cart2sphere_vector
-  use field_minmax_alg_mod,                  only: log_field_minmax
+  use base_mesh_config_mod,             only: geometry, &
+                                              geometry_spherical
+  use constants_mod,                    only: r_def, i_def
+  use fem_constants_mod,                only: get_rmultiplicity
+  use field_mod,                        only: field_type
+  use finite_element_config_mod,        only: nqp_exact
+  use fs_continuity_mod,                only: W3, WTHETA, W2, W2H
+  use function_space_mod,               only: function_space_type
+  use function_space_collection_mod,    only: function_space_collection
+  use sci_galerkin_projection_algorithm_mod, &
+                                        only: galerkin_projection_algorithm
+  use geometric_constants_mod,          only: get_height, get_panel_id, &
+                                              get_coordinates,          &
+                                              get_face_selector_ew,     &
+                                              get_face_selector_ns
+  use integer_field_mod,                only: integer_field_type
+  use log_mod,                          only: LOG_LEVEL_ERROR, log_event, &
+                                              LOG_LEVEL_DEBUG
+  use mesh_mod,                         only: mesh_type
+  use quadrature_xyoz_mod,              only: quadrature_xyoz_type
+  use quadrature_rule_gaussian_mod,     only: quadrature_rule_gaussian_type
+  use physics_config_mod,               only: sample_physics_scalars, &
+                                              sample_physics_winds
+  use sci_sample_w3_to_wtheta_kernel_mod, &
+                                        only: sample_w3_to_wtheta_kernel_type
+  use sci_sample_wtheta_to_w3_kernel_mod, &
+                                        only: sample_wtheta_to_w3_kernel_type
+  use sci_convert_hdiv_field_kernel_mod, &
+                                        only: convert_hdiv_field_kernel_type
+  use sci_dg_convert_hdiv_field_kernel_mod, &
+                                        only: dg_convert_hdiv_field_kernel_type
+  use sci_nodal_xyz_coordinates_kernel_mod, &
+                                        only: nodal_xyz_coordinates_kernel_type
+  use sci_psykal_builtin_light_mod,     only: invoke_convert_cart2sphere_vector
+  use sci_field_minmax_alg_mod,         only: log_field_minmax
 
   implicit none
 
@@ -198,8 +204,8 @@ contains
   subroutine split_wind_alg(u1_wind, u2_wind, u3_wind, &
                             wind, mesh)
 
-    use extract_w_kernel_mod,                only: extract_w_kernel_type
-    use extract_uv_kernel_mod,               only: extract_uv_kernel_type
+    use sci_extract_w_kernel_mod,  only: extract_w_kernel_type
+    use sci_extract_uv_kernel_mod, only: extract_uv_kernel_type
 
     implicit none
 

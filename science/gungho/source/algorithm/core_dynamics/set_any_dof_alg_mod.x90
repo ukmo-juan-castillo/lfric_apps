@@ -6,9 +6,9 @@
 !>@brief Setting of any dof of a field
 module set_any_dof_alg_mod
 
-  use constants_mod,                   only: r_def, i_def
-  use set_any_dof_kernel_mod,          only: set_any_dof_kernel_type
-  use field_mod,                       only: field_type
+  use constants_mod,              only: r_def, i_def
+  use sci_set_any_dof_kernel_mod, only: set_any_dof_kernel_type
+  use field_mod,                  only: field_type
 
   implicit none
 

@@ -111,8 +111,8 @@ subroutine vorticity_advection_code(nlayers,                                   &
                                     nqp_h, nqp_v, wqp_h, wqp_v                 &
                                     )
 
-  use coordinate_jacobian_mod, only: pointwise_coordinate_jacobian, &
-                                     pointwise_coordinate_jacobian_inverse
+  use sci_coordinate_jacobian_mod, only: pointwise_coordinate_jacobian, &
+                                         pointwise_coordinate_jacobian_inverse
 
   implicit none
 

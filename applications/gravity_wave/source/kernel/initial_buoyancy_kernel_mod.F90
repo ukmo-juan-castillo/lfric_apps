@@ -1,8 +1,8 @@
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Copyright (c) 2017,  Met Office, on behalf of HMSO and Queen's Printer
 ! For further details please refer to the file LICENCE.original which you
 ! should have received as part of this distribution.
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 !
 !-------------------------------------------------------------------------------
 
@@ -12,12 +12,13 @@
 !!          analytic expression
 module initial_buoyancy_kernel_mod
 
-    use argument_mod, only: arg_type, func_type,        &
-        GH_FIELD, GH_REAL, GH_INC, GH_READ,             &
-        ANY_SPACE_9, ANY_SPACE_1, GH_BASIS,             &
-        CELL_COLUMN, GH_EVALUATOR, ANY_DISCONTINUOUS_SPACE_3
-    use constants_mod,                 only: r_def, i_def
-    use kernel_mod,                    only: kernel_type
+    use argument_mod,  only: arg_type, func_type,                &
+                             GH_FIELD, GH_REAL, GH_INC, GH_READ, &
+                             ANY_SPACE_9, ANY_SPACE_1, GH_BASIS, &
+                             CELL_COLUMN, GH_EVALUATOR,          &
+                             ANY_DISCONTINUOUS_SPACE_3
+    use constants_mod, only: r_def, i_def
+    use kernel_mod,    only: kernel_type
 
     implicit none
 
@@ -75,7 +76,7 @@ contains
                                      ndf_pid, undf_pid, map_pid         )
 
         use analytic_buoyancy_profiles_mod, only : analytic_buoyancy
-        use chi_transform_mod,              only : chi2xyz
+        use sci_chi_transform_mod,          only : chi2xyz
 
         implicit none
 

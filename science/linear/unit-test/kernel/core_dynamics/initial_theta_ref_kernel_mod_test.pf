@@ -65,7 +65,7 @@ contains
 
     use base_mesh_config_mod,        only : geometry_planar,               &
                                             topology_fully_periodic
-    use chi_transform_mod,           only : init_chi_transforms
+    use sci_chi_transform_mod,       only : init_chi_transforms
     use finite_element_config_mod,   only : cellshape_quadrilateral,       &
                                             coord_system_xyz
     use initial_pressure_config_mod, only : method_balanced
@@ -127,7 +127,7 @@ contains
   subroutine tearDown( this )
 
     use configuration_mod, only: final_configuration
-    use chi_transform_mod, only: final_chi_transforms
+    use sci_chi_transform_mod, only: final_chi_transforms
 
     implicit none
 

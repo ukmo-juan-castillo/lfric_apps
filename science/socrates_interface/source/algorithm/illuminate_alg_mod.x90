@@ -35,7 +35,7 @@ contains
 subroutine illuminate_alg(radiation_fields, timestep, dt)
 
   use xios, only: xios_date, xios_get_current_date, &
-    xios_date_get_day_of_year, xios_date_get_second_of_day
+                  xios_date_get_day_of_year, xios_date_get_second_of_day
 
   implicit none
 

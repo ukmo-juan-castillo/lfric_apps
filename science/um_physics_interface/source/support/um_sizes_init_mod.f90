@@ -40,7 +40,7 @@ contains
                                  u_i_length, u_j_length, &
                                  v_i_length, v_j_length
     use tuning_segments_mod, only: bl_segment_size, precip_segment_size, &
-         ussp_seg_size, gw_seg_size
+                                   ussp_seg_size, gw_seg_size
 
     implicit none
 

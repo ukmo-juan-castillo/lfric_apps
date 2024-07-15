@@ -14,14 +14,15 @@ module end_of_transport_step_alg_mod
   use conservative_neg_fix_kernel_mod, &
                                       only: conservative_neg_fix_kernel_type
   use constants_mod,                  only: i_def, r_tran, l_def, r_def
-  use enforce_lower_bound_kernel_mod, only: enforce_lower_bound_kernel_type
+  use sci_enforce_lower_bound_kernel_mod, &
+                                      only: enforce_lower_bound_kernel_type
   use extrusion_mod,                  only: SHIFTED
   use fem_constants_mod,              only: get_directional_im3_div_r_tran, &
                                             get_directional_im3_div,        &
                                             get_rmultiplicity,              &
                                             get_detj_at_w3_r_tran
   use field_mod,                      only: field_type
-  use field_minmax_alg_mod,           only: log_field_minmax
+  use sci_field_minmax_alg_mod,       only: log_field_minmax
   use finite_element_config_mod,      only: element_order
   use fs_continuity_mod,              only: W3, Wtheta, W2, W2H, W2V
   use function_space_mod,             only: function_space_type
@@ -66,9 +67,9 @@ module end_of_transport_step_alg_mod
                                             splitting_strang_vhv
   use transport_metadata_mod,         only: transport_metadata_type
   use transport_runtime_alg_mod,      only: transport_runtime_type
-  use transport_runtime_collection_mod,   &
+  use transport_runtime_collection_mod, &
                                       only: get_transport_runtime
-  use field_minmax_alg_mod,           only: get_field_minmax
+  use sci_field_minmax_alg_mod,       only: get_field_minmax
   use dg_matrix_vector_kernel_mod,    only: dg_matrix_vector_kernel_type
 
   implicit none
@@ -445,12 +446,16 @@ contains
   subroutine end_of_consistent_step_alg(field_np1, flux, transport_metadata, &
                                         compute_field_np1)
 
-    use consistent_dispersion_kernel_mod, only: consistent_dispersion_kernel_type
-    use inject_sh_w3_to_wt_kernel_mod,    only: inject_sh_w3_to_wt_kernel_type
-    use inject_wt_to_sh_w3_kernel_mod,    only: inject_wt_to_sh_w3_kernel_type
+    use consistent_dispersion_kernel_mod, &
+                                      only: consistent_dispersion_kernel_type
+    use sci_inject_sh_w3_to_wt_kernel_mod, &
+                                      only: inject_sh_w3_to_wt_kernel_type
+    use sci_inject_wt_to_sh_w3_kernel_mod, &
+                                      only: inject_wt_to_sh_w3_kernel_type
     use theta_dispersion_factor_kernel_mod, &
-                                          only: theta_dispersion_factor_kernel_type
-    use w3_to_w2_average_kernel_mod,      only: w3_to_w2_average_kernel_type
+                                      only: theta_dispersion_factor_kernel_type
+    use sci_w3_to_w2_average_kernel_mod, &
+                                      only: w3_to_w2_average_kernel_type
 
     implicit none
 

@@ -372,7 +372,7 @@ contains
                           cldbase_opt_dp, cldbase_opt_md
     use nlsizes_namelist_mod, only: bl_levels
     use planet_constants_mod, only: p_zero, kappa, planet_radius, &
-         lcrcp => lcrcp_bl, lsrcp => lsrcp_bl
+                                    lcrcp => lcrcp_bl, lsrcp => lsrcp_bl
     use timestep_mod, only: timestep
 
     use free_tracers_inputs_mod,    only: n_wtrac
@@ -382,7 +382,7 @@ contains
     ! subroutines used
     use atmos_physics2_save_restore_mod, only: ap2_init_conv_diag
     use bl_diags_mod, only: BL_diag, dealloc_bl_imp, dealloc_bl_expl, &
-         alloc_bl_expl
+                            alloc_bl_expl
     use conv_diag_6a_mod, only: conv_diag_6a
     use buoy_tq_mod, only: buoy_tq
     use bdy_expl2_mod, only: bdy_expl2

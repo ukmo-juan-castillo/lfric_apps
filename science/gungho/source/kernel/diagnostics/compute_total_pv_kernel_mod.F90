@@ -119,8 +119,8 @@ subroutine compute_total_pv_code(                                               
                                  ndf_pid, undf_pid, map_pid,                             &
                                  nqp_h, nqp_v, wqp_h, wqp_v )
 
-  use coordinate_jacobian_mod, only: coordinate_jacobian, &
-                                     coordinate_jacobian_inverse
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian, &
+                                         coordinate_jacobian_inverse
 
   implicit none
 

@@ -97,8 +97,8 @@ subroutine set_tracer_field_code(nlayers, tracer,                        &
                                  nqp_h, nqp_v, wqp_h, wqp_v )
 
   use matrix_invert_mod,                  only : matrix_invert
-  use coordinate_jacobian_mod,            only : coordinate_jacobian
-  use chi_transform_mod,                  only : chi2xyz
+  use sci_coordinate_jacobian_mod,        only : coordinate_jacobian
+  use sci_chi_transform_mod,              only : chi2xyz
   use analytic_tracer_field_profiles_mod, only : analytic_tracer_field
 
   ! needs to compute the integral of trc_df * P

@@ -315,7 +315,7 @@ contains
     !---------------------------------------
     use gas_calc_all_mod, only: co2_mix_ratio_now
     use jules_control_init_mod, only: n_land_tile, n_sea_ice_tile, &
-         first_sea_tile, first_sea_ice_tile
+                                      first_sea_tile, first_sea_ice_tile
 
     !---------------------------------------
     ! UM modules containing switches or global constants
@@ -323,8 +323,9 @@ contains
     use ancil_info, only: nsurft, nsoilt, dim_cslayer, rad_nband, nmasst
     use atm_fields_bounds_mod, only: pdims, pdims_s
     use atm_step_local, only: dim_cs1
-    use bl_option_mod, only: l_noice_in_turb, alpha_cd, flux_bc_opt, &
-         interactive_fluxes, specified_fluxes_only, puns, pstb, on
+    use bl_option_mod, only: l_noice_in_turb, alpha_cd, flux_bc_opt,          &
+                             interactive_fluxes, specified_fluxes_only, puns, &
+                             pstb, on
     use carbon_options_mod, only: l_co2_interactive
     use csigma, only: sbcon
     use dust_parameters_mod, only: ndiv, ndivh
@@ -335,7 +336,7 @@ contains
     use jules_sea_seaice_mod, only: nice, nice_use, emis_sea, l_sice_swpen
     use jules_snow_mod, only: cansnowtile, rho_snow_const, l_snowdep_surf,nsmax
     use jules_surface_types_mod, only: npft, ntype, lake, nnvg, ncpft, nnpft, &
-         soil
+                                       soil
     use jules_surface_mod, only: l_flake_model
     use jules_vegetation_mod, only: can_model, l_crop, l_triffid, l_phenol,    &
                                     can_rad_mod, l_acclim, l_sugar

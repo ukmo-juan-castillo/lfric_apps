@@ -54,7 +54,7 @@ module external_forcing_alg_mod
   use planet_config_mod,               only: kappa
 
   use reference_element_mod,           only: T
-  use set_any_dof_kernel_mod,          only: set_any_dof_kernel_type
+  use sci_set_any_dof_kernel_mod,      only: set_any_dof_kernel_type
 
   use temp_tend_profile_alg_mod,       only: temp_tend_profile_alg
   use timer_mod,                       only: timer

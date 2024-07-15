@@ -77,7 +77,7 @@ contains
                                              chem_scheme_strattrop,            &
                                              chem_scheme_strat_test
 
-    use field_minmax_alg_mod,          only: log_field_minmax
+    use sci_field_minmax_alg_mod,      only: log_field_minmax
 
     implicit none
 

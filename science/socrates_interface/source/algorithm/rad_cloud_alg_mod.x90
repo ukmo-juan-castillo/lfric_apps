@@ -22,12 +22,11 @@ use rand_seed_kernel_mod, only: rand_seed_kernel_type
 use set_rad_cloud_kernel_mod, only: set_rad_cloud_kernel_type
 use set_n_cloud_layer_kernel_mod, only: set_n_cloud_layer_kernel_type
 use xios, only: xios_date, xios_get_current_date, &
-  xios_date_get_day_of_year, xios_date_get_second_of_day
-use radiation_config_mod, only: &
-  cloud_representation, &
-  cloud_representation_combined, &
-  cloud_representation_conv_strat_liq_ice, &
-  cloud_representation_split
+                xios_date_get_day_of_year, xios_date_get_second_of_day
+use radiation_config_mod, only: cloud_representation, &
+                                cloud_representation_combined, &
+                                cloud_representation_conv_strat_liq_ice, &
+                                cloud_representation_split
 use cloud_inputs_mod, only: allicetdegc, starticetkelvin
 use conversions_mod,   only: zerodegc
 implicit none

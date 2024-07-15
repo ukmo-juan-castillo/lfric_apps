@@ -25,7 +25,7 @@ module held_suarez_fv_kernel_mod
   use constants_mod,               only: r_def, i_def
   use kernel_mod,                  only: kernel_type
   use fs_continuity_mod,           only: Wtheta
-  use chi_transform_mod,           only: chi2llr
+  use sci_chi_transform_mod,       only: chi2llr
   use calc_exner_pointwise_mod,    only: calc_exner_pointwise
   use held_suarez_forcings_mod,    only: held_suarez_newton_frequency, &
                                          held_suarez_equilibrium_theta

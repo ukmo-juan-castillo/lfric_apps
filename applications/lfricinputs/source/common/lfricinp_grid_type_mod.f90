@@ -64,13 +64,15 @@ FUNCTION lfricinp_grid_info_constructor_shumlib(um_input_file) RESULT (self)
 !  passed in from a UM file.
 
 ! Shumlib modules
-USE f_shum_file_mod,   ONLY: shum_file_type
-USE f_shum_fixed_length_header_indices_mod, ONLY: &
-    horiz_grid_type, grid_staggering
-USE f_shum_fieldsfile_mod, ONLY:f_shum_fixed_length_header_len
+USE f_shum_file_mod,       ONLY: shum_file_type
+USE f_shum_fixed_length_header_indices_mod,       &
+                           ONLY: horiz_grid_type, &
+                                 grid_staggering
+USE f_shum_fieldsfile_mod, ONLY: f_shum_fixed_length_header_len
 
 ! lfricinputs modules
-USE lfricinp_check_shumlib_status_mod, ONLY: shumlib
+USE lfricinp_check_shumlib_status_mod, &
+                           ONLY: shumlib
 
 ! DEPENDS ON: c_shum_byteswap.o
 ! This is required to force fcm-make to compile the C code; whilst the built-in

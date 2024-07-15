@@ -43,7 +43,7 @@ module field_maker_mod
                                              empty_integer_data
 
 #ifdef UM_PHYSICS
-  use multidata_field_dimensions_mod, only :                                   &
+  use multidata_field_dimensions_mod, only : &
     get_ndata_val => get_multidata_field_dimension
 #endif
 

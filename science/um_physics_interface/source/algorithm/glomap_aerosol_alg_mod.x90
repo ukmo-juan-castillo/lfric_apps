@@ -22,7 +22,8 @@ module glomap_aerosol_alg_mod
   use aerosol_config_mod,              only: n_radaer_step
   use function_space_mod,              only: function_space_type
   use function_space_collection_mod,   only: function_space_collection
-  use enforce_lower_bound_kernel_mod,  only: enforce_lower_bound_kernel_type
+  use sci_enforce_lower_bound_kernel_mod, &
+                                       only: enforce_lower_bound_kernel_type
   use mesh_mod,                        only: mesh_type
   use finite_element_config_mod,       only: element_order
   use fs_continuity_mod,               only: Wtheta

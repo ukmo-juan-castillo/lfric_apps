@@ -12,7 +12,7 @@ USE, INTRINSIC :: iso_fortran_env, ONLY : int64
 USE constants_mod,                 ONLY : i_def, str_def
 USE field_mod,                     ONLY : field_type
 USE field_parent_mod,              ONLY :  read_interface, write_interface,    &
-                                          field_parent_proxy_type
+                                           field_parent_proxy_type
 USE lfric_xios_time_axis_mod,      ONLY : time_axis_type
 USE lfric_xios_read_mod,           ONLY : read_field_generic
 USE lfric_xios_write_mod,          ONLY : write_field_generic

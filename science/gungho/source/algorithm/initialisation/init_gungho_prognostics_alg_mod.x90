@@ -50,14 +50,14 @@ module init_gungho_prognostics_alg_mod
                                              radius, recip_epsilon
 
   ! PsyKAl-lite kernels
-  use field_bundle_builtins_mod,       only: set_bundle_scalar
+  use sci_field_bundle_builtins_mod,   only: set_bundle_scalar
 
   ! PsyKAl PSYClone kernels
   use dg_matrix_vector_kernel_mod,     only: dg_matrix_vector_kernel_type
   use set_exner_kernel_mod,            only: set_exner_kernel_type
   use set_rho_kernel_mod,              only: set_rho_kernel_type
   use initial_u_kernel_mod,            only: initial_u_kernel_type
-  use enforce_bc_kernel_mod,           only: enforce_bc_kernel_type
+  use sci_enforce_bc_kernel_mod,       only: enforce_bc_kernel_type
   use initial_theta_kernel_mod,        only: initial_theta_kernel_type
   use initial_exner_sample_kernel_mod, only: initial_exner_sample_kernel_type
   use initial_rho_sample_kernel_mod,   only: initial_rho_sample_kernel_type

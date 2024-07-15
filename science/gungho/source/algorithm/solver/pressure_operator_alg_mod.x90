@@ -26,7 +26,8 @@ module pressure_operator_alg_mod
                                only: abstract_hierarchical_linear_operator_type
   use vector_mod,                         only: abstract_vector_type
   use r_solver_field_mod,                 only: r_solver_field_type
-  use sci_r_solver_field_vector_mod,          only: r_solver_field_vector_type
+  use sci_r_solver_field_vector_mod, &
+                               only: r_solver_field_vector_type
   use constants_mod,                      only: i_def, l_def, r_solver
   use log_mod,                            only: log_event,       &
                                                 LOG_LEVEL_ERROR, &
@@ -129,14 +130,14 @@ contains
 
     use scaled_matrix_vector_kernel_mod, only: scaled_matrix_vector_kernel_type
     use operator_mod,                    only: r_solver_operator_type
-    use enforce_bc_kernel_mod,           only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,       only: enforce_bc_kernel_type
     use apply_variable_hx_kernel_mod,    only: apply_variable_hx_kernel_type
     use finite_element_config_mod,       only: element_order
     use io_config_mod,                   only: subroutine_timers
     use timer_mod,                       only: timer
     use helmholtz_solver_config_mod,     only: normalise
     use apply_helmholtz_operator_kernel_mod, &
-                                         only: apply_helmholtz_operator_kernel_type
+                                     only: apply_helmholtz_operator_kernel_type
     use si_operators_alg_mod,            only: get_helmholtz_operator
 
     implicit none

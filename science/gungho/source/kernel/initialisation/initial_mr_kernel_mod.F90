@@ -106,7 +106,7 @@ contains
                              ndf_pid, undf_pid, map_pid)
 
     use analytic_moisture_profiles_mod, only : analytic_moisture
-    use chi_transform_mod,              only : chi2xyz
+    use sci_chi_transform_mod,          only : chi2xyz
 
     implicit none
 

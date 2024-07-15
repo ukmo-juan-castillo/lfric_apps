@@ -111,7 +111,7 @@ subroutine tl_kinetic_energy_gradient_code(nlayers,       &
                                            wqp_v          &
                                            )
 
-  use coordinate_jacobian_mod,  only: coordinate_jacobian
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian
 
   implicit none
 

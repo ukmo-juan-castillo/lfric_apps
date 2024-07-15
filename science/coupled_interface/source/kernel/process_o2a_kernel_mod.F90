@@ -17,7 +17,7 @@ use argument_mod,            only : arg_type,              &
                                     ANY_DISCONTINUOUS_SPACE_2, &
                                     CELL_COLUMN
 use constants_mod,           only : r_def, i_def
-use science_constants_mod,   only : zero_C_in_K
+use sci_constants_mod,       only : zero_C_in_K
 
 implicit none
 

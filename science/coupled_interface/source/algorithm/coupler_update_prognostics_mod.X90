@@ -17,9 +17,9 @@ module coupler_update_prognostics_mod
                                            LOG_LEVEL_ERROR,  &
                                            LOG_LEVEL_DEBUG,  &
                                            log_scratch_space
-  use multi_extract_kernel_mod,      only: multi_extract_kernel_type
-  use multi_insert_kernel_mod,       only: multi_insert_kernel_type
-  use masked_multi_insert_kernel_mod, only: masked_multi_insert_kernel_type
+  use sci_multi_extract_kernel_mod,  only: multi_extract_kernel_type
+  use sci_multi_insert_kernel_mod,   only: multi_insert_kernel_type
+  use sci_masked_multi_insert_kernel_mod, only: masked_multi_insert_kernel_type
   use geometric_constants_mod,       only: get_latitude
 #if defined(UM_PHYSICS)
   use jules_control_init_mod,        only: n_sea_tile, first_sea_tile, &
@@ -32,7 +32,7 @@ module coupler_update_prognostics_mod
   use surface_config_mod,            only: amip_ice_thick
   use derived_config_mod,            only: l_esm_couple
 #endif
-  use field_minmax_alg_mod,          only: log_field_minmax
+  use sci_field_minmax_alg_mod,      only: log_field_minmax
 
   implicit none
 

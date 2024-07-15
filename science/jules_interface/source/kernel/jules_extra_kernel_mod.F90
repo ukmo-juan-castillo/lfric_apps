@@ -262,7 +262,7 @@ contains
     ! LFRic modules
     !---------------------------------------
     use jules_control_init_mod, only: &
-         nsurft => n_land_tile, n_land_tile
+                                     nsurft => n_land_tile, n_land_tile
     use jules_physics_init_mod, only: decrease_sath_cond
     use surface_config_mod, only: use_hydrology
 
@@ -276,7 +276,7 @@ contains
     use jules_snow_mod,           only: nsmax
     use jules_soil_mod,           only: ns_deep, l_bedrock
     use jules_soil_biogeochem_mod, only: dim_ch4layer, soil_bgc_model,         &
-                                        soil_model_ecosse, l_layeredc
+                                         soil_model_ecosse, l_layeredc
     use jules_snow_mod,           only: nsmax, cansnowtile
     use jules_deposition_mod,     only: l_deposition
     use jules_sea_seaice_mod,     only: nice, nice_use
@@ -292,7 +292,8 @@ contains
     use jules_irrig_mod,          only: irr_crop, irr_crop_doell
     use atm_fields_bounds_mod,    only: pdims_s, pdims
     use jules_radiation_mod,      only: l_albedo_obs
-    use jules_water_resources_mod,only: l_water_domestic,                      &
+    use jules_water_resources_mod,                                             &
+                                  only: l_water_domestic,                      &
                                         l_water_industry, l_water_irrigation,  &
                                         l_water_livestock, l_water_resources,  &
                                         l_water_transfers, nwater_use

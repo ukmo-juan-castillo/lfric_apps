@@ -11,14 +11,14 @@ USE, INTRINSIC :: iso_fortran_env, ONLY: int64, real64
 ! lfric2um modules
 USE lfric2um_namelists_mod, ONLY: lfric2um_config
 USE lfricinp_lfric_driver_mod, ONLY: lfric_fields, local_rank, comm, &
-     twod_mesh
+                                     twod_mesh
 USE lfric2um_initialise_um_mod, ONLY: um_output_file
 USE lfricinp_um_grid_mod, ONLY: um_grid
 USE lfric2um_regrid_weights_mod, ONLY: get_weights
 
 ! lfricinp modules
 USE lfricinp_stashmaster_mod, ONLY: get_stashmaster_item, levelt, &
-     rho_levels, theta_levels, single_level
+                                    rho_levels, theta_levels, single_level
 USE lfricinp_add_um_field_to_file_mod, ONLY: lfricinp_add_um_field_to_file
 USE lfricinp_um_level_codes_mod, ONLY: lfricinp_get_num_levels
 USE lfricinp_check_shumlib_status_mod, ONLY: shumlib

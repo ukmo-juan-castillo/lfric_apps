@@ -43,7 +43,7 @@ module swe_rhs_alg_mod
                                             geometry_spherical
   use finite_element_config_mod,      only: element_order
   use formulation_config_mod,         only: rotating
-  use shallow_water_settings_config_mod, &
+  use shallow_water_settings_config_mod,                                     &
                                       only: thermal_swe,                     &
                                             momentum_form,                   &
                                             momentum_form_vector_invariant,  &
@@ -73,12 +73,18 @@ contains
                           state,    &
                           s_geopot )
 
-    use enforce_bc_kernel_mod,                   only: enforce_bc_kernel_type
-    use kinetic_energy_gradient_kernel_mod,      only: kinetic_energy_gradient_kernel_type
-    use matrix_vector_kernel_mod,                only: matrix_vector_kernel_type
-    use swe_buoyancy_gradient_volume_kernel_mod, only: swe_buoyancy_gradient_volume_kernel_type
-    use swe_buoyancy_gradient_facet_kernel_mod,  only: swe_buoyancy_gradient_facet_kernel_type
-    use transpose_matrix_vector_kernel_mod,      only: transpose_matrix_vector_kernel_type
+    use sci_enforce_bc_kernel_mod, &
+                                 only: enforce_bc_kernel_type
+    use kinetic_energy_gradient_kernel_mod, &
+                                 only: kinetic_energy_gradient_kernel_type
+    use matrix_vector_kernel_mod, &
+                                 only: matrix_vector_kernel_type
+    use swe_buoyancy_gradient_volume_kernel_mod, &
+                                 only: swe_buoyancy_gradient_volume_kernel_type
+    use swe_buoyancy_gradient_facet_kernel_mod, &
+                                 only: swe_buoyancy_gradient_facet_kernel_type
+    use transpose_matrix_vector_kernel_mod, &
+                                 only: transpose_matrix_vector_kernel_type
 
     implicit none
 

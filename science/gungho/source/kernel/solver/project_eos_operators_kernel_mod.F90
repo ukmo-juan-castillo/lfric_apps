@@ -24,7 +24,7 @@ module project_eos_operators_kernel_mod
                                      GH_BASIS, GH_DIFF_BASIS,     &
                                      CELL_COLUMN, GH_QUADRATURE_XYoZ
   use constants_mod,           only: r_solver, r_def, i_def
-  use coordinate_jacobian_mod, only: pointwise_coordinate_jacobian
+  use sci_coordinate_jacobian_mod, only: pointwise_coordinate_jacobian
   use fs_continuity_mod,       only: W3, Wtheta
   use kernel_mod,              only: kernel_type
 

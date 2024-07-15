@@ -24,7 +24,7 @@ module um_domain_init_mod
   use mesh_mod,                    only: mesh_type
   use local_mesh_mod,              only: local_mesh_type
   use log_mod,                     only : log_event,   &
-                                    log_scratch_space, &
+                                          log_scratch_space, &
                                     log_level_error
 
   implicit none

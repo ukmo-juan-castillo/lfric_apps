@@ -49,34 +49,41 @@ SUBROUTINE um2lfric_regrid_fields(fctime)
 ! to number of points per level and the second dimension to the number levels
 
 ! Intrinsic modules
-USE, INTRINSIC :: iso_fortran_env,  ONLY: real64, int32, int64
-USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_BOOL
+USE, INTRINSIC :: iso_fortran_env, &
+                                  ONLY: real64, int32, int64
+USE, INTRINSIC :: ISO_C_BINDING,  ONLY: C_BOOL
 
 ! lfricinputs modules
-USE lfricinp_check_shumlib_status_mod, ONLY: shumlib
-USE lfricinp_regrid_weights_type_mod, ONLY: lfricinp_regrid_weights_type
-USE lfricinp_stash_to_lfric_map_mod, ONLY: get_field_name
-USE lfricinp_lfric_driver_mod, ONLY: lfric_fields
-USE lfricinp_regrid_options_mod, ONLY: regrid_type
+USE lfricinp_check_shumlib_status_mod, &
+                                  ONLY: shumlib
+USE lfricinp_regrid_weights_type_mod, &
+                                  ONLY: lfricinp_regrid_weights_type
+USE lfricinp_stash_to_lfric_map_mod, &
+                                  ONLY: get_field_name
+USE lfricinp_lfric_driver_mod,    ONLY: lfric_fields
+USE lfricinp_regrid_options_mod,  ONLY: regrid_type
 
 ! um2lfric modules
-USE um2lfric_namelist_mod,       ONLY: um2lfric_config
-USE um2lfric_read_um_file_mod,  ONLY: um_input_file
-USE um2lfric_regrid_weights_mod, ONLY: get_weights
-USE um2lfric_post_process_fields_mod, ONLY: um2lfric_post_process_fields
-USE um2lfric_apply_masked_field_adjustments_mod, ONLY:                         &
-                                       um2lfric_apply_masked_field_adjustments
+USE um2lfric_namelist_mod,        ONLY: um2lfric_config
+USE um2lfric_read_um_file_mod,    ONLY: um_input_file
+USE um2lfric_regrid_weights_mod,  ONLY: get_weights
+USE um2lfric_post_process_fields_mod, &
+                                  ONLY: um2lfric_post_process_fields
+USE um2lfric_apply_masked_field_adjustments_mod, &
+                                  ONLY: um2lfric_apply_masked_field_adjustments
 
 ! shumlib modules
-USE f_shum_field_mod, ONLY: shum_field_type
+USE f_shum_field_mod,             ONLY: shum_field_type
 
 ! lfric modules
-USE field_mod,          ONLY: lfric_field_type => field_type,                  &
-                              lfric_proxy_type => field_proxy_type
-USE function_space_mod, ONLY: function_space_type
-USE fs_continuity_mod,  ONLY: W3, Wtheta, W2H
-USE log_mod,            ONLY: log_event, LOG_LEVEL_INFO, LOG_LEVEL_ERROR,      &
-                              log_scratch_space
+USE field_mod,                    ONLY: lfric_field_type => field_type, &
+                                        lfric_proxy_type => field_proxy_type
+USE function_space_mod,           ONLY: function_space_type
+USE fs_continuity_mod,            ONLY: W3, Wtheta, W2H
+USE log_mod,                      ONLY: log_event,       &
+                                        LOG_LEVEL_INFO,  &
+                                        LOG_LEVEL_ERROR, &
+                                        log_scratch_space
 
 IMPLICIT NONE
 

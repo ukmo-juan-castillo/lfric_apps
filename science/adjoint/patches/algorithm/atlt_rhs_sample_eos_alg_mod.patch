@@ -7,7 +7,7 @@
    contains
 -  subroutine adjoint_test(mesh, chi, panel_id)
 +  subroutine atlt_rhs_sample_eos_alg(mesh, chi, panel_id)
-+    use assign_field_random_range_alg_mod, only : assign_field_random_range
++    use sci_assign_field_random_range_alg_mod, only : assign_field_random_range
      use field_mod, only : field_type
      use function_space_mod, only : function_space_type
      use mesh_mod, only : mesh_type

@@ -63,7 +63,7 @@ contains
                                               get_wtheta_q3x3x3_diff_basis
 
     use get_unit_test_q3x3x3_quadrature_mod, only:             &
-                    get_gaussian_q3x3x3_quadrature_weights_xy, &
+                                                              get_gaussian_q3x3x3_quadrature_weights_xy, &
                     get_gaussian_q3x3x3_quadrature_weights_z
 
      implicit none

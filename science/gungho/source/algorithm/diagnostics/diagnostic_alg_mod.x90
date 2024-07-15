@@ -6,33 +6,34 @@
 !> @brief Algorithms to do field processing to produce generic and specific
 !>        diagnostics for different I/O methods
 module diagnostic_alg_mod
-  use constants_mod,                    only: i_def, r_def, l_def, str_max_filename
-  use finite_element_config_mod,        only: element_order
-  use base_mesh_config_mod,             only: geometry, &
-                                              geometry_spherical
-  use planet_config_mod,                only: cp
-  use mesh_mod,                         only: mesh_type
-  use function_space_collection_mod,    only: function_space_collection
-  use fs_continuity_mod,                only: W1, W2, W3, Wtheta, W2H
-  use field_mod,                        only: field_type
-  use integer_field_mod,                only: integer_field_type
-  use operator_mod,                     only: operator_type
-  use nodal_xyz_coordinates_kernel_mod, only: nodal_xyz_coordinates_kernel_type
-  use psykal_lite_mod,                  only: invoke_compute_dof_level_kernel
-  use psykal_builtin_light_mod,         only: invoke_convert_cart2sphere_vector, &
-                                              invoke_pointwise_convert_xyz2llr
-  use fem_constants_mod,                only: get_rmultiplicity
-  use geometric_constants_mod,          only: get_coordinates,      &
-                                              get_panel_id,         &
-                                              get_face_selector_ew, &
-                                              get_face_selector_ns
-  use norm_alg_mod,                     only: l2_norm_alg, rel_l2_error_alg
-  use project_output_mod,               only: project_output
-  use log_mod,                          only: log_event,         &
-                                              log_scratch_space, &
-                                              LOG_LEVEL_INFO,    &
-                                              LOG_LEVEL_ERROR
-  use initialise_diagnostics_mod, only: init_diag => init_diagnostic_field
+  use constants_mod,                 only: i_def, r_def, l_def, str_max_filename
+  use finite_element_config_mod,     only: element_order
+  use base_mesh_config_mod,          only: geometry, &
+                                           geometry_spherical
+  use planet_config_mod,             only: cp
+  use mesh_mod,                      only: mesh_type
+  use function_space_collection_mod, only: function_space_collection
+  use fs_continuity_mod,             only: W1, W2, W3, Wtheta, W2H
+  use field_mod,                     only: field_type
+  use integer_field_mod,             only: integer_field_type
+  use operator_mod,                  only: operator_type
+  use sci_nodal_xyz_coordinates_kernel_mod, &
+                                     only: nodal_xyz_coordinates_kernel_type
+  use psykal_lite_mod,               only: invoke_compute_dof_level_kernel
+  use sci_psykal_builtin_light_mod,  only: invoke_convert_cart2sphere_vector, &
+                                           invoke_pointwise_convert_xyz2llr
+  use fem_constants_mod,             only: get_rmultiplicity
+  use geometric_constants_mod,       only: get_coordinates,      &
+                                           get_panel_id,         &
+                                           get_face_selector_ew, &
+                                           get_face_selector_ns
+  use norm_alg_mod,                  only: l2_norm_alg, rel_l2_error_alg
+  use sci_project_output_mod,        only: project_output
+  use log_mod,                       only: log_event,         &
+                                           log_scratch_space, &
+                                           LOG_LEVEL_INFO,    &
+                                           LOG_LEVEL_ERROR
+  use initialise_diagnostics_mod,    only: init_diag => init_diagnostic_field
 
   implicit none
 
@@ -124,7 +125,7 @@ contains
     use moist_dyn_mod,               only: num_moist_factors
 
     ! PsyKAl PSYClone kernels
-    use enforce_bc_kernel_mod,       only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,   only: enforce_bc_kernel_type
     use hydrostatic_kernel_mod,      only: hydrostatic_kernel_type
     use physical_op_constants_mod,   only: get_geopotential
     use fem_constants_mod,           only: get_qr
@@ -265,8 +266,10 @@ contains
                                          nodal_coordinates, level, &
                                          field_name, field)
 
-    use convert_hdiv_field_kernel_mod,  only: convert_hdiv_field_kernel_type
-    use convert_hcurl_field_kernel_mod, only: convert_hcurl_field_kernel_type
+    use sci_convert_hdiv_field_kernel_mod, &
+                                          only: convert_hdiv_field_kernel_type
+    use sci_convert_hcurl_field_kernel_mod, &
+                                          only: convert_hcurl_field_kernel_type
 
     implicit none
 

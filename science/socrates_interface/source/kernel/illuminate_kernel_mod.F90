@@ -111,7 +111,8 @@ subroutine illuminate_code(nlayers,                          &
                            ndf_h_asp, undf_h_asp, map_h_asp)
 
   use radiation_config_mod, only: n_radstep, n_horiz_ang, n_horiz_layer, &
-    topography, topography_slope, topography_horizon
+                                  topography, &
+                                  topography_slope, topography_horizon
   use star_config_mod, only: stellar_constant
   use orbit_config_mod, only:                                                &
     elements, elements_user, elements_earth_fixed,                           &

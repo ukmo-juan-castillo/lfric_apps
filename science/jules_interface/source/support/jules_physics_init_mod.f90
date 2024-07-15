@@ -153,21 +153,22 @@ contains
     use bl_option_mod, only: on
     use c_kappai, only: kappai, kappai_snow, kappa_seasurf
     use c_z0h_z0m, only: z0h_z0m
-    use jules_hydrology_mod, only: l_hydrology, check_jules_hydrology,      &
-         l_top, l_var_rainfrac, nfita, ti_max, ti_wetl, zw_max
+    use jules_hydrology_mod, only: l_hydrology, check_jules_hydrology,   &
+                                   l_top, l_var_rainfrac, nfita, ti_max, &
+                                   ti_wetl, zw_max
     use jules_irrig_mod, only: l_irrig_dmd
     use jules_radiation_mod, only: i_sea_alb_method,                        &
-         l_embedded_snow, l_mask_snow_orog,                                 &
+                                   l_embedded_snow, l_mask_snow_orog,       &
          l_spec_alb_bs, l_spec_albedo, l_spec_sea_alb, fixed_sea_albedo,    &
          check_jules_radiation, l_niso_direct, l_sea_alb_var_chl,           &
          l_albedo_obs, l_hapke_soil, l_partition_albsoil,                   &
          ratio_albsoil, swdn_frac_albsoil
-    use jules_science_fixes_mod, only: l_dtcanfix, l_fix_alb_ice_thick,     &
-         l_fix_albsnow_ts, ctile_orog_fix, l_fix_wind_snow,                 &
-         l_accurate_rho, l_fix_osa_chloro, l_fix_ustar_dust,                &
+    use jules_science_fixes_mod, only: l_dtcanfix, l_fix_alb_ice_thick, &
+         l_fix_albsnow_ts, ctile_orog_fix, l_fix_wind_snow,             &
+         l_accurate_rho, l_fix_osa_chloro, l_fix_ustar_dust,            &
          correct_sea_only, l_fix_lake_ice_temperatures, l_fix_neg_snow
     use jules_sea_seaice_mod, only: nice, nice_use, iseasurfalg, emis_sea,  &
-         seasalinityfactor, ip_ss_surf_div, z0sice,                   &
+         seasalinityfactor, ip_ss_surf_div, z0sice,                         &
          z0h_z0m_sice, emis_sice, l_ctile, l_tstar_sice_new,                &
          l_sice_heatflux, check_jules_sea_seaice, z0h_z0m_miz,              &
          ip_ss_coare_mq, a_chrn_coare, b_chrn_coare, u10_max_coare,         &

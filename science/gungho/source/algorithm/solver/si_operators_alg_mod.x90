@@ -362,7 +362,7 @@ contains
     use weighted_div_bd_kernel_mod,           only: weighted_div_bd_kernel_type
     use weighted_proj_2theta_bd_kernel_mod,   only: weighted_proj_2theta_bd_kernel_type
     use weighted_proj_theta2_bd_kernel_mod,   only: weighted_proj_theta2_bd_kernel_type
-    use compound_operator_kernel_mod,         only: compound_operator_kernel_type
+    use sci_compound_operator_kernel_mod,     only: compound_operator_kernel_type
     use mg_flux_kernel_mod,                   only: mg_flux_kernel_type
     use sample_flux_kernel_mod,               only: sample_flux_kernel_type
     use finite_element_config_mod,            only: element_order, &
@@ -380,35 +380,37 @@ contains
                                                     get_inverse_w3_mass_matrix_r_solver
     use limited_area_constants_mod,           only: get_mask
     use derived_config_mod,                   only: bundle_size
-    use invert_local_operator_kernel_mod,     only: invert_local_operator_kernel_type
+    use sci_invert_local_operator_kernel_mod, only: invert_local_operator_kernel_type
     use field_indices_mod,                    only: igh_u, igh_t, igh_d, igh_p
     use planet_config_mod,                    only: kappa, cp, rd, p_zero
     use timestepping_config_mod,              only: tau_r, tau_t, tau_u
     use reference_element_mod,                only: reference_element_type
     use mesh_mod,                             only: mesh_type
     use matrix_vector_kernel_mod,             only: matrix_vector_kernel_type
-    use dg_inc_matrix_vector_kernel_mod,      only: dg_inc_matrix_vector_kernel_type
+    use dg_inc_matrix_vector_kernel_mod, only: dg_inc_matrix_vector_kernel_type
     use formulation_config_mod,               only: dlayer_on,       &
                                                     lagged_orog,     &
                                                     dry_static_adjust
-    use sort_ref_kernel_mod,                  only: sort_ref_kernel_type
+    use sci_sort_ref_kernel_mod,              only: sort_ref_kernel_type
     use psykal_lite_mod,                      only: invoke_helmholtz_operator_kernel_type, &
                                                     invoke_elim_helmholtz_operator_kernel_type
     use sci_psykal_light_mod,                 only: invoke_copy_to_rsolver
     use boundaries_config_mod,                only: limited_area
     use sample_eliminated_theta_q32_kernel_mod, &
-                                              only: sample_eliminated_theta_q32_kernel_type
+                                 only: sample_eliminated_theta_q32_kernel_type
     use project_eliminated_theta_q32_kernel_mod, &
-                                              only: project_eliminated_theta_q32_kernel_type
-    use eliminated_theta_q22_kernel_mod,      only: eliminated_theta_q22_kernel_type
-    use sample_w3_to_wtheta_kernel_mod,       only: sample_w3_to_wtheta_kernel_type
+                                 only: project_eliminated_theta_q32_kernel_type
+    use eliminated_theta_q22_kernel_mod, &
+                                 only: eliminated_theta_q22_kernel_type
+    use sci_sample_w3_to_wtheta_kernel_mod, &
+                                 only: sample_w3_to_wtheta_kernel_type
     use fs_continuity_mod,                    only: W3, Wtheta
-    use multiplicity_kernel_mod,              only: multiplicity_kernel_type
+    use sci_multiplicity_kernel_mod,          only: multiplicity_kernel_type
     use sample_field_kernel_mod,              only: sample_field_kernel_type
     use eliminated_theta_q2t_kernel_mod,      only: eliminated_theta_q2t_kernel_type
-    use restrict_scalar_unweighted_kernel_mod,  &
+    use sci_restrict_scalar_unweighted_kernel_mod, &
                                               only: restrict_scalar_unweighted_kernel_type
-    use operator_algebra_kernel_mod,          only: operator_setval_x_kernel_type
+    use sci_operator_algebra_kernel_mod,      only: operator_setval_x_kernel_type
 
     implicit none
 

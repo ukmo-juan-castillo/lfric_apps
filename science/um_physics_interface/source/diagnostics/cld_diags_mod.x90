@@ -25,7 +25,7 @@ module cld_diags_mod
   use icing_diags_kernel_mod,  only: icing_diags_kernel_type
 
   use initialise_diagnostics_mod,     only : init_diag &
-       => init_diagnostic_field
+                                             => init_diagnostic_field
 
   implicit none
 

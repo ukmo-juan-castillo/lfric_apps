@@ -96,7 +96,7 @@ subroutine w2_normalisation_code(nlayers,                 &
                                  map_pid                  &
                                  )
 
-  use coordinate_jacobian_mod,    only : coordinate_jacobian
+  use sci_coordinate_jacobian_mod, only : coordinate_jacobian
 
   implicit none
 

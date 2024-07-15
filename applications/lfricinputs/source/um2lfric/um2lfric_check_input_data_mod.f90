@@ -17,17 +17,21 @@ SUBROUTINE um2lfric_check_input_data(um_input_file)
 !
 
 ! Intrinsic modules
-USE, INTRINSIC :: iso_fortran_env, ONLY: int64, real64
+USE, INTRINSIC :: iso_fortran_env,          ONLY: int64, real64
 
 ! LFRic modules
-USE log_mod,       ONLY: log_event, LOG_LEVEL_ERROR, log_scratch_space
-USE extrusion_config_mod, ONLY: number_of_layers, domain_top
+USE log_mod,                                ONLY: log_event,       &
+                                                  LOG_LEVEL_ERROR, &
+                                                  log_scratch_space
+USE extrusion_config_mod,                   ONLY: number_of_layers, &
+                                                  domain_top
 ! Shumlib modules
-USE f_shum_file_mod,  ONLY: shum_file_type
-USE f_shum_fixed_length_header_indices_mod, ONLY:                              &
-    horiz_grid_type, grid_staggering, dataset_type
+USE f_shum_file_mod,                        ONLY: shum_file_type
+USE f_shum_fixed_length_header_indices_mod, ONLY: horiz_grid_type, &
+                                                  grid_staggering, &
+                                                  dataset_type
 ! lfricinp modules
-USE lfricinp_check_shumlib_status_mod, ONLY: shumlib
+USE lfricinp_check_shumlib_status_mod,      ONLY: shumlib
 
 IMPLICIT NONE
 

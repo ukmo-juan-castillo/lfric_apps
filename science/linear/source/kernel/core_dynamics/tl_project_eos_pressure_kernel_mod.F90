@@ -112,8 +112,8 @@ subroutine tl_project_eos_pressure_code(cell, nlayers,                          
                                  nqp_h, nqp_v, wqp_h, wqp_v                    &
                                  )
 
-  use tl_calc_exner_pointwise_mod,only: tl_calc_exner_pointwise
-  use coordinate_jacobian_mod, only: coordinate_jacobian
+  use tl_calc_exner_pointwise_mod, only: tl_calc_exner_pointwise
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian
 
   implicit none
 

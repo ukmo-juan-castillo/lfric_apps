@@ -20,7 +20,7 @@ module initial_soil_kernel_mod
 
   use nlsizes_namelist_mod, only: sm_levels
   use ideal_surface_config_mod, only: soil_temperature_in => soil_temperature, &
-       soil_moisture_in => soil_moisture
+                                      soil_moisture_in => soil_moisture
 
   implicit none
 

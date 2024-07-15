@@ -67,16 +67,17 @@ contains
     ! UM/JULES modules containing things that need setting
     use ancil_info, only: jules_dim_cs1 => dim_cs1, nsurft
     use atm_step_local, only: co2_dim_len, co2_dim_row, &
-        dim_cs1
+                              dim_cs1
     use jules_soil_mod, only: jules_sm_levels => sm_levels
-    use jules_surface_types_mod, only: npft, nnvg, ntype, brd_leaf, ndl_leaf,  &
-        c3_grass, c4_grass, shrub, urban, urban_canyon, urban_roof, lake,      &
-        soil, ice
+    use jules_surface_types_mod, only: npft, nnvg, ntype, brd_leaf, ndl_leaf, &
+                                       c3_grass, c4_grass, shrub, urban,      &
+                                       urban_canyon, urban_roof, lake,        &
+                                       soil, ice
     use jules_vegetation_mod, only: l_triffid
     use jules_model_environment_mod, only: lsm_id, jules
     use nlsizes_namelist_mod, only: ntiles, sm_levels
     use jules_surface_types_mod, only:                                         &
-        set_derived_variables_jules_surface_types,                             &
+                                                                              set_derived_variables_jules_surface_types,                             &
         print_nlist_jules_surface_types, check_jules_surface_types
     use land_tile_ids_mod, only: set_surface_type_ids
 

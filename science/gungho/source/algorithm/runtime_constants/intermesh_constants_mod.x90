@@ -45,13 +45,16 @@ module intermesh_constants_mod
                                                get_mass_matrix_diagonal
 
   ! Kernels
-  use proj_mr_to_sh_rho_rhs_op_kernel_mod, &
-                                         only: proj_mr_to_sh_rho_rhs_op_kernel_type
-  use consist_w3_to_sh_w3_op_kernel_mod, only: consist_w3_to_sh_w3_op_kernel_type
-  use weights_prolong_w2_kernel_mod,     only: weights_prolong_w2_kernel_type
-  use weights_intermesh_w3_kernel_mod,   only: weights_intermesh_w3_kernel_type
-  use psykal_lite_mod,                   only: invoke_copy_to_rtran
-  use mm_diagonal_kernel_mod,            only: mm_diagonal_kernel_type
+  use sci_proj_mr_to_sh_rho_rhs_op_kernel_mod, &
+                                     only: proj_mr_to_sh_rho_rhs_op_kernel_type
+  use sci_consist_w3_to_sh_w3_op_kernel_mod, &
+                                     only: consist_w3_to_sh_w3_op_kernel_type
+  use sci_weights_prolong_w2_kernel_mod, &
+                                     only: weights_prolong_w2_kernel_type
+  use sci_weights_intermesh_w3_kernel_mod, &
+                                     only: weights_intermesh_w3_kernel_type
+  use psykal_lite_mod,               only: invoke_copy_to_rtran
+  use sci_mm_diagonal_kernel_mod,    only: mm_diagonal_kernel_type
 
   implicit none
 

@@ -36,7 +36,7 @@ contains
                                       sea_ice_pensolar, melt_pond_fraction,      &
                                       melt_pond_depth)
 
-    use multi_extract_kernel_mod,    only: multi_extract_kernel_type
+    use sci_multi_extract_kernel_mod, only: multi_extract_kernel_type
 
     implicit none
 

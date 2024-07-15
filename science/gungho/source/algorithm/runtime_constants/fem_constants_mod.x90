@@ -64,33 +64,33 @@ module fem_constants_mod
                                                 extra_mesh_label
 
   ! Kernels
-  use calc_detj_at_w3_kernel_mod,             only: calc_detj_at_w3_kernel_type
-  use calc_detj_at_w2_kernel_mod,             only: calc_detj_at_w2_kernel_type
-  use calc_directional_detj_at_w2_kernel_mod, only: calc_directional_detj_at_w2_kernel_type
+  use sci_calc_detj_at_w3_kernel_mod,         only: calc_detj_at_w3_kernel_type
+  use sci_calc_detj_at_w2_kernel_mod,         only: calc_detj_at_w2_kernel_type
+  use sci_calc_directional_detj_at_w2_kernel_mod, only: calc_directional_detj_at_w2_kernel_type
   use compute_coriolis_matrix_kernel_mod,     only: compute_coriolis_matrix_kernel_type
-  use compute_derham_matrices_kernel_mod,     only: compute_derham_matrices_kernel_type
-  use compute_div_operator_kernel_mod,        only: compute_div_operator_kernel_type
+  use sci_compute_derham_matrices_kernel_mod, only: compute_derham_matrices_kernel_type
+  use sci_compute_div_operator_kernel_mod,    only: compute_div_operator_kernel_type
   use compute_dl_matrix_kernel_mod,           only: compute_dl_matrix_kernel_type
-  use compute_mass_matrix_kernel_w2_mod,      only: compute_mass_matrix_kernel_w2_type
-  use invert_local_operator_kernel_mod,       only: invert_local_operator_kernel_type
+  use sci_compute_mass_matrix_kernel_w2_mod,  only: compute_mass_matrix_kernel_w2_type
+  use sci_invert_local_operator_kernel_mod,   only: invert_local_operator_kernel_type
   use lagged_orog_operator_kernel_mod,        only: lagged_orog_operator_kernel_type
   use matrix_vector_kernel_mod,               only: matrix_vector_kernel_type
   use dg_inc_matrix_vector_kernel_mod,        only: dg_inc_matrix_vector_kernel_type
-  use mg_derham_mat_kernel_mod,               only: mg_derham_mat_kernel_type
-  use mm_diagonal_kernel_mod,                 only: mm_diagonal_kernel_type
-  use multiplicity_kernel_mod,                only: multiplicity_kernel_type
-  use operator_algebra_kernel_mod,            only: operator_x_plus_ay_kernel_type, &
+  use sci_mg_derham_mat_kernel_mod,           only: mg_derham_mat_kernel_type
+  use sci_mm_diagonal_kernel_mod,             only: mm_diagonal_kernel_type
+  use sci_multiplicity_kernel_mod,            only: multiplicity_kernel_type
+  use sci_operator_algebra_kernel_mod,        only: operator_x_plus_ay_kernel_type, &
                                                     operator_setval_c_kernel_type,  &
                                                     operator_setval_x_kernel_type
-  use operator_x_times_y_kernel_mod,          only: operator_x_times_y_kernel_type
-  use project_ws_to_w2_operator_kernel_mod,   only: project_ws_to_w2_operator_kernel_type
-  use project_w3_to_w2b_operator_kernel_mod,  only: project_w3_to_w2b_operator_kernel_type
+  use sci_operator_x_times_y_kernel_mod,      only: operator_x_times_y_kernel_type
+  use sci_project_ws_to_w2_operator_kernel_mod, only: project_ws_to_w2_operator_kernel_type
+  use sci_project_w3_to_w2b_operator_kernel_mod, only: project_w3_to_w2b_operator_kernel_type
   use w2_normalisation_kernel_mod,            only: w2_normalisation_kernel_type
   use psykal_lite_mod,                        only: invoke_copy_to_rtran
   use psykal_lite_transport_mod,              only: invoke_extended_detj_at_w3_kernel_type
   use sci_psykal_light_mod,                   only: invoke_copy_to_rsolver
 
-  use compute_mass_matrix_kernel_w_scalar_mod, only: compute_mass_matrix_kernel_w_scalar_type
+  use sci_compute_mass_matrix_kernel_w_scalar_mod, only: compute_mass_matrix_kernel_w_scalar_type
 
   ! Solver related config options
   use mixed_solver_config_mod,   only: eliminate_variables, &
@@ -975,8 +975,8 @@ contains
   !> @param[in] mesh   The mesh to create the constants on
   subroutine create_w1_fem_constants(mesh)
 
-    use compute_mass_matrix_kernel_w1_mod, only: compute_mass_matrix_kernel_w1_type
-    use compute_curl_operator_kernel_mod,  only: compute_curl_operator_kernel_type
+    use sci_compute_mass_matrix_kernel_w1_mod, only: compute_mass_matrix_kernel_w1_type
+    use sci_compute_curl_operator_kernel_mod, only: compute_curl_operator_kernel_type
 
     implicit none
 

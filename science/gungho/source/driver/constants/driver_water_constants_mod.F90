@@ -26,8 +26,8 @@ module driver_water_constants_mod
 !>       a requirement, a resolution for this issue (if any) should be science
 !>       led.
 
-  use constants_mod,         only : r_def
-  use science_constants_mod, only : zero_C_in_K
+  use constants_mod,     only : r_def
+  use sci_constants_mod, only : zero_C_in_K
 
   implicit none
 

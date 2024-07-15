@@ -81,7 +81,7 @@ subroutine initial_theta_ref_code(nlayers,                               &
                                   ndf_pid, undf_pid, map_pid             )
 
   use analytic_ref_temperature_profiles_mod, only: analytic_ref_temperature
-  use chi_transform_mod,                     only: chi2xyz
+  use sci_chi_transform_mod,                 only: chi2xyz
 
   implicit none
 

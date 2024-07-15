@@ -19,7 +19,7 @@ module process_land_kernel_mod
   use kernel_mod,    only: kernel_type
 
   use jules_control_init_mod, only: n_land_tile, first_sea_tile, &
-       first_sea_ice_tile, n_sea_ice_tile
+                                    first_sea_ice_tile, n_sea_ice_tile
 
   implicit none
 

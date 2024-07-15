@@ -58,30 +58,32 @@ module cma_test_algorithm_mod
   use extrusion_mod,                  only: TWOD
   use mesh_collection_mod,            only: mesh_collection
   ! Kernels for field assignment and manipulation
-  use enforce_bc_kernel_mod,          only : enforce_bc_kernel_type
-  use assign_field_random_kernel_mod, only : assign_field_random_kernel_type
-  use assign_field_single_column_kernel_mod, only : assign_field_single_column_kernel_type
+  use sci_enforce_bc_kernel_mod,      only : enforce_bc_kernel_type
+  use sci_assign_field_random_kernel_mod, only : assign_field_random_kernel_type
+  use sci_assign_field_single_column_kernel_mod, only : assign_field_single_column_kernel_type
   ! Kernels for local operator assembly
-  use compute_mass_matrix_kernel_w2_mod, only : compute_mass_matrix_kernel_w2_type
-  use compute_mass_matrix_kernel_w3_mod, only : compute_mass_matrix_kernel_w3_type
-  use compute_div_operator_kernel_mod,   only : compute_div_operator_kernel_type
+  use sci_compute_mass_matrix_kernel_w2_mod, only : compute_mass_matrix_kernel_w2_type
+  use sci_compute_mass_matrix_kernel_w3_mod, only : compute_mass_matrix_kernel_w3_type
+  use sci_compute_div_operator_kernel_mod, only : compute_div_operator_kernel_type
   ! Kernels for local operator application and manipulation
-  use matrix_vector_kernel_mod,           only : matrix_vector_kernel_type
-  use dg_inc_matrix_vector_kernel_mod,    only : dg_inc_matrix_vector_kernel_type
+  use matrix_vector_kernel_mod,         only : matrix_vector_kernel_type
+  use dg_inc_matrix_vector_kernel_mod,  only : dg_inc_matrix_vector_kernel_type
   use transpose_matrix_vector_kernel_mod, only : transpose_matrix_vector_kernel_type
-  use transpose_matrix_kernel_mod,        only : transpose_matrix_kernel_type
-  use mm_diagonal_kernel_mod,             only : mm_diagonal_kernel_type
-  use mm_diagonal_assembled_kernel_mod,   only : mm_diagonal_assembled_kernel_type
-  use enforce_operator_bc_kernel_mod,     only : enforce_operator_bc_kernel_type
-  use operator_algebra_kernel_mod,        only : operator_setval_x_kernel_type
+  use sci_transpose_matrix_kernel_mod, &
+                                      only : transpose_matrix_kernel_type
+  use sci_mm_diagonal_kernel_mod,         only : mm_diagonal_kernel_type
+  use sci_mm_diagonal_assembled_kernel_mod, only : mm_diagonal_assembled_kernel_type
+  use sci_enforce_operator_bc_kernel_mod, only : enforce_operator_bc_kernel_type
+  use sci_operator_algebra_kernel_mod,    only : operator_setval_x_kernel_type
   ! Columnwise operator kernels
-  use columnwise_op_asm_kernel_mod,           only : columnwise_op_asm_kernel_type
-  use columnwise_op_asm_diag_hmht_kernel_mod, only : columnwise_op_asm_diag_hmht_kernel_type
-  use columnwise_op_app_kernel_mod,           only : columnwise_op_app_kernel_type
-  use columnwise_op_appinv_kernel_mod,        only : columnwise_op_appinv_kernel_type
-  use columnwise_op_mul_kernel_mod,           only : columnwise_op_mul_kernel_type
-  use columnwise_op_scaledadd_kernel_mod,     only : columnwise_op_scaledadd_kernel_type
-  use columnwise_op_asm_m2v_lumped_inv_kernel_mod, only : columnwise_op_asm_m2v_lumped_inv_kernel_type
+  use sci_columnwise_op_asm_kernel_mod,       only : columnwise_op_asm_kernel_type
+  use sci_columnwise_op_asm_diag_hmht_kernel_mod, only : columnwise_op_asm_diag_hmht_kernel_type
+  use sci_columnwise_op_app_kernel_mod,       only : columnwise_op_app_kernel_type
+  use sci_columnwise_op_appinv_kernel_mod,    only : columnwise_op_appinv_kernel_type
+  use sci_columnwise_op_mul_kernel_mod,       only : columnwise_op_mul_kernel_type
+  use sci_columnwise_op_scaledadd_kernel_mod, only : columnwise_op_scaledadd_kernel_type
+  use sci_columnwise_op_asm_m2v_lumped_inv_krnl_mod, &
+                              only : columnwise_op_asm_m2v_lumped_inv_krnl_type
 
   implicit none
 
@@ -320,8 +322,10 @@ contains
                                                 grad_v_cma ),      &
                  columnwise_op_asm_kernel_type( mm_vel_v,    &
                                                 mm_vel_v_cma ),    &
-                 columnwise_op_asm_m2v_lumped_inv_kernel_type( mm_vel_v, &
-                                                               mm_vel_v_inv_diag_cma ) )
+                 columnwise_op_asm_m2v_lumped_inv_krnl_type( &
+                                                        mm_vel_v, &
+                                                        mm_vel_v_inv_diag_cma &
+                                                           ) )
     ! Set flag to true to avoid multiple initialisations
     is_initialised = .true.
 

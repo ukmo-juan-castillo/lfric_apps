@@ -10,9 +10,8 @@
 module compute_energetics_kernel_mod_test
 
   use constants_mod,                       only : i_def, r_def
-  use driver_water_constants_mod,                                                     &
-                                           only : Lv => latent_heat_h2o_condensation, &
-                                                  Lf => latent_heat_h2o_fusion
+  use driver_water_constants_mod,  only : Lv => latent_heat_h2o_condensation, &
+                                          Lf => latent_heat_h2o_fusion
   use get_unit_test_m3x3_q3x3x3_sizes_mod, only : get_w0_m3x3_q3x3x3_size, &
                                                   get_w2_m3x3_q3x3x3_size, &
                                                   get_w3_m3x3_q3x3x3_size
@@ -91,7 +90,7 @@ contains
   @Test
   subroutine test_all( this)
 
-    use, intrinsic :: iso_fortran_env,   only : real64
+    use, intrinsic :: iso_fortran_env, only : real64
     use compute_energetics_kernel_mod, only : compute_energetics_code
 
     implicit none

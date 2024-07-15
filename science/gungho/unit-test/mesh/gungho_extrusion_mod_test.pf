@@ -108,10 +108,10 @@ contains
   @Test
   subroutine test_spherical( this )
 
-    use base_mesh_config_mod, only : geometry_spherical,      &
-
+    use base_mesh_config_mod, only : geometry_spherical, &
                                      topology_fully_periodic
-    use extrusion_config_mod, only : method_geometric, stretching_method_linear
+    use extrusion_config_mod, only : method_geometric, &
+                                     stretching_method_linear
 
     implicit none
 

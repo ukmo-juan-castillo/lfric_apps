@@ -12,7 +12,7 @@ module conv_diags_mod
   use io_config_mod,       only: subroutine_timers
   use timer_mod,           only: timer
   use initialise_diagnostics_mod,     only : init_diag &
-      => init_diagnostic_field
+                                             => init_diagnostic_field
 
   implicit none
 

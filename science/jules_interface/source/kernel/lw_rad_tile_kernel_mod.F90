@@ -70,15 +70,17 @@ subroutine lw_rad_tile_code(nlayers,                                &
                             ndf_tile, undf_tile, map_tile)
 
   use socrates_init_mod, only: n_band_exclude, index_exclude, &
-    wavelength_short, wavelength_long
-  use jules_control_init_mod, only: &
-    n_surf_tile, n_land_tile, n_sea_tile, n_sea_ice_tile, &
-    first_sea_tile, first_sea_ice_tile
+                               wavelength_short, wavelength_long
+  use jules_control_init_mod, only: n_surf_tile, n_land_tile, n_sea_tile, &
+                                    n_sea_ice_tile, first_sea_tile,       &
+                                    first_sea_ice_tile
   use jules_surface_types_mod, only: soil
   use specemis_mod, only: specemis
-  use surface_config_mod, only: &
-    emis_method_sea,emis_method_sea_fixed,emis_method_sea_feldman,emis_method_sea_iremis, &
-    emis_method_soil,emis_method_soil_fixed,emis_method_soil_feldman_desert
+  use surface_config_mod, only: emis_method_sea, emis_method_sea_fixed,   &
+                                emis_method_sea_feldman,                  &
+                                emis_method_sea_iremis,                   &
+                                emis_method_soil, emis_method_soil_fixed, &
+                                emis_method_soil_feldman_desert
 
   implicit none
 

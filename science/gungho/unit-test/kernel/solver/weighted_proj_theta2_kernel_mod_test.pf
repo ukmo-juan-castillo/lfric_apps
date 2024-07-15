@@ -50,21 +50,25 @@ contains
   @test
   subroutine test_all( this )
 
-    use weighted_proj_theta2_kernel_mod, only : weighted_proj_theta2_code
+    use weighted_proj_theta2_kernel_mod, &
+                             only: weighted_proj_theta2_code
 
-    use get_unit_test_m3x3_dofmap_mod,       only: get_wtheta_m3x3_dofmap
+    use get_unit_test_m3x3_dofmap_mod, &
+                             only: get_wtheta_m3x3_dofmap
 
-    use get_unit_test_m3x3_q3x3x3_sizes_mod, only: get_wtheta_m3x3_q3x3x3_size, &
-                                                   get_w2_m3x3_q3x3x3_size
+    use get_unit_test_m3x3_q3x3x3_sizes_mod,                    &
+                             only: get_wtheta_m3x3_q3x3x3_size, &
+                                   get_w2_m3x3_q3x3x3_size
 
-    use get_unit_test_q3x3x3_basis_mod, only: get_wtheta_q3x3x3_basis,      &
-                                              get_w2_q3x3x3_basis,      &
-                                              get_wtheta_q3x3x3_diff_basis, &
-                                              get_w2_q3x3x3_diff_basis
+    use get_unit_test_q3x3x3_basis_mod,                          &
+                             only: get_wtheta_q3x3x3_basis,      &
+                                   get_w2_q3x3x3_basis,          &
+                                   get_wtheta_q3x3x3_diff_basis, &
+                                   get_w2_q3x3x3_diff_basis
 
-    use get_unit_test_q3x3x3_quadrature_mod, only:     &
-            get_gaussian_q3x3x3_quadrature_weights_xy, &
-            get_gaussian_q3x3x3_quadrature_weights_z
+    use get_unit_test_q3x3x3_quadrature_mod,                                  &
+                             only: get_gaussian_q3x3x3_quadrature_weights_xy, &
+                                   get_gaussian_q3x3x3_quadrature_weights_z
 
     implicit none
 

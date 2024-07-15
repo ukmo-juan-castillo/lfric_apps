@@ -191,15 +191,16 @@ subroutine casim_code( nlayers,                     &
     use water_constants_mod,        only: tm
 
     use micro_main,                 only: shipway_microphysics
-    use casim_switches,             only: its, ite, jts, jte, kts, kte,        &
+    use casim_switches,             only: its, ite, jts, jte, kts, kte, &
                                           ils, ile, jls, jle
-    use generic_diagnostic_variables, only: allocate_diagnostic_space,         &
-                                        deallocate_diagnostic_space,           &
-                                        casdiags
-    use number_droplet_mod, only: min_cdnc_sea_ice
-    use mphys_air_density_mod, only: mphys_air_density
-    use mphys_radar_mod,       only: ref_lim
-    use variable_precision,    only: wp
+    use generic_diagnostic_variables,                                  &
+                                    only: allocate_diagnostic_space,   &
+                                          deallocate_diagnostic_space, &
+                                          casdiags
+    use number_droplet_mod,         only: min_cdnc_sea_ice
+    use mphys_air_density_mod,      only: mphys_air_density
+    use mphys_radar_mod,            only: ref_lim
+    use variable_precision,         only: wp
 
     implicit none
 

@@ -7,35 +7,41 @@
 !>@brief Test the tangent linear of the vorticity advection.
 module tl_vorticity_advection_kernel_mod_test
 
-  use constants_mod, only: i_def, r_def
+  use constants_mod,         only: i_def, r_def
   use pFUnit_Mod
 
-  use finite_element_config_mod, only : cellshape_quadrilateral, &
-                                        coord_system_xyz
-  use feign_config_mod,          only : feign_finite_element_config
+  use finite_element_config_mod, &
+                             only : cellshape_quadrilateral, &
+                                    coord_system_xyz
+  use feign_config_mod,      only : feign_finite_element_config
 
-  use tl_vorticity_advection_kernel_mod, only: tl_vorticity_advection_code
+  use tl_vorticity_advection_kernel_mod, &
+                             only: tl_vorticity_advection_code
 
-  use get_unit_test_m3x3_dofmap_mod, only: get_w0_m3x3_dofmap, &
-                                           get_w1_m3x3_dofmap, &
-                                           get_w2_m3x3_dofmap, &
-                                           get_w3_m3x3_dofmap
+  use get_unit_test_m3x3_dofmap_mod,                   &
+                             only: get_w0_m3x3_dofmap, &
+                                   get_w1_m3x3_dofmap, &
+                                   get_w2_m3x3_dofmap, &
+                                   get_w3_m3x3_dofmap
 
-  use get_unit_test_m3x3_q3x3x3_sizes_mod, only: get_w0_m3x3_q3x3x3_size, &
-                                                 get_w1_m3x3_q3x3x3_size, &
-                                                 get_w2_m3x3_q3x3x3_size, &
-                                                 get_w3_m3x3_q3x3x3_size
+  use get_unit_test_m3x3_q3x3x3_sizes_mod,                  &
+                             only: get_w0_m3x3_q3x3x3_size, &
+                                   get_w1_m3x3_q3x3x3_size, &
+                                   get_w2_m3x3_q3x3x3_size, &
+                                   get_w3_m3x3_q3x3x3_size
 
-  use get_unit_test_q3x3x3_basis_mod, only: get_w0_q3x3x3_diff_basis, &
-                                            get_w1_q3x3x3_basis,      &
-                                            get_w2_q3x3x3_basis,      &
-                                            get_w0_q3x3x3_basis
+  use get_unit_test_q3x3x3_basis_mod,                        &
+                             only: get_w0_q3x3x3_diff_basis, &
+                                   get_w1_q3x3x3_basis,      &
+                                   get_w2_q3x3x3_basis,      &
+                                   get_w0_q3x3x3_basis
 
-  use get_unit_test_q3x3x3_quadrature_mod, only:     &
-            get_gaussian_q3x3x3_quadrature_weights_xy, &
-            get_gaussian_q3x3x3_quadrature_weights_z
+  use get_unit_test_q3x3x3_quadrature_mod,                                    &
+                             only: get_gaussian_q3x3x3_quadrature_weights_xy, &
+                                   get_gaussian_q3x3x3_quadrature_weights_z
 
-  use get_unit_test_3x3x3_chi_mod,         only : get_w0_3x3x3_field
+  use get_unit_test_3x3x3_chi_mod, &
+                             only : get_w0_3x3x3_field
 
   implicit none
 

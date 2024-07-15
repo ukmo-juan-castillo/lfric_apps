@@ -23,7 +23,7 @@ module earth_like_kernel_mod
                                       ANY_DISCONTINUOUS_SPACE_3, &
                                       GH_READ, CELL_COLUMN
   use constants_mod,            only: r_def, i_def
-  use chi_transform_mod,        only: chi2llr
+  use sci_chi_transform_mod,    only: chi2llr
   use calc_exner_pointwise_mod, only: calc_exner_pointwise
   use fs_continuity_mod,        only: Wtheta, Wchi
   use earth_like_forcings_mod,  only: earth_like_newton_frequency, &

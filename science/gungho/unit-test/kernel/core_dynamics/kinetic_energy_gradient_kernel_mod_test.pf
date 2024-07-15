@@ -18,7 +18,7 @@ module kinetic_energy_gradient_kernel_mod_test
                                                   get_w2_m3x3_dofmap, &
                                                   get_w3_m3x3_dofmap
 
-  use get_unit_test_q3x3x3_quadrature_mod, &
+  use get_unit_test_q3x3x3_quadrature_mod,             &
      only : get_gaussian_q3x3x3_quadrature_weights_xy, &
             get_gaussian_q3x3x3_quadrature_weights_z
 

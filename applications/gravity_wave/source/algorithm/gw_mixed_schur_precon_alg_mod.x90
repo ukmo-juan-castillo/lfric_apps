@@ -98,7 +98,7 @@ module gw_mixed_schur_precon_alg_mod
   use mesh_mod,                          only: mesh_type
   use fs_continuity_mod,                 only: W0, W2, W3, Wtheta
   use boundaries_config_mod,             only: limited_area
-  use field_minmax_alg_mod,              only: log_field_minmax
+  use sci_field_minmax_alg_mod,          only: log_field_minmax
 
   implicit none
 
@@ -198,8 +198,8 @@ contains
     use compute_q_operator_kernel_mod, only: compute_q_operator_type
     use matrix_vector_kernel_mod,      only: matrix_vector_kernel_type
     use transpose_matrix_vector_kernel_mod, &
-         only: transpose_matrix_vector_kernel_type
-    use operator_algebra_kernel_mod,   only: operator_setval_x_kernel_type
+                                      only: transpose_matrix_vector_kernel_type
+    use sci_operator_algebra_kernel_mod, only: operator_setval_x_kernel_type
 
     implicit none
 
@@ -414,7 +414,7 @@ contains
 
     use matrix_vector_kernel_mod,    only: matrix_vector_kernel_type
     use dg_matrix_vector_kernel_mod, only: dg_matrix_vector_kernel_type
-    use enforce_bc_kernel_mod,       only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,   only: enforce_bc_kernel_type
 
     implicit none
 
@@ -479,8 +479,8 @@ contains
   subroutine back_substitute(self, state, rhs)
 
     use transpose_matrix_vector_kernel_mod, &
-                                  only: transpose_matrix_vector_kernel_type
-    use enforce_bc_kernel_mod,    only: enforce_bc_kernel_type
+                                      only: transpose_matrix_vector_kernel_type
+    use sci_enforce_bc_kernel_mod,    only: enforce_bc_kernel_type
 
     implicit none
 

@@ -101,7 +101,7 @@ end subroutine sync_multidata_field_dimensions
 
 #ifdef UM_PHYSICS
     use jules_control_init_mod,  only: n_surf_tile, n_sea_ice_tile,            &
-         soil_lev_tile, n_surf_interp, n_land_tile
+                                       soil_lev_tile, n_surf_interp, n_land_tile
     use jules_physics_init_mod,  only: snow_lev_tile
     use jules_surface_types_mod, only: npft
     use nlsizes_namelist_mod,    only: sm_levels
@@ -113,14 +113,17 @@ end subroutine sync_multidata_field_dimensions
     use cosp_config_mod,         only: n_subcol_gen
     use cosp_mod,                only: n_cloudsat_levels, n_backscatter_bins,  &
                                        n_isccp_tau_bins, n_isccp_pressure_bins
-    use radiation_config_mod,    only:                                         &
-      topography, topography_horizon, n_horiz_layer, n_horiz_ang
-    use section_choice_config_mod, only:                                       &
-      radiation, radiation_socrates
+    use radiation_config_mod,    only: topography,         &
+                                       topography_horizon, &
+                                       n_horiz_layer,      &
+                                       n_horiz_ang
+    use section_choice_config_mod, &
+                                 only: radiation, &
+                                       radiation_socrates
 #endif
 
     use log_mod,                 only: log_event, LOG_LEVEL_ERROR,             &
-         log_scratch_space
+                                       log_scratch_space
 
     implicit none
 

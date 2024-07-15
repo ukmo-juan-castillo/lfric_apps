@@ -24,8 +24,8 @@ contains
   !> @param[in]     surface_altitude_w3 Surface altitude on W3
   subroutine surface_altitude_alg(surface_altitude_w0, surface_altitude_w3)
 
-    use average_w3_to_w0_kernel_mod,    only : average_w3_to_w0_kernel_type
-    use multiplicity_kernel_mod,        only : multiplicity_kernel_type
+    use sci_average_w3_to_w0_kernel_mod, only : average_w3_to_w0_kernel_type
+    use sci_multiplicity_kernel_mod,    only : multiplicity_kernel_type
 
     implicit none
 

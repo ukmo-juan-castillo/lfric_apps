@@ -104,7 +104,7 @@ module gungho_init_fields_mod
   use compute_total_energy_alg_mod,       only : compute_total_energy_alg
   use compute_total_mass_alg_mod,         only : compute_total_mass_alg
   use compute_column_integral_kernel_mod, &
-                                          only : compute_column_integral_kernel_type
+                                     only : compute_column_integral_kernel_type
   use geometric_constants_mod,            only : get_height
   use planet_config_mod,                  only : radius
   use sci_field_to_scalar_alg_mod,        only : field_to_scalar_alg
@@ -129,9 +129,9 @@ contains
   !> @param[in]    v_name        Name of vertical component
   subroutine split_single_complex_field(prognostics, fs, name, h_name, v_name)
 
-    use split_w2_field_kernel_mod,        only: split_w2_field_kernel_type
-    use geometric_constants_mod,          only: get_face_selector_ew, &
-                                                get_face_selector_ns
+    use split_w2_field_kernel_mod, only: split_w2_field_kernel_type
+    use geometric_constants_mod,   only: get_face_selector_ew, &
+                                         get_face_selector_ns
 
     implicit none
 
@@ -183,9 +183,9 @@ contains
   !> @param[in]    v_name        Name of vertical component
   subroutine combine_single_complex_field(prognostics, fs, name, h_name, v_name)
 
-    use combine_w2_field_kernel_mod,      only: combine_w2_field_kernel_type
-    use geometric_constants_mod,          only: get_face_selector_ew, &
-                                                get_face_selector_ns
+    use combine_w2_field_kernel_mod, only: combine_w2_field_kernel_type
+    use geometric_constants_mod,     only: get_face_selector_ew, &
+                                           get_face_selector_ns
 
     implicit none
 

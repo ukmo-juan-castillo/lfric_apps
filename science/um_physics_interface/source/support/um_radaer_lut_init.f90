@@ -51,8 +51,7 @@ contains
 
   subroutine um_radaer_lut_init()
 
-    use filenamelength_mod,           only:                                    &
-        filenamelength
+    use filenamelength_mod, only: filenamelength
 
     implicit none
 

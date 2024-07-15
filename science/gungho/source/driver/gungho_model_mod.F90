@@ -9,7 +9,7 @@
 module gungho_model_mod
 
   use add_mesh_map_mod,           only : assign_mesh_maps
-  use checksum_alg_mod,           only : checksum_alg
+  use sci_checksum_alg_mod,       only : checksum_alg
   use driver_fem_mod,             only : init_fem, final_fem, &
                                          init_function_space_chains
   use driver_io_mod,              only : init_io, final_io, &
@@ -27,7 +27,7 @@ module gungho_model_mod
   use create_lbcs_mod,            only : process_lbc_fields
   use create_mesh_mod,            only : create_mesh
   use create_physics_prognostics_mod, only : &
-                                         process_physics_prognostics
+                                            process_physics_prognostics
   use derived_config_mod,         only : set_derived_config, l_esm_couple
   use extrusion_mod,              only : extrusion_type,              &
                                          uniform_extrusion_type,      &
@@ -77,7 +77,7 @@ module gungho_model_mod
   use timestep_method_mod,        only : timestep_method_type, &
                                          get_timestep_method_from_collection
   use rk_alg_timestep_mod,        only : rk_timestep_type
-  use semi_implicit_timestep_alg_mod,    &
+  use semi_implicit_timestep_alg_mod, &
                                   only : semi_implicit_timestep_type
   use setup_orography_alg_mod,    only : setup_orography_alg
   use derived_config_mod,         only : l_esm_couple

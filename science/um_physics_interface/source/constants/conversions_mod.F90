@@ -15,14 +15,15 @@ module conversions_mod
                            lfric_pi => pi
 
   use science_conversions_mod, only: seconds_per_day,           &
-                                       seconds_per_hour,          &
-                                       seconds_per_minute,        &
-                                       hours_per_day,             &
-                                       seconds_to_hours,          &
-                                       hours_to_days,             &
-                                       zero_degrees_celsius,      &
-                                       knots_to_metre_per_second, &
-                                       feet_to_metres
+                                     seconds_per_hour,          &
+                                     seconds_per_minute,        &
+                                     hours_per_day,             &
+                                     seconds_to_hours,          &
+                                     hours_to_days,             &
+                                     zero_degrees_celsius,      &
+                                     knots_to_metre_per_second, &
+                                     feet_to_metres
+
   implicit none
 
   private

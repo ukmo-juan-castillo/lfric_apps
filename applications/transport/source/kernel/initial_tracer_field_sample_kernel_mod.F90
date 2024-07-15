@@ -87,7 +87,7 @@ contains
                                                       ndf_pid, undf_pid, map_pid  )
 
     use analytic_tracer_field_profiles_mod, only : analytic_tracer_field
-    use chi_transform_mod,                  only : chi2xyz
+    use sci_chi_transform_mod,              only : chi2xyz
 
     implicit none
 

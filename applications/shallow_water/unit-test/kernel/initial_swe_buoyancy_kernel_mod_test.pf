@@ -19,7 +19,7 @@ module initial_swe_buoyancy_kernel_mod_test
                                                   get_w2_m3x3_dofmap, &
                                                   get_w3_m3x3_dofmap
 
-  use get_unit_test_q3x3x3_quadrature_mod, &
+  use get_unit_test_q3x3x3_quadrature_mod,             &
      only : get_gaussian_q3x3x3_quadrature_weights_xy, &
             get_gaussian_q3x3x3_quadrature_weights_z
 
@@ -51,7 +51,7 @@ contains
 
     use base_mesh_config_mod,               only : geometry_planar,    &
                                                    topology_fully_periodic
-    use chi_transform_mod,                  only : init_chi_transforms
+    use sci_chi_transform_mod,              only : init_chi_transforms
     use feign_config_mod,                   only : feign_base_mesh_config,      &
                                                    feign_finite_element_config, &
                                                    feign_planet_config,         &
@@ -102,7 +102,7 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine tearDown( this )
 
-    use chi_transform_mod,        only: final_chi_transforms
+    use sci_chi_transform_mod,    only: final_chi_transforms
     use configuration_mod,        only: final_configuration
 
     implicit none

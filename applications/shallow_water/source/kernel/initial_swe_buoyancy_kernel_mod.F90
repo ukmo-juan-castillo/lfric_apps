@@ -79,7 +79,7 @@ contains
                                        ndf_pid, undf_pid, map_pid)
 
     use analytic_swe_buoyancy_profiles_mod, only : analytic_swe_buoyancy
-    use chi_transform_mod,                  only : chi2xyz
+    use sci_chi_transform_mod,              only : chi2xyz
 
     implicit none
 

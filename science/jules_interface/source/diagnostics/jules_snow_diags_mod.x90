@@ -11,7 +11,7 @@ module jules_snow_diags_mod
   use field_mod,                 only: field_type
   use io_config_mod,             only: subroutine_timers
   use timer_mod,                 only: timer
-  use weighted_ave_kernel_mod,   only: weighted_ave_kernel_type
+  use sci_weighted_ave_kernel_mod, only: weighted_ave_kernel_type
 
   use initialise_diagnostics_mod, only : init_diag => init_diagnostic_field
 

@@ -44,7 +44,7 @@ contains
   !> not clear if it should call into PSy. #1253 will address this point and remove
   !> once decided.
   subroutine invoke_nodal_coordinates_kernel(nodal_coords, chi )
-    use nodal_coordinates_kernel_mod, only: nodal_coordinates_code
+    use sci_nodal_coordinates_kernel_mod, only: nodal_coordinates_code
     use mesh_mod,                     only: mesh_type
     implicit none
 
@@ -131,7 +131,7 @@ contains
   !> not clear if it should call into PSy. #1253 will address this point and remove
   !> once decided.
   subroutine invoke_nodal_xyz_coordinates_kernel(nodal_coords, chi, panel_id)
-    use nodal_xyz_coordinates_kernel_mod, only: nodal_xyz_coordinates_code
+    use sci_nodal_xyz_coordinates_kernel_mod, only: nodal_xyz_coordinates_code
     use mesh_mod,                     only: mesh_type
     implicit none
 
@@ -230,7 +230,7 @@ contains
 !-------------------------------------------------------------------------------
   subroutine invoke_compute_dof_level_kernel(level)
 
-  use compute_dof_level_kernel_mod, only: compute_dof_level_code
+  use sci_compute_dof_level_kernel_mod, only: compute_dof_level_code
   use mesh_mod,                     only: mesh_type
   implicit none
 
@@ -1022,7 +1022,7 @@ contains
 !! this. The issue to address this is #1983
   subroutine invoke_prolong_scalar_linear_kernel_type(target_field, source_field, stencil_extent)
 
-    use prolong_scalar_linear_kernel_mod, only: prolong_scalar_linear_kernel_code
+    use sci_prolong_scalar_linear_kernel_mod, only: prolong_scalar_linear_kernel_code
     use mesh_map_mod,                     only: mesh_map_type
     use mesh_mod,                         only: mesh_type
     use stencil_dofmap_mod,               only: STENCIL_CROSS
@@ -1115,7 +1115,7 @@ stencil_dofmap(:,:,cell), ndf_adspc1_target_field, &
 !> this has been raised as an issue https://github.com/stfc/PSyclone/issues/2504
   subroutine invoke_prolong_multidata_scalar_kernel_type(target_field, source_field, ndata)
 
-    use prolong_multidata_scalar_kernel_mod, only: prolong_multidata_scalar_kernel_code
+    use sci_prolong_multidata_scalar_kernel_mod, only: prolong_multidata_scalar_kernel_code
     use mesh_map_mod,                        only: mesh_map_type
     use mesh_mod,                            only: mesh_type
 
@@ -1198,7 +1198,7 @@ stencil_dofmap(:,:,cell), ndf_adspc1_target_field, &
 !> a fine mesh. Intermesh kernels cannot currently take in integer arguments,
 !> this has been raised as an issue https://github.com/stfc/PSyclone/issues/2504
   subroutine invoke_restrict_multidata_scalar_kernel_type(target_field, source_field, ndata)
-    use restrict_multidata_scalar_kernel_mod, only: restrict_multidata_scalar_kernel_code
+    use sci_restrict_multidata_scalar_kernel_mod, only: restrict_multidata_scalar_kernel_code
     use mesh_map_mod, only: mesh_map_type
     use mesh_mod, only: mesh_type
     type(field_type),    intent(in) :: target_field, source_field
@@ -1281,7 +1281,7 @@ stencil_dofmap(:,:,cell), ndf_adspc1_target_field, &
 !> this has been raised as an issue https://github.com/stfc/PSyclone/issues/2504
   subroutine invoke_prolong_multidata_linear_kernel_type(target_field, source_field, source_mask, stencil_extent, ndata)
 
-    use prolong_multidata_linear_kernel_mod, only: prolong_multidata_linear_kernel_code
+    use sci_prolong_multidata_linear_kernel_mod, only: prolong_multidata_linear_kernel_code
     use mesh_map_mod,                     only: mesh_map_type
     use mesh_mod,                         only: mesh_type
     use stencil_dofmap_mod,               only: STENCIL_CROSS

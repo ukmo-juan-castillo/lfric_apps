@@ -30,7 +30,7 @@ module create_gravity_wave_prognostics_mod
   use lfric_xios_write_mod,           only : write_field_generic, &
                                              checkpoint_write_xios
 
-  use gravity_wave_constants_config_mod,&
+  use gravity_wave_constants_config_mod, &
                                       only : b_space, &
                                              b_space_w0, &
                                              b_space_w3, &

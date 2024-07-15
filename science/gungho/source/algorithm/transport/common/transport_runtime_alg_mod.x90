@@ -34,7 +34,7 @@ module transport_runtime_alg_mod
   use extrusion_mod,                  only: SHIFTED, TWOD
   use fem_constants_mod,              only: get_detj_at_w3_r_tran
   use field_mod,                      only: field_type
-  use field_minmax_alg_mod,           only: get_field_minmax, &
+  use sci_field_minmax_alg_mod,       only: get_field_minmax, &
                                             log_field_minmax
   use finite_element_config_mod,      only: element_order
   use fs_continuity_mod,              only: W2, W2h, W2v, W3, Wtheta
@@ -1390,13 +1390,16 @@ contains
 
     use intermesh_constants_mod,   only: get_intermesh_weights_w3_rtran
     use mesh_collection_mod,       only: mesh_collection
-    use restrict_mass_w3_kernel_mod, &
+    use sci_restrict_mass_w3_kernel_mod, &
                                    only: restrict_mass_w3_kernel_type
-    use restrict_scalar_weighted_kernel_mod, &
+    use sci_restrict_scalar_weighted_kernel_mod, &
                                    only: restrict_scalar_weighted_kernel_type
-    use restrict_w2_kernel_mod,    only: restrict_w2_kernel_type
-    use restrict_w2h_kernel_mod,   only: restrict_w2h_kernel_type
-    use restrict_w2v_kernel_mod,   only: restrict_w2v_kernel_type
+    use sci_restrict_w2_kernel_mod, &
+                                   only: restrict_w2_kernel_type
+    use sci_restrict_w2h_kernel_mod, &
+                                   only: restrict_w2h_kernel_type
+    use sci_restrict_w2v_kernel_mod, &
+                                   only: restrict_w2v_kernel_type
 
     implicit none
 
@@ -1634,12 +1637,12 @@ contains
   !> @param[in,out] self   The transport_runtime object
   subroutine shift_dry_fields(self)
 
-    use consist_w2_to_sh_w2_kernel_mod,   only: consist_w2_to_sh_w2_kernel_type
-    use consist_w2h_to_sh_w2h_kernel_mod, only: consist_w2h_to_sh_w2h_kernel_type
-    use consist_w2v_to_sh_w2v_kernel_mod, only: consist_w2v_to_sh_w2v_kernel_type
+    use sci_consist_w2_to_sh_w2_kernel_mod, only: consist_w2_to_sh_w2_kernel_type
+    use sci_consist_w2h_to_sh_w2h_kernel_mod, only: consist_w2h_to_sh_w2h_kernel_type
+    use sci_consist_w2v_to_sh_w2v_kernel_mod, only: consist_w2v_to_sh_w2v_kernel_type
     use psykal_lite_transport_mod,        only: invoke_deep_shift_mass, &
                                                 invoke_deep_X_divideby_Y
-    use shift_mass_w3_kernel_mod,         only: shift_mass_w3_kernel_type
+    use sci_shift_mass_w3_kernel_mod,     only: shift_mass_w3_kernel_type
 
     implicit none
 
@@ -3108,7 +3111,7 @@ contains
   !!          distances for tracers if the dry mass is no longer positive.
   subroutine check_negative_field(self, field, field_name)
 
-    use field_minmax_alg_mod, only: get_local_field_minmax
+    use sci_field_minmax_alg_mod, only: get_local_field_minmax
 
     implicit none
 

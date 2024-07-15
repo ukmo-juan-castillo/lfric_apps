@@ -38,8 +38,8 @@ module ffsl_control_alg_mod
   use ffsl_3d_alg_mod,                  only: ffsl_3d_splitting_alg
 
   ! Kernels
-  use inject_sh_w3_to_wt_kernel_mod,    only: inject_sh_w3_to_wt_kernel_type
-  use inject_wt_to_sh_w3_kernel_mod,    only: inject_wt_to_sh_w3_kernel_type
+  use sci_inject_sh_w3_to_wt_kernel_mod, only: inject_sh_w3_to_wt_kernel_type
+  use sci_inject_wt_to_sh_w3_kernel_mod, only: inject_wt_to_sh_w3_kernel_type
 
   ! Configs
   use finite_element_config_mod,        only: element_order

@@ -112,12 +112,12 @@ SUBROUTINE load(self, filename)
 !  Loads a SCRIP style weights file into a weights derived type
 ! LFRic modules
 USE log_mod, ONLY: log_event, LOG_LEVEL_INFO, LOG_LEVEL_ERROR, &
-    log_scratch_space
+                   log_scratch_space
 ! lfricinputs modules
 USE lfricinp_check_stat_ncdf_mod, ONLY: check_stat_ncdf
 ! External libraries
 USE netcdf, ONLY: NF90_OPEN, NF90_NOWRITE, NF90_GET_VAR, NF90_INQ_DIMID, &
-     NF90_INQUIRE_DIMENSION, NF90_INQ_VARID, NF90_CLOSE
+                  NF90_INQUIRE_DIMENSION, NF90_INQ_VARID, NF90_CLOSE
 
 IMPLICIT NONE
 

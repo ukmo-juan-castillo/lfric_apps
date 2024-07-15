@@ -422,7 +422,7 @@ contains
 
     use dg_inc_matrix_vector_kernel_mod, only: dg_inc_matrix_vector_kernel_type
     use operator_mod,                    only: r_solver_operator_type
-    use enforce_bc_kernel_mod,           only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,       only: enforce_bc_kernel_type
     use split_w2_field_kernel_mod,       only: split_w2_field_kernel_type
     use fs_continuity_mod,               only: W2
     use scaled_matrix_vector_kernel_mod, only: scaled_matrix_vector_kernel_type

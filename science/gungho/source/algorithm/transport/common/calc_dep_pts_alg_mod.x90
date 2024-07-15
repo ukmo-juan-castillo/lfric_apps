@@ -57,30 +57,30 @@ module calc_dep_pts_alg_mod
                                                calculate_detj_upwind
 
   ! Other algorithms
-  use field_minmax_alg_mod,              only: log_field_minmax
+  use sci_field_minmax_alg_mod,          only: log_field_minmax
 
   ! Kernels
   use calc_departure_wind_kernel_mod,    only: calc_departure_wind_kernel_type
   use calc_upwind_detj_at_w2_kernel_mod, only: calc_upwind_detj_at_w2_kernel_type
   use calc_vert_dep_wind_kernel_mod,     only: calc_vert_dep_wind_kernel_type
   use combine_w2_field_kernel_mod,       only: combine_w2_field_kernel_type
-  use extract_uv_kernel_mod,             only: extract_uv_kernel_type
-  use extract_w_kernel_mod,              only: extract_w_kernel_type
-  use fractional_horizontal_wind_kernel_mod,   &
+  use sci_extract_uv_kernel_mod,         only: extract_uv_kernel_type
+  use sci_extract_w_kernel_mod,          only: extract_w_kernel_type
+  use fractional_horizontal_wind_kernel_mod, &
                                          only: fractional_horizontal_wind_kernel_type
-  use fractional_vertical_wind_kernel_mod,   &
+  use fractional_vertical_wind_kernel_mod, &
                                          only: fractional_vertical_wind_kernel_type
   use hori_dep_dist_eulerian_kernel_mod, only: hori_dep_dist_eulerian_kernel_type
   use hori_dep_dist_midpoint_kernel_mod, only: hori_dep_dist_midpoint_kernel_type
-  use hori_dep_dist_trapezoidal_kernel_mod,  &
+  use hori_dep_dist_trapezoidal_kernel_mod, &
                                          only: hori_dep_dist_trapezoidal_kernel_type
   use hori_dep_dist_ffsl_kernel_mod,     only: hori_dep_dist_ffsl_kernel_type
   use psykal_lite_mod,                   only: invoke_copy_to_rtran
   use vert_dep_dist_boundary_kernel_mod, only: vert_dep_dist_boundary_kernel_type
   use vert_dep_dist_ffsl_kernel_mod,     only: vert_dep_dist_ffsl_kernel_type
-  use vert_dep_dist_exponential_kernel_mod,  &
+  use vert_dep_dist_exponential_kernel_mod, &
                                          only: vert_dep_dist_exponential_kernel_type
-  use vert_dep_dist_lagrangian_kernel_mod,   &
+  use vert_dep_dist_lagrangian_kernel_mod, &
                                          only: vert_dep_dist_lagrangian_kernel_type
   use vert_deppt_sorting_kernel_mod,     only: vert_deppt_sorting_kernel_type
 

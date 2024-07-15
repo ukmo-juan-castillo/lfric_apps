@@ -31,7 +31,7 @@ use idealised_config_mod,       only : test_gaussian_hill,        &
                                        test_rotational,           &
                                        test_translational,        &
                                        test_vertical_cylinder
-use initial_tracer_field_config_mod,                                   &
+use initial_tracer_field_config_mod, &
                                 only : r1, x1, y1, z1, r2, x2, y2, z2, &
                                        field_max, field_background
 use base_mesh_config_mod,       only : geometry, &

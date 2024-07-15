@@ -473,7 +473,7 @@ contains
     use matrix_vector_kernel_mod,           only: matrix_vector_kernel_type
     use dg_matrix_vector_kernel_mod,        only: dg_matrix_vector_kernel_type
     use transpose_matrix_vector_kernel_mod, only: transpose_matrix_vector_kernel_type
-    use enforce_bc_kernel_mod,              only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,          only: enforce_bc_kernel_type
     use fs_continuity_mod,                  only: W0, W2, W3, Wtheta
     use boundaries_config_mod,              only: limited_area
     use sci_psykal_light_mod,               only: invoke_copy_to_rdef, &

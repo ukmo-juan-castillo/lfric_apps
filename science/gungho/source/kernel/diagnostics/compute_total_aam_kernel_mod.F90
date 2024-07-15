@@ -108,10 +108,10 @@ subroutine compute_total_aam_code(                                           &
                                   nqp_h, nqp_v, wqp_h, wqp_v                 &
                                  )
 
-  use coordinate_jacobian_mod,   only: coordinate_jacobian
-  use chi_transform_mod,         only: chi2llr, chi2xyz
-  use coord_transform_mod,       only: cart2sphere_vector
-  use cross_product_mod,         only: cross_product
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian
+  use sci_chi_transform_mod,       only: chi2llr, chi2xyz
+  use coord_transform_mod,         only: cart2sphere_vector
+  use cross_product_mod,           only: cross_product
 
   implicit none
 

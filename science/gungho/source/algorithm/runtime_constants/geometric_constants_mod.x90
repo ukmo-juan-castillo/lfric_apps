@@ -49,14 +49,14 @@ module geometric_constants_mod
   use planet_config_mod,                  only: scaled_radius
 
   ! Kernels
-  use calc_dA_at_w2_kernel_mod,           only: calc_dA_at_w2_kernel_type
-  use compute_latlon_kernel_mod,          only: compute_latlon_kernel_type
-  use get_height_kernel_mod,              only: get_height_kernel_type
-  use get_dz_w3_kernel_mod,               only: get_dz_w3_kernel_type
-  use set_any_int_dof_kernel_mod,         only: set_any_int_dof_kernel_type
-  use face_selector_kernel_mod,           only: face_selector_kernel_type
+  use sci_calc_da_at_w2_kernel_mod,       only: calc_dA_at_w2_kernel_type
+  use sci_compute_latlon_kernel_mod,      only: compute_latlon_kernel_type
+  use sci_get_height_kernel_mod,          only: get_height_kernel_type
+  use sci_get_dz_w3_kernel_mod,           only: get_dz_w3_kernel_type
+  use sci_set_any_int_dof_kernel_mod,     only: set_any_int_dof_kernel_type
+  use sci_face_selector_kernel_mod,       only: face_selector_kernel_type
 
-  use extend_chi_field_kernel_mod,        only: extend_chi_field
+  use sci_extend_chi_field_kernel_mod,    only: extend_chi_field
   implicit none
 
   private
@@ -550,7 +550,7 @@ contains
   !> @param[in] mesh_id The ID of the mesh to get the object for
   !> @return The displacement field used for correcting mappings from W3 to W2
   function get_w3_to_w2_displacement(mesh_id) result(w3_to_w2_displacement)
-    use w3_to_w2_displacement_kernel_mod, only: w3_to_w2_displacement_kernel_type
+    use sci_w3_to_w2_displacement_kernel_mod, only: w3_to_w2_displacement_kernel_type
     implicit none
     integer(kind=i_def),    intent(in) :: mesh_id
     type(mesh_type),           pointer :: mesh => null()

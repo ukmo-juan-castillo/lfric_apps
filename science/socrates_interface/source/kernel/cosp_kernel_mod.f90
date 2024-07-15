@@ -192,19 +192,18 @@ subroutine cosp_code(nlayers, n_profile, &
                      ndf_atb40, undf_atb40, map_atb40)
 
   use empty_data_mod, only: empty_real_data
-  use radiation_config_mod, only: &
-    i_cloud_ice_type_lw, i_cloud_liq_type_lw, &
-    i_cloud_ice_type_sw, i_cloud_liq_type_sw, &
-    cloud_vertical_decorr, constant_droplet_effective_radius, &
-    liu_aparam, liu_bparam
-  use socrates_init_mod, only: &
-    i_cloud_representation, i_overlap, i_drop_re
+  use radiation_config_mod, only: i_cloud_ice_type_lw, i_cloud_liq_type_lw, &
+                                  i_cloud_ice_type_sw, i_cloud_liq_type_sw, &
+                                  cloud_vertical_decorr, &
+                                  constant_droplet_effective_radius, &
+                                  liu_aparam, liu_bparam
+  use socrates_init_mod, only: i_cloud_representation, i_overlap, i_drop_re
   use socrates_runes, only: runes, StrDiag, &
-    ip_source_thermal, ip_source_illuminate, &
-    ip_inhom_mcica, ip_inhom_homogeneous
+                            ip_source_thermal, ip_source_illuminate, &
+                            ip_inhom_mcica, ip_inhom_homogeneous
   use cosp_mod, only: cosp, &
-    n_cloudsat_levels, n_backscatter_bins,  &
-    n_isccp_tau_bins, n_isccp_pressure_bins
+                      n_cloudsat_levels, n_backscatter_bins,  &
+                      n_isccp_tau_bins, n_isccp_pressure_bins
   use cosp_def_diag, only: CospDiag
 
   implicit none

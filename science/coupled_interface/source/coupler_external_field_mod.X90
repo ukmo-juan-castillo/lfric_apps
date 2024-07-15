@@ -33,8 +33,8 @@ module coupler_external_field_mod
                                       log_scratch_space
   use model_clock_mod,          only: model_clock_type
   use mpi_mod,                  only: global_mpi
-  use multi_extract_kernel_mod, only: multi_extract_kernel_type
-  use set_reciprocal_mod,       only: set_reciprocal_type
+  use sci_multi_extract_kernel_mod, only: multi_extract_kernel_type
+  use sci_set_reciprocal_mod,   only: set_reciprocal_type
 
 
   implicit none

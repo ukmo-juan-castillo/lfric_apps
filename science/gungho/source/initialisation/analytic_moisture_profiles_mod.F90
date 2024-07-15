@@ -22,8 +22,7 @@ use coord_transform_mod,          only : xyz2llr, central_angle
 use base_mesh_config_mod,         only : geometry, &
                                          geometry_spherical
 use initial_density_config_mod,   only : r1, x1, y1, z1, r2, x2, y2, z2
-use deep_baroclinic_wave_mod, &
-                                  only : deep_baroclinic_wave
+use deep_baroclinic_wave_mod,     only : deep_baroclinic_wave
 
 implicit none
 

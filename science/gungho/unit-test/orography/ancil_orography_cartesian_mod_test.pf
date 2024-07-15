@@ -92,7 +92,7 @@ contains
   @Test
   subroutine test_all( this )
 
-    use average_w3_to_w0_kernel_mod,   only : average_w3_to_w0_code
+    use sci_average_w3_to_w0_kernel_mod, only : average_w3_to_w0_code
     use assign_orography_field_mod, only : ancil_orography_cartesian
 
     use get_unit_test_m3x3_q3x3x3_sizes_mod, only : get_w0_m3x3_q3x3x3_size, &

@@ -11,10 +11,10 @@ module mg_flux_kernel_mod_test
   use pFunit_mod
 
   use get_unit_test_m3x3_q3x3x3_sizes_mod,       only : get_w2_m3x3_q3x3x3_size,  &
-       get_w3_m3x3_q3x3x3_size
+                                                        get_w3_m3x3_q3x3x3_size
   use get_unit_test_q3x3x3_basis_mod,       only : get_w3_q3x3x3_basis
   use get_unit_test_m3x3_dofmap_mod,      only : get_w2_m3x3_dofmap,       &
-       get_w3_m3x3_dofmap
+                                                 get_w3_m3x3_dofmap
 
 
   implicit none

@@ -19,9 +19,12 @@ module process_ssi_kernel_mod
   use constants_mod, only: r_def, i_def, l_def
   use kernel_mod,    only: kernel_type
 
-  use jules_control_init_mod, only: n_sea_ice_tile, &
-       first_sea_tile, first_sea_ice_tile, n_land_tile, n_surf_tile
-  use jules_physics_init_mod,               only : min_sea_ice_frac
+  use jules_control_init_mod, only: n_sea_ice_tile,     &
+                                    first_sea_tile,     &
+                                    first_sea_ice_tile, &
+                                    n_land_tile,        &
+                                    n_surf_tile
+  use jules_physics_init_mod, only : min_sea_ice_frac
 
   implicit none
 

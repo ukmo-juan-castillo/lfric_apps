@@ -219,8 +219,12 @@ subroutine sw_inc_code(nlayers, n_profile,                                     &
     constant_droplet_effective_radius, liu_aparam, liu_bparam
   use aerosol_config_mod, only: sulphuric_strat_climatology
   use jules_control_init_mod, only: n_surf_tile
-  use socrates_init_mod, only: n_swinc_band, &
-    i_cloud_representation, i_overlap, i_inhom_inc, i_drop_re, l_orog
+  use socrates_init_mod, only: n_swinc_band,           &
+                               i_cloud_representation, &
+                               i_overlap,              &
+                               i_inhom_inc,            &
+                               i_drop_re,              &
+                               l_orog
   use socrates_runes, only: runes, StrDiag, ip_source_illuminate
   use gas_calc_all_mod, only: &
     cfc11_mix_ratio_now,  &

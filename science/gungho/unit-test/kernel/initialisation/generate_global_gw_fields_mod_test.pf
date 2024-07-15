@@ -62,10 +62,10 @@ contains
     use formulation_config_mod, only :  eos_method_sampled,      &
                                         moisture_formulation_dry
 
-    use initial_pressure_config_mod,                    &
+    use initial_pressure_config_mod, &
                                  only : method_balanced
 
-    use initial_temperature_config_mod,                 &
+    use initial_temperature_config_mod, &
                                  only : perturb_none
 
     use initial_wind_config_mod, only : profile_none

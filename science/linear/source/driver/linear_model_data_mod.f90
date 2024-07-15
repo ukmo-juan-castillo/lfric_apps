@@ -302,7 +302,7 @@ contains
   subroutine linear_init_ls( mesh, twod_mesh, modeldb )
 
     use gungho_step_mod,                only : gungho_step
-    use field_minmax_alg_mod,           only : log_field_minmax
+    use sci_field_minmax_alg_mod,       only : log_field_minmax
 
     implicit none
 

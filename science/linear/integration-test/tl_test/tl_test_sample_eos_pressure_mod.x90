@@ -11,10 +11,11 @@
 !!         convergence test.
 module tl_test_sample_eos_pressure_mod
 
-  use assign_field_random_kernel_mod, only: assign_field_random_kernel_type
+  use sci_assign_field_random_kernel_mod, &
+                                      only: assign_field_random_kernel_type
   use constants_mod,                  only: i_def, r_def, str_def
   use field_array_mod,                only: field_array_type
-  use field_bundle_builtins_mod,      only: clone_bundle
+  use sci_field_bundle_builtins_mod,  only: clone_bundle
   use field_mod,                      only: field_type
   use mesh_mod,                       only: mesh_type
   use field_collection_mod,           only: field_collection_type
@@ -27,8 +28,7 @@ module tl_test_sample_eos_pressure_mod
   use log_mod,                        only: log_event,         &
                                             log_scratch_space, &
                                             LOG_LEVEL_INFO
-  use sample_eos_pressure_kernel_mod, &
-                                      only: sample_eos_pressure_kernel_type
+  use sample_eos_pressure_kernel_mod, only: sample_eos_pressure_kernel_type
   use tl_sample_eos_pressure_kernel_mod, &
                                       only: tl_sample_eos_pressure_kernel_type
   use tl_test_convergence_rate_check, only: convergence_rate_check

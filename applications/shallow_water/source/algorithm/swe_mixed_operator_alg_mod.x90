@@ -153,7 +153,7 @@ contains
     use dg_matrix_vector_kernel_mod,        only: dg_matrix_vector_kernel_type
     use timestepping_config_mod,            only: dt, &
                                                   alpha
-    use enforce_bc_kernel_mod,              only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,          only: enforce_bc_kernel_type
     use shallow_water_settings_config_mod,  only: ref_gp, &
                                                   thermal_swe
 

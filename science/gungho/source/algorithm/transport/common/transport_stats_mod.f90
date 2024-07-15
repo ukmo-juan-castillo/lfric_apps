@@ -15,7 +15,7 @@ module transport_stats_mod
   use log_mod,                           only: log_event,           &
                                                log_scratch_space,   &
                                                LOG_LEVEL_INFO
-  use field_minmax_alg_mod,              only: get_field_minmax
+  use sci_field_minmax_alg_mod,          only: get_field_minmax
 
   implicit none
 

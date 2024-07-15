@@ -1089,31 +1089,34 @@ subroutine aerosol_ukca_code( nlayers,                                         &
                               fldname_grid_airmass,                            &
                               nlev_ent_tr_mix
 
-  use log_mod,          only: log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,              only: log_event, log_scratch_space, LOG_LEVEL_ERROR
   use chemistry_config_mod, only: chem_scheme, chem_scheme_strattrop
 
   ! UM modules
   use nlsizes_namelist_mod, only: bl_levels
-  use planet_constants_mod,  only: p_zero, kappa, planet_radius
-  use timestep_mod, only: timestep
+  use planet_constants_mod, only: p_zero, kappa, planet_radius
+  use timestep_mod,         only: timestep
 
   ! JULES modules
-  use jules_surface_types_mod, only: npft, ntype
-  use jules_surface_mod,        only: l_urban2t
+  use jules_surface_types_mod, &
+                            only: npft, ntype
+  use jules_surface_mod,    only: l_urban2t
   use jules_sea_seaice_mod, only: nice
-  use jules_urban_mod,           only: l_moruses
-  use sparm_mod, only: sparm
-  use tilepts_mod, only: tilepts
-  use ancil_info, only: ainfo_data_type, ainfo_type, ancil_info_alloc,         &
-          ancil_info_dealloc, ancil_info_nullify, ancil_info_assoc, nsoilt
-  use urban_param_mod, only: urban_param_data_type, urban_param_type,          &
-          urban_param_alloc, urban_param_assoc, urban_param_nullify,           &
-          urban_param_dealloc
-  use theta_field_sizes,        only: t_i_length, t_j_length
+  use jules_urban_mod,      only: l_moruses
+  use sparm_mod,            only: sparm
+  use tilepts_mod,          only: tilepts
+  use ancil_info,           only: ainfo_data_type, ainfo_type,          &
+                                  ancil_info_alloc, ancil_info_dealloc, &
+                                  ancil_info_nullify, ancil_info_assoc, &
+                                  nsoilt
+  use urban_param_mod,      only: urban_param_data_type, urban_param_type, &
+                                  urban_param_alloc, urban_param_assoc,    &
+                                  urban_param_nullify, urban_param_dealloc
+  use theta_field_sizes,    only: t_i_length, t_j_length
 
   ! UKCA API module
-  use ukca_api_mod, only: ukca_step_control, ukca_maxlen_message,              &
-                          ukca_maxlen_procname
+  use ukca_api_mod,         only: ukca_step_control, ukca_maxlen_message, &
+                                  ukca_maxlen_procname
 
   implicit none
 

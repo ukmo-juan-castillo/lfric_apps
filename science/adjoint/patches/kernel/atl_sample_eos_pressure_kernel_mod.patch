@@ -32,7 +32,7 @@
 -&undf_w3, map_w3, w3_basis, ndf_wt, undf_wt, map_wt, wt_basis)
 +  subroutine atl_sample_eos_pressure_code(nlayers, exner, rho, theta, moist_dyn_gas, ls_rho, ls_theta, ls_moist_dyn_gas, ndf_w3, &
 +&undf_w3, map_w3, w3_basis, basis_w3_on_wt, ndf_wt, undf_wt, map_wt, wt_basis, basis_wt_on_wt)
-     use coordinate_jacobian_mod, only : coordinate_jacobian
+     use sci_coordinate_jacobian_mod, only : coordinate_jacobian
      integer(kind=i_def), intent(in) :: nlayers
      integer(kind=i_def), intent(in) :: ndf_wt
 @@ -39,7 +40,9 @@

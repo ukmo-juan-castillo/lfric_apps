@@ -446,8 +446,9 @@ contains
     ! LFRic modules
     !---------------------------------------
     use gas_calc_all_mod, only: co2_mix_ratio_now
-    use jules_control_init_mod, only: n_land_tile, n_sea_ice_tile, &
-         first_sea_tile, first_sea_ice_tile, n_surf_tile
+    use jules_control_init_mod, only: n_land_tile, n_sea_ice_tile,        &
+                                      first_sea_tile, first_sea_ice_tile, &
+                                      n_surf_tile
 
     !---------------------------------------
     ! UM/Jules modules containing switches or global constants
@@ -462,19 +463,20 @@ contains
     use jules_snow_mod, only: nsmax, cansnowtile
     use jules_soil_mod, only: ns_deep, l_bedrock
     use jules_soil_biogeochem_mod, only: dim_ch4layer, soil_bgc_model,         &
-         soil_model_ecosse, l_layeredc
+                                         soil_model_ecosse, l_layeredc
     use jules_surface_mod, only: l_urban2t, l_flake_model
     use jules_surface_types_mod, only: npft, ntype, ncpft, nnpft, soil
     use jules_urban_mod, only: l_moruses
     use jules_vegetation_mod, only: l_crop, l_triffid, l_phenol, l_use_pft_psi,&
-         can_rad_mod, l_acclim, l_sugar
+                                    can_rad_mod, l_acclim, l_sugar
     use jules_water_tracers_mod, only: l_wtrac_jls, n_wtrac_jls, n_evap_srce
     use nlsizes_namelist_mod, only: sm_levels, ntiles, bl_levels
     use planet_constants_mod, only: p_zero, kappa, planet_radius, cp, g, grcp, &
-         c_virtual, repsilon, r, lcrcp, lsrcp, vkman
+                                    c_virtual, repsilon, r, lcrcp, lsrcp, vkman
     use rad_input_mod, only: co2_mmr
-    use bl_option_mod, only: one_third, flux_bc_opt,interactive_fluxes,        &
-         specified_fluxes_only, specified_fluxes_cd, l_noice_in_turb
+    use bl_option_mod, only: one_third, flux_bc_opt,interactive_fluxes,  &
+                             specified_fluxes_only, specified_fluxes_cd, &
+                             l_noice_in_turb
     use water_constants_mod, only: lc
     use veg3_parm_mod, only: l_veg3
     use c_elevate, only: l_elev_absolute_height

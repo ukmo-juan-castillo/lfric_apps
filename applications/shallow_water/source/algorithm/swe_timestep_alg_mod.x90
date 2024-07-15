@@ -29,7 +29,7 @@ module swe_timestep_alg_mod
   ! Configuration options
   use finite_element_config_mod,      only: element_order, nqp_exact
   use io_config_mod,                  only: subroutine_timers
-  use shallow_water_settings_config_mod, &
+  use shallow_water_settings_config_mod,                     &
                                       only: ref_gp,          &
                                             thermal_swe,     &
                                             time_scheme,     &

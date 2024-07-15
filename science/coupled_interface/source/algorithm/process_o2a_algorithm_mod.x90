@@ -17,7 +17,7 @@ module process_o2a_algorithm_mod
   use map_fd_to_prognostics_alg_mod, only: set_wind
   use log_mod,                       only: log_event, LOG_LEVEL_INFO
   use mesh_mod,                      only: mesh_type
-  use multi_insert_kernel_mod,       only: multi_insert_kernel_type
+  use sci_multi_insert_kernel_mod,   only: multi_insert_kernel_type
 
   implicit none
 

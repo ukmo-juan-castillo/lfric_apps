@@ -34,7 +34,7 @@ contains
     use gen_phys_inputs_mod, only: l_mr_physics
     use model_domain_mod, only: model_type, mt_lfric
     use nlsizes_namelist_mod, only: model_levels, cloud_levels, n_cca_lev, &
-         tr_vars
+                                    tr_vars
 
     implicit none
 

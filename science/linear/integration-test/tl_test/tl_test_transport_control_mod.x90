@@ -7,11 +7,12 @@
 
 module tl_test_transport_control_mod
 
-  use assign_field_random_kernel_mod, only: assign_field_random_kernel_type
+  use sci_assign_field_random_kernel_mod, &
+                                      only: assign_field_random_kernel_type
   use constants_mod,                  only: i_def, r_def, str_def
   use field_array_mod,                only: field_array_type
   use field_mod,                      only: field_type
-  use field_bundle_builtins_mod,      only: clone_bundle, &
+  use sci_field_bundle_builtins_mod,  only: clone_bundle, &
                                             minus_bundle, &
                                             add_bundle,   &
                                             set_bundle_scalar
@@ -26,7 +27,7 @@ module tl_test_transport_control_mod
                                             log_scratch_space, &
                                             LOG_LEVEL_INFO
   use mesh_mod,                       only: mesh_type
-  use gungho_transport_control_alg_mod,     &
+  use gungho_transport_control_alg_mod,                                        &
                                       only: gungho_transport_control_alg_init, &
                                             gungho_transport_control_alg
   use tl_transport_control_alg_mod,   only: tl_transport_control_alg

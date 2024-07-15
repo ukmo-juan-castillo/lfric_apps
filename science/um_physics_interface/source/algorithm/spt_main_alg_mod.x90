@@ -119,8 +119,8 @@ module spt_main_alg_mod
   use stph_fp_main_alg_mod, only: stph_fp_main_alg
 
   ! Load modules for 1-2-1 wtheta -> w0 bottom DoF -> wtheta filtering
-  use wth_to_w0_average_kernel_mod, only: wth_to_w0_average_kernel_type
-  use w0_to_wth_average_kernel_mod, only: w0_to_wth_average_kernel_type
+  use sci_wth_to_w0_average_kernel_mod, only: wth_to_w0_average_kernel_type
+  use sci_w0_to_wth_average_kernel_mod, only: w0_to_wth_average_kernel_type
 
   ! Operators
   use fem_constants_mod,         only: get_rmultiplicity

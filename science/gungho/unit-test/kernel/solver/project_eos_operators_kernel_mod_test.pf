@@ -9,7 +9,7 @@
 !>
 module project_eos_operators_kernel_mod_test
 
-  use constants_mod,                 only : i_def, r_def, r_solver
+  use constants_mod, only : i_def, r_def, r_solver
   use pFUnit_Mod
 
   implicit none
@@ -63,7 +63,7 @@ contains
                                           feign_initial_temperature_config, &
                                           feign_planet_config,              &
                                           feign_finite_element_config
-    use initial_temperature_config_mod,                   &
+    use initial_temperature_config_mod, &
                                    only : perturb_none
 
     implicit none

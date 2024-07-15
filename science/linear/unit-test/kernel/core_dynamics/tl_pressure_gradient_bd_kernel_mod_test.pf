@@ -8,7 +8,7 @@
 !!       computation.
 module tl_pressure_gradient_bd_kernel_mod_test
 
-  use constants_mod,                 only : i_def, r_def
+  use constants_mod, only : i_def, r_def
 
   use pFUnit_Mod
 
@@ -65,7 +65,7 @@ contains
   @Test
   subroutine test_all( this )
 
-    use tl_pressure_gradient_bd_kernel_mod,      only : tl_pressure_gradient_bd_code
+    use tl_pressure_gradient_bd_kernel_mod, only : tl_pressure_gradient_bd_code
 
     use get_unit_test_qfaces_mod, only: get_number_quadrature_points_per_face, &
                                         get_w2_qfaces_cube_h_basis,            &

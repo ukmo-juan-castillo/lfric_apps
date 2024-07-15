@@ -162,7 +162,7 @@ subroutine poly1d_advective_coeffs_code(one_layer,                 &
   use base_mesh_config_mod,      only: geometry, &
                                        geometry_spherical
   use poly_helper_functions_mod, only: local_distance_1d
-  use chi_transform_mod,         only: chir2xyz
+  use sci_chi_transform_mod,     only: chir2xyz
   use transport_config_mod,      only: extended_mesh
 
   implicit none

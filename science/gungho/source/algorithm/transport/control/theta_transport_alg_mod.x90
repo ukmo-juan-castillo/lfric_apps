@@ -8,9 +8,10 @@
 module theta_transport_alg_mod
 
   use constants_mod,                  only: i_def, r_def
-  use dg_inc_matrix_vector_kernel_mod,    &
+  use dg_inc_matrix_vector_kernel_mod, &
                                       only: dg_inc_matrix_vector_kernel_type
-  use enforce_lower_bound_kernel_mod, only: enforce_lower_bound_kernel_type
+  use sci_enforce_lower_bound_kernel_mod, &
+                                      only: enforce_lower_bound_kernel_type
   use fem_constants_mod,              only: get_inverse_lumped_mass_matrix, &
                                             get_mass_matrix_diagonal,       &
                                             get_mass_matrix
@@ -26,7 +27,8 @@ module theta_transport_alg_mod
   use mr_indices_mod,                 only: nummr, imr_v
   use operator_mod,                   only: operator_type
   use planet_config_mod,              only: recip_epsilon
-  use sort_column_above_kernel_mod,   only: sort_column_above_kernel_type
+  use sci_sort_column_above_kernel_mod, &
+                                      only: sort_column_above_kernel_type
   use timer_mod,                      only: timer
   use timestepping_config_mod,        only: time_method => method, &
                                             method_semi_implicit
@@ -40,7 +42,8 @@ module theta_transport_alg_mod
                                             equation_form_consistent
   use transport_field_mod,            only: transport_field
   use transport_metadata_mod,         only: transport_metadata_type
-  use transport_rho_times_field_alg_mod,  only: transport_rho_times_field_alg
+  use transport_rho_times_field_alg_mod, &
+                                      only: transport_rho_times_field_alg
 
   implicit none
 

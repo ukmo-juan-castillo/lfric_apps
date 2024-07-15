@@ -25,7 +25,7 @@ SUBROUTINE lfricinp_reorder_snow_field(field, um_grid)
 USE lfricinp_grid_type_mod, ONLY: lfricinp_grid_type
 
 USE log_mod, ONLY: log_event, LOG_LEVEL_ERROR, log_scratch_space, &
-    LOG_LEVEL_INFO
+                   LOG_LEVEL_INFO
 ! Arguments
 REAL(KIND=real64), ALLOCATABLE, INTENT(IN OUT) :: field(:,:)
 ! Note 1st index is 2D field, 2nd index is pseudo level number

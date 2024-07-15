@@ -178,7 +178,7 @@ contains
 
     use dg_matrix_vector_kernel_mod,        only: dg_matrix_vector_kernel_type
     use transpose_matrix_vector_kernel_mod, only: transpose_matrix_vector_kernel_type
-    use enforce_bc_kernel_mod,              only: enforce_bc_kernel_type
+    use sci_enforce_bc_kernel_mod,          only: enforce_bc_kernel_type
 
     implicit none
 

@@ -8,8 +8,8 @@
 
 module science_conversions_mod
 
-  use constants_mod,         only : r_def
-  use science_constants_mod, only : zero_C_in_K
+  use constants_mod,     only : r_def
+  use sci_constants_mod, only : zero_C_in_K
 
   implicit none
 

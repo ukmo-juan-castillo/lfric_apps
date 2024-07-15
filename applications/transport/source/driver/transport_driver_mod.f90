@@ -9,7 +9,7 @@
 module transport_driver_mod
 
   use add_mesh_map_mod,                 only: assign_mesh_maps
-  use checksum_alg_mod,                 only: checksum_alg
+  use sci_checksum_alg_mod,             only: checksum_alg
   use check_configuration_mod,          only: get_required_stencil_depth
   use configuration_mod,                only: final_configuration
   use constants_mod,                    only: i_def, l_def, &
@@ -484,7 +484,7 @@ contains
                                       subroutine_timers,    &
                                       write_diag
     use multires_coupling_config_mod, only: aerosol_mesh_name
-    use field_minmax_alg_mod,         only: log_field_minmax
+    use sci_field_minmax_alg_mod,     only: log_field_minmax
 
     implicit none
 

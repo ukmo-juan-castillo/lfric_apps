@@ -127,7 +127,7 @@ contains
     use, intrinsic :: iso_fortran_env, only : real64
     use analytic_wind_profiles_mod, only: analytic_wind
     use constants_mod,              only: PI
-    use initial_wind_config_mod, &
+    use initial_wind_config_mod,                                &
                          only: profile_solid_body_rotation,     &
                                profile_solid_body_rotation_alt, &
                                profile_constant_shear_uv,       &

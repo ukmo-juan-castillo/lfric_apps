@@ -23,7 +23,7 @@ module gungho_diagnostics_driver_mod
                                         write_hydbal_diagnostic,     &
                                         write_vorticity_diagnostic,  &
                                         write_pv_diagnostic
-  use initialise_diagnostics_mod,only : diagnostic_to_be_sampled
+  use initialise_diagnostics_mod, only : diagnostic_to_be_sampled
   use field_array_mod,           only : field_array_type
   use field_collection_iterator_mod, &
                                  only : field_collection_iterator_type

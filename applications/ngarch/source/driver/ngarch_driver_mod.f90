@@ -24,8 +24,8 @@ module ngarch_driver_mod
   use mesh_mod,                   only : mesh_type
   use mesh_collection_mod,        only : mesh_collection
   use gungho_init_fields_mod,     only : create_model_data, initialise_model_data
-  use field_bundle_builtins_mod,  only : clone_bundle, &
-                                         set_bundle_scalar
+  use sci_field_bundle_builtins_mod, only : clone_bundle, &
+                                            set_bundle_scalar
   use mr_indices_mod,             only : nummr
 
   use casim_alg_mod, only : casim_alg

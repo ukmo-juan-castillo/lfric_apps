@@ -27,7 +27,7 @@ use argument_mod,            only: arg_type, func_type,       &
                                    CELL_COLUMN, GH_QUADRATURE_XYoZ
 use fs_continuity_mod,       only: W2
 
-use coordinate_jacobian_mod, only: coordinate_jacobian
+use sci_coordinate_jacobian_mod, only: coordinate_jacobian
 use base_mesh_config_mod,    only: geometry,           &
                                    geometry_spherical
 use rotation_vector_mod,     only: rotation_vector_fplane,  &

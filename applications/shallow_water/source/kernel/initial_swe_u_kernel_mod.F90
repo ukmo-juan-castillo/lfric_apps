@@ -96,9 +96,9 @@ subroutine initial_swe_u_code( nlayers, rhs,                       &
   use analytic_swe_wind_profiles_mod, only : analytic_swe_wind
   use base_mesh_config_mod,           only : geometry, &
                                              geometry_spherical
-  use coordinate_jacobian_mod,        only : coordinate_jacobian
+  use sci_coordinate_jacobian_mod,    only : coordinate_jacobian
   use coord_transform_mod,            only : sphere2cart_vector
-  use chi_transform_mod,              only : chi2llr, chi2xyz
+  use sci_chi_transform_mod,          only : chi2llr, chi2xyz
 
   implicit none
 

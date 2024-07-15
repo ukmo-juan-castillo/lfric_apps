@@ -24,11 +24,11 @@ module tidally_locked_earth_kernel_mod
                                                ANY_DISCONTINUOUS_SPACE_3, &
                                                GH_READ, CELL_COLUMN
   use constants_mod,                     only: r_def, i_def
-  use chi_transform_mod,                 only: chi2llr
+  use sci_chi_transform_mod,             only: chi2llr
   use calc_exner_pointwise_mod,          only: calc_exner_pointwise
   use fs_continuity_mod,                 only: Wtheta
   use tidally_locked_earth_forcings_mod, only: &
-                                         tidally_locked_earth_equilibrium_theta
+    tidally_locked_earth_equilibrium_theta
   use held_suarez_forcings_mod,          only: held_suarez_newton_frequency
   use kernel_mod,                        only: kernel_type
 

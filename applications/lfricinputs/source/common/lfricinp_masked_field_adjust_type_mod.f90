@@ -16,7 +16,7 @@ USE f_shum_field_mod, ONLY: shum_field_type
 
 ! LFRic modules
 USE log_mod, ONLY: log_event, log_scratch_space, LOG_LEVEL_ERROR, &
-  LOG_LEVEL_INFO
+                   LOG_LEVEL_INFO
 USE constants_mod, ONLY: imdi, rmdi
 
 IMPLICIT NONE

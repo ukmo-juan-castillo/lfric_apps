@@ -139,7 +139,7 @@ contains
     use orography_config_mod,           only : orog_init_option, &
                                                orog_init_option_ancil, &
                                                orog_init_option_start_dump
-    use field_minmax_alg_mod,           only : log_field_minmax
+    use sci_field_minmax_alg_mod,       only : log_field_minmax
 
     implicit none
 

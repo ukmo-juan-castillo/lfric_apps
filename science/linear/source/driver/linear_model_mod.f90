@@ -27,7 +27,7 @@ module linear_model_mod
                                          LOG_LEVEL_INFO,    &
                                          LOG_LEVEL_TRACE,   &
                                          LOG_LEVEL_ERROR
-  use mesh_mod,                    only: mesh_type
+  use mesh_mod,                   only : mesh_type
 
   implicit none
 

@@ -109,8 +109,8 @@ contains
   use analytic_wind_profiles_mod, only : analytic_wind
   use base_mesh_config_mod,       only : geometry,           &
                                          geometry_spherical
-  use chi_transform_mod,          only : chi2llr
-  use coordinate_jacobian_mod,    only : coordinate_jacobian
+  use sci_chi_transform_mod,      only : chi2llr
+  use sci_coordinate_jacobian_mod, only : coordinate_jacobian
   use coord_transform_mod,        only : sphere2cart_vector
 
   implicit none

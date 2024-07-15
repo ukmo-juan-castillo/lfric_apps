@@ -31,8 +31,8 @@ module process_inputs_alg_mod
                                         first_sea_tile, n_sea_tile, &
                                         first_sea_ice_tile, n_sea_ice_tile
   use jules_surface_config_mod,   only: l_urban2t
-  use multi_insert_kernel_mod,    only: multi_insert_kernel_type
-  use int_multi_insert_kernel_mod, only: int_multi_insert_kernel_type
+  use sci_multi_insert_kernel_mod, only: multi_insert_kernel_type
+  use sci_int_multi_insert_kernel_mod, only: int_multi_insert_kernel_type
   use derived_config_mod,         only: l_esm_couple
   use set_topography_kernel_mod,  only: set_topography_kernel_type
   use geometric_constants_mod,    only: get_latitude

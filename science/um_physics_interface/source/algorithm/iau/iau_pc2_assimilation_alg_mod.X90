@@ -19,8 +19,8 @@ module iau_pc2_assimilation_alg_mod
    use nlsizes_namelist_mod,              only : model_levels
    use pc2_checks_kernel_mod,             only : pc2_checks_kernel_type
    use pc2_homog_iau_kernel_mod,          only : pc2_homog_iau_kernel_type
-   use enforce_lower_bound_kernel_mod,    only : enforce_lower_bound_kernel_type
-   use enforce_upper_bound_kernel_mod,    only : enforce_upper_bound_kernel_type
+   use sci_enforce_lower_bound_kernel_mod, only : enforce_lower_bound_kernel_type
+   use sci_enforce_upper_bound_kernel_mod, only : enforce_upper_bound_kernel_type
 
    implicit none
 

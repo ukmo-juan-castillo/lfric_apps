@@ -185,7 +185,7 @@ subroutine lw_inc_code(nlayers, n_profile,                                     &
                    ndf_itile, undf_itile, map_itile)
 
   use radiation_config_mod, only: &
-    i_cloud_ice_type_lwinc, i_cloud_liq_type_lwinc, &
+                                 i_cloud_ice_type_lwinc, i_cloud_liq_type_lwinc, &
     cloud_vertical_decorr, constant_droplet_effective_radius, &
     liu_aparam, liu_bparam
   use aerosol_config_mod, only: sulphuric_strat_climatology

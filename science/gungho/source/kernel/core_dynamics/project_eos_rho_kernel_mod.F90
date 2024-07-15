@@ -104,7 +104,7 @@ subroutine project_eos_rho_code(nlayers,                           &
                                 nqp_h, nqp_v, wqp_h, wqp_v         &
                                 )
 
-  use coordinate_jacobian_mod, only: coordinate_jacobian
+  use sci_coordinate_jacobian_mod, only: coordinate_jacobian
 
   implicit none
 

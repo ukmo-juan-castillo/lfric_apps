@@ -15,11 +15,12 @@ module transport_init_fields_alg_mod
   use constants_mod,                     only: r_def, i_def, radians_to_degrees
   use domain_mod,                        only: domain_type
   use divergence_alg_mod,                only: divergence_alg
-  use enforce_lower_bound_kernel_mod,    only: enforce_lower_bound_kernel_type
+  use sci_enforce_lower_bound_kernel_mod, &
+                                         only: enforce_lower_bound_kernel_type
   use fem_constants_mod,                 only: get_qr
   use finite_element_config_mod,         only: element_order
   use field_mod,                         only: field_type
-  use field_bundle_builtins_mod,         only: set_bundle_scalar
+  use sci_field_bundle_builtins_mod,     only: set_bundle_scalar
   use field_parent_mod,                  only: write_interface
   use function_space_mod,                only: function_space_type
   use function_space_collection_mod,     only: function_space_collection
@@ -28,7 +29,7 @@ module transport_init_fields_alg_mod
                                                get_panel_id
   use init_gungho_prognostics_alg_mod,   only: init_u_field
   use initial_tracer_field_sample_kernel_mod, &
-                                         only: initial_tracer_field_sample_kernel_type
+                                  only: initial_tracer_field_sample_kernel_type
   use initial_pressure_config_mod,       only: method, method_sampled
   use initial_rho_sample_kernel_mod,     only: initial_rho_sample_kernel_type
   use initial_tracer_field_config_mod,   only: field_background

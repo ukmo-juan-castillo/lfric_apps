@@ -11,7 +11,8 @@
 !!         test.
 module tl_test_vorticity_mod
 
-  use assign_field_random_kernel_mod, only: assign_field_random_kernel_type
+  use sci_assign_field_random_kernel_mod, &
+                                      only: assign_field_random_kernel_type
   use constants_mod,                  only: i_def, r_def, str_def
   use fem_constants_mod,              only: get_qr
   use field_mod,                      only: field_type

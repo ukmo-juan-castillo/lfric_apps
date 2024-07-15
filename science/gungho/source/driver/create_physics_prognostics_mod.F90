@@ -97,7 +97,7 @@ module create_physics_prognostics_mod
 
 #ifdef UM_PHYSICS
   use multidata_field_dimensions_mod, only :                                    &
-       get_ndata_val => get_multidata_field_dimension
+    get_ndata_val => get_multidata_field_dimension
   use cv_run_mod,                     only:  l_conv_prog_precip,                &
                                              l_conv_prog_dtheta,                &
                                              l_conv_prog_dq,                    &

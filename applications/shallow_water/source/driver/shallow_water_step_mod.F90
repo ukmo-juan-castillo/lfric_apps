@@ -23,7 +23,7 @@ module shallow_water_step_mod
   use swe_timestep_alg_mod,           only: swe_timestep_alg_si,     &
                                             swe_timestep_alg_ssprk3, &
                                             swe_timestep_alg_rk4
-  use shallow_water_settings_config_mod, &
+  use shallow_water_settings_config_mod,                               &
                                       only: time_scheme,               &
                                             time_scheme_semi_implicit, &
                                             time_scheme_ssprk3,        &

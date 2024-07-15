@@ -39,11 +39,15 @@ FUNCTION get_weights(stashcode) RESULT (weights)
 ! Intrinsic modules
 USE, INTRINSIC :: iso_fortran_env, ONLY : int64
 ! UM2LFRic modules
-USE lfricinp_stashmaster_mod, ONLY: stashmaster, p_points, &
-   u_points, v_points, ozone_points, land_compressed,           &
-   p_points_values_over_sea
-USE lfricinp_regrid_options_mod, ONLY: interp_method, winds_on_w3, &
-     specify_nearest_neighbour, nn_fields
+USE lfricinp_stashmaster_mod,      ONLY: stashmaster,                  &
+                                         p_points, u_points, v_points, &
+                                         ozone_points,                 &
+                                         land_compressed,              &
+                                         p_points_values_over_sea
+USE lfricinp_regrid_options_mod,   ONLY: interp_method, &
+                                         winds_on_w3, &
+                                         specify_nearest_neighbour, &
+                                         nn_fields
 
 IMPLICIT NONE
 

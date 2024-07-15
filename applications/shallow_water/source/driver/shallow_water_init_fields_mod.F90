@@ -25,7 +25,7 @@ module shallow_water_init_fields_mod
                                                   write_state
   use mesh_mod,                             only: mesh_type
   use create_shallow_water_prognostics_mod, only: &
-                                                create_shallow_water_prognostics
+                                                 create_shallow_water_prognostics
   use swe_init_fields_alg_mod,              only: swe_init_fields_alg, &
                                                   swe_init_surface_alg
 

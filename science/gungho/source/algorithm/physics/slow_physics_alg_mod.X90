@@ -63,12 +63,15 @@ module slow_physics_alg_mod
   ! Moisture species
   use mr_indices_mod,            only: nummr, imr_v, imr_cl, imr_ci
   use moist_dyn_mod,             only: num_moist_factors
-  use enforce_lower_bound_kernel_mod, only: enforce_lower_bound_kernel_type
-  use moisture_conservation_alg_mod,  only: moisture_conservation_alg
+  use sci_enforce_lower_bound_kernel_mod, &
+                                 only: enforce_lower_bound_kernel_type
+  use moisture_conservation_alg_mod, &
+                                 only: moisture_conservation_alg
   use fs_continuity_mod,         only: W3, Wtheta
   use extrusion_mod,             only: TWOD
   use finite_element_config_mod, only: element_order
-  use field_bundle_builtins_mod, only: add_bundle, clone_bundle, &
+  use sci_field_bundle_builtins_mod,                             &
+                                 only: add_bundle, clone_bundle, &
                                        set_bundle_scalar
   use formulation_config_mod,    only: moisture_formulation,     &
                                        moisture_formulation_dry

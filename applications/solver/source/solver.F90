@@ -44,7 +44,7 @@ program solver
   use mesh_collection_mod,     only: mesh_collection
   use namelist_collection_mod, only: namelist_collection_type
   use namelist_mod,            only: namelist_type
-  use checksum_alg_mod,        only: checksum_alg
+  use sci_checksum_alg_mod,    only: checksum_alg
 
 
   !------------------------------------
