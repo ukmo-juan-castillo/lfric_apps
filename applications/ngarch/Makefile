@@ -27,7 +27,8 @@ export INTERNAL_DEPENDENCIES = $(CORE_ROOT_DIR)/infrastructure \
                                $(CORE_ROOT_DIR)/components/driver \
                                $(CORE_ROOT_DIR)/components/science \
                                $(CORE_ROOT_DIR)/components/inventory \
-                               $(CORE_ROOT_DIR)/components/lfric-xios
+                               $(CORE_ROOT_DIR)/components/lfric-xios \
+							   $(APPS_ROOT_DIR)/science/shared
 
 export UMPHYSICS_TARGETS = extract-um-physics
 export UMPHYSICS_CLEAN   = clean-um-physics
@@ -133,8 +134,6 @@ build: ALWAYS
 	          SOURCE_DIR=$(APPS_ROOT_DIR)/science/socrates_interface/source
 	$Q$(MAKE) $(QUIET_ARG) -f $(LFRIC_BUILD)/extract.mk \
 	          SOURCE_DIR=$(APPS_ROOT_DIR)/science/jules_interface/source
-	$Q$(MAKE) $(QUIET_ARG) -f $(LFRIC_BUILD)/extract.mk \
-	          SOURCE_DIR=$(APPS_ROOT_DIR)/science/shared/source/constants
 	$(call MESSAGE,========================================)
 	$(call MESSAGE,Extracting $(PROJECT_NAME))
 	$(call MESSAGE,========================================)

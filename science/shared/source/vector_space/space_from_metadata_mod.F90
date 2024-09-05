@@ -7,29 +7,26 @@
 
 module space_from_metadata_mod
 
-  use log_mod,                         only:                                  &
-    log_event,                                                                &
-    log_scratch_space,                                                        &
-    log_level_trace,                                                          &
-    log_level_error
+  use log_mod,                         only: log_event,         &
+                                             log_scratch_space, &
+                                             log_level_trace,   &
+                                             log_level_error
   use constants_mod,                   only: i_def, l_def, str_def
   use mesh_mod,                        only: mesh_type
-  use fs_continuity_mod,               only:                                  &
-    W3,                                                                       &
-    Wtheta,                                                                   &
-    W2H,                                                                      &
-    W0,                                                                       &
-    name_from_functionspace
+  use fs_continuity_mod,               only: W3,                      &
+                                             Wtheta,                  &
+                                             W2H,                     &
+                                             W2,                      &
+                                             W0,                      &
+                                             name_from_functionspace
   use function_space_collection_mod,   only: function_space_collection
   use function_space_mod,              only: function_space_type
-  use lfric_xios_diag_mod,             only:                                  &
-    get_field_order,                                                          &
-    get_field_grid_ref,                                                       &
-    get_field_domain_ref,                                                     &
-    get_field_axis_ref
-  use multidata_field_dimensions_mod,  only:                                  &
-    get_ndata                                                                 &
-    => get_multidata_field_dimension
+  use lfric_xios_diag_mod,             only: get_field_order,      &
+                                             get_field_grid_ref,   &
+                                             get_field_domain_ref, &
+                                             get_field_axis_ref
+  use multidata_field_dimensions_mod,  only: get_ndata => &
+                                                  get_multidata_field_dimension
   use extrusion_mod,                   only: TWOD
   use mesh_collection_mod,             only: mesh_collection
   use base_mesh_config_mod,            only: prime_mesh_name
@@ -39,13 +36,11 @@ module space_from_metadata_mod
   private
 
   ! field flavours
-  character(str_def), parameter :: vanilla &
-    = 'VanillaField'                                 ! scalar field on 3D mesh
-  character(str_def), parameter :: vanilla_multi &
-    = 'VanillaMulti'                              ! multidata field on 3D mesh
-  character(str_def), parameter :: planar = 'PlanarField'
-  character(str_def), parameter :: tile = 'TileField'
-  character(str_def), parameter :: radiation = 'RadiationField'
+  character(str_def), parameter :: vanilla       = 'VanillaField'  ! scalar field on 3D mesh
+  character(str_def), parameter :: vanilla_multi = 'VanillaMulti'  ! multidata field on 3D mesh
+  character(str_def), parameter :: planar        = 'PlanarField'
+  character(str_def), parameter :: tile          = 'TileField'
+  character(str_def), parameter :: radiation     = 'RadiationField'
 
   ! grid names
   character(str_def), parameter :: full_level_face_grid                        &
@@ -125,6 +120,12 @@ contains
       fsenum = W2H
     else if (grid_ref == node_grid) then
       fsenum = W0
+    else if (domain_ref == "checkpoint_Wtheta") then
+      fsenum = Wtheta
+    else if (domain_ref == "checkpoint_W3") then
+      fsenum = W3
+    else if (domain_ref == "checkpoint_W2") then
+      fsenum = W2
     else
       fsenum = 0 ! silence compiler warning
       write(log_scratch_space, *)                                             &
@@ -171,10 +172,14 @@ contains
           ! only domain - must not happen except for face domain
           if (domain_ref == 'face') then
             flavour = planar
+          else if (domain_ref == "checkpoint_Wtheta" .or. &
+                   domain_ref == "checkpoint_W3" .or.     &
+                   domain_ref == "checkpoint_W2"          ) then
+            flavour = vanilla
           else
             write(log_scratch_space, *)                                       &
             'field ' // trim(xios_id) //                                      &
-            ' with only domain_ref: ' // domain_ref
+            ' with only unknown domain_ref: ' // domain_ref
             call log_event(log_scratch_space, log_level_error)
           end if
         end if
@@ -205,14 +210,17 @@ contains
   !> @param[in, optional] force_ndata      Override derived ndata
   !> @param[in, optional] force_order      Override function space order
   !> @return                               Function space returned
-  function space_from_metadata(                                               &
-        xios_id, status, force_mesh, force_rad_levels,                        &
-        force_order, force_ndata) result(vector_space)
+  function space_from_metadata(xios_id, status,                            &
+                               mesh_3d, mesh_2d, force_mesh,               &
+                               force_rad_levels, force_order, force_ndata) &
+                               result(vector_space)
 
     implicit none
 
     character(*),                       intent(in)  :: xios_id
     character(*),                       intent(in)  :: status
+    type(mesh_type), pointer, optional, intent(in)  :: mesh_3d
+    type(mesh_type), pointer, optional, intent(in)  :: mesh_2d
     type(mesh_type), pointer, optional, intent(in)  :: force_mesh
     integer(kind=i_def), optional,      intent(in)  :: force_rad_levels
     integer(kind=i_def), optional,      intent(in)  :: force_order
@@ -226,19 +234,28 @@ contains
     character(str_def)  :: flavour
     integer(kind=i_def) :: ndata
 
-    type(mesh_type), pointer :: diag_mesh_3d => null()
-    type(mesh_type), pointer :: diag_mesh_2d => null()
+    type(mesh_type), pointer :: diag_mesh_3d
+    type(mesh_type), pointer :: diag_mesh_2d
 
-    type(mesh_type), pointer            :: this_mesh    => null()
+    type(mesh_type), pointer            :: this_mesh
     type(function_space_type), pointer  :: vector_space
 
 #ifdef UNIT_TEST
     diag_mesh_3d => mesh_collection%get_mesh('test mesh: planar bi-periodic')
     diag_mesh_2d => mesh_collection%get_mesh('test mesh: planar bi-periodic')
 #else
+    ! default to prime_mesh and 2d extrusion of prime mesh
     diag_mesh_3d => mesh_collection%get_mesh(prime_mesh_name)
-    diag_mesh_2d &
-      => mesh_collection%get_mesh_variant(diag_mesh_3d, extrusion_id=TWOD)
+    diag_mesh_2d => mesh_collection%get_mesh_variant(diag_mesh_3d, &
+                                                     extrusion_id=TWOD)
+
+    ! if specific meshes have been supplied, override the prime mesh
+    if (present(mesh_3d)) then
+      diag_mesh_3d => mesh_3d
+    endif
+    if (present(mesh_2d)) then
+      diag_mesh_2d => mesh_2d
+    endif
 #endif
 
     ! metadata lookup
