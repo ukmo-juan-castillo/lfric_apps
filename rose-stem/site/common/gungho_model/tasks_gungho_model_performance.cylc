@@ -191,6 +191,57 @@
         "kgo_checks": [],
     }) %}
 
+{% elif task_ns.conf_name == "baroclinic-noio-C256_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["baroclinic-noio"],
+        "resolution": "C256_MG",
+        "DT": 900,
+        "threads": 1,
+        "mpi_parts": 1536,
+        "tsteps": 72,
+        "use_xios": false,
+        "wallclock": 55,
+    }) %}
+
+{% elif task_ns.conf_name == "baroclinic-noio-threaded-C256_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["baroclinic-noio"],
+        "resolution": "C256_MG",
+        "DT": 900,
+        "threads": 2,
+        "mpi_parts": 768,
+        "tsteps": 72,
+        "use_xios": false,
+    }) %}
+
+{% elif task_ns.conf_name == "baroclinic-noio-C512_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["baroclinic-noio"],
+        "resolution": "C512_MG",
+        "DT": 900,
+        "threads": 1,
+        "mpi_parts": 1536,
+        "tsteps": 72,
+        "use_xios": false,
+        "wallclock": 20,
+    }) %}
+
+{% elif task_ns.conf_name == "baroclinic-noio-threaded-C512_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["baroclinic-noio"],
+        "resolution": "C512_MG",
+        "DT": 900,
+        "threads": 2,
+        "mpi_parts": 768,
+        "tsteps": 72,
+        "use_xios": false,
+        "wallclock": 50,
+    }) %}
+
 {% endif %}
 
 {% do LOG.debug("Finished in site/common/gungho_model/tasks_gungho_model_performance.cylc") %}

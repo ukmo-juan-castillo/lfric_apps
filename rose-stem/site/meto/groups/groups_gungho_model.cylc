@@ -114,6 +114,7 @@
     ],
     "gungho_model_xc40": [
         "gungho_model_xc40_developer",
+        "gungho_model_xc40_scalability_testing",
     ],
     "gungho_model_xc40_canned": [
         "gungho_model_canned_xc40_intel_fast-debug-64bit",
@@ -195,6 +196,12 @@
     "gungho_model_xc40_perftools":[
         "gungho_model_baroclinic-noio-C24_MG_xc40_perftools-intel_fast-debug-64bit",
         "gungho_model_baroclinic-noio-C24_MG_xc40_intel_fast-debug-64bit",
+    ],
+    "gungho_model_xc40_scalability_testing":[
+        "gungho_model_baroclinic-noio-C256_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-noio-C512_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-noio-threaded-C256_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-noio-threaded-C512_MG_xc40_intel_fast-debug-64bit",
     ],
     }) %}
 
