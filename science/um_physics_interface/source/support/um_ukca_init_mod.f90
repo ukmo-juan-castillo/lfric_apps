@@ -713,6 +713,7 @@ contains
            mode_incld_so2_rfrac=0.25_r_um,                                     &
            l_cv_rainout=.not.(l_ukca_plume_scav),                              &
            l_dust_slinn_impc_scav=.true.,                                      &
+           l_dust_ageing_on=.false.,                                           &
            ! GLOMAP emissions configuration options
            l_ukca_primsu=.true.,                                               &
            l_ukca_primss=.true.,                                               &
@@ -1361,6 +1362,7 @@ contains
            mode_incld_so2_rfrac=0.25_r_um,                                     &
            l_cv_rainout=.not.(l_ukca_plume_scav),                              &
            l_dust_slinn_impc_scav=.true.,                                      &
+           l_dust_ageing_on=.false.,                                           &
 
            ! GLOMAP emissions configuration options
            !
