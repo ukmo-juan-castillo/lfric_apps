@@ -70,8 +70,9 @@ module set_blending_weights_kernel_mod_test
 
     ! Set boundaries configuration
     ! Only blending_weights is used
-    call feign_boundaries_config( blend_frequency=blend_frequency_inner,  &
+    call feign_boundaries_config( blend_frequency=blend_frequency_inner,   &
                                   blending_weights=[0.2_r_def, 0.1_r_def], &
+                                  blending_weights_w2v=[0.2_r_def],        &
                                   boundary_e=1,             &
                                   boundary_n=1,             &
                                   boundary_s=1,             &

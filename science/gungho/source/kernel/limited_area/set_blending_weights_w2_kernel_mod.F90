@@ -73,7 +73,8 @@ subroutine set_blending_weights_w2_code( nlayers,       &
                                          undf_in,   &
                                          map_in)
 
-  use boundaries_config_mod,        only : blending_weights
+  use boundaries_config_mod,        only : blending_weights, &
+                                           blending_weights_w2v
 
   implicit none
 
@@ -100,15 +101,15 @@ subroutine set_blending_weights_w2_code( nlayers,       &
   if (onion_layer > 0_i_def)then
     index = depth - onion_layer + 1
 
-    ! Vertical dofs first - these are all set to the blending weight
+    ! Vertical dofs first - these are all set to the W2V blending weights
 
     do k=0,nlayers-1
       do df=B,T
-        weights_field(map_out(df)+k) = blending_weights(index)
+        weights_field(map_out(df)+k) = blending_weights_w2v(index)
       end do
     end do
 
-    ! Next the horizontal dofs
+    ! Next the horizontal dofs - using W2H blending weights
 
     do k=0,nlayers-1
       do df=1,stencil_size-1
