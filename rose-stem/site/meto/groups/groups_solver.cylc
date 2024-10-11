@@ -62,12 +62,20 @@
         "solver_gmres-C24_ex1a_gnu_fast-debug-64bit",
         "solver_jacobi-C24_ex1a_gnu_fast-debug-64bit",
         "solver_prec_only-C24_ex1a_gnu_fast-debug-64bit",
+        "solver_bicgstab-C24_ex1a_cce_fast-debug-64bit",
+        "solver_cg-C24_ex1a_cce_fast-debug-64bit",
+        "solver_fgmres-C24_ex1a_cce_fast-debug-64bit",
+        "solver_gcr-C24_ex1a_cce_fast-debug-64bit",
+        "solver_gmres-C24_ex1a_cce_fast-debug-64bit",
+        "solver_jacobi-C24_ex1a_cce_fast-debug-64bit",
+        "solver_prec_only-C24_ex1a_cce_fast-debug-64bit",
     ],
     "solver_ex1a": [
         "solver_ex1a_developer",
     ],
     "solver_ex1a_build": [
         "build_solver_ex1a_gnu_fast-debug-64bit",
+        "build_solver_ex1a_cce_fast-debug-64bit",
     ],
     }) %}
 
