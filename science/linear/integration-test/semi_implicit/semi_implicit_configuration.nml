@@ -28,9 +28,10 @@ dynamics='gungho',
 external_forcing=.false.,
 /
 &extrusion
-domain_top=10000.0,
+domain_height=10000.0,
 method='uniform',
 number_of_layers=5,
+planet_radius=6371229.0,
 stretching_method='linear',
 /
 &files
@@ -178,7 +179,6 @@ cp=1005.0,
 gravity=9.80665,
 omega=7.292116E-5,
 p_zero=100000.0,
-radius=6371229.0,
 rd=287.05,
 scaling_factor=125.0,
 /

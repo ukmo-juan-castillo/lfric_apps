@@ -129,7 +129,6 @@ contains
     use io_config_mod,               only: write_diag,                         &
                                            use_xios_io
     use planet_config_mod,           only: gravity,                            &
-                                           radius,                             &
                                            omega,                              &
                                            rd,                                 &
                                            cp,                                 &
@@ -152,7 +151,7 @@ contains
                                            horizontal_limit_cap
     use damping_layer_config_mod,    only: dl_base,                            &
                                            dl_str
-    use extrusion_config_mod,        only: domain_top
+    use extrusion_config_mod,        only: domain_height, planet_radius
     use mixed_solver_config_mod,     only: reference_reset_time
     use helmholtz_solver_config_mod, only:                                     &
                             helmholtz_solver_preconditioner => preconditioner, &
@@ -207,9 +206,9 @@ contains
           gravity
         call log_event( log_scratch_space, LOG_LEVEL_WARNING )
       end if
-      if ( radius < EPS ) then
+      if ( planet_radius < EPS ) then
         write( log_scratch_space, '(A,E16.8)' ) 'Zero or negative radius: ', &
-          radius
+          planet_radius
         call log_event( log_scratch_space, LOG_LEVEL_WARNING )
       end if
       if ( omega < EPS ) then
@@ -521,7 +520,7 @@ contains
       end if
 
       ! Check the damping layer namelist
-      if ( dlayer_on .and. (dl_base < 0.0_r_def .or. dl_base > domain_top) ) then
+      if ( dlayer_on .and. (dl_base < 0.0_r_def .or. dl_base > domain_height) ) then
         write( log_scratch_space, '(A,E16.8)' ) 'Damping layer base lies outside of domain: ',&
           dl_base
         call log_event( log_scratch_space, LOG_LEVEL_WARNING )

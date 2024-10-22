@@ -64,7 +64,7 @@ contains
     integer(i_def)                  :: stencil_depth
     integer(i_def)                  :: i
     real(r_def)                     :: domain_bottom
-    real(r_def)                     :: domain_top
+    real(r_def)                     :: domain_height
     real(r_def)                     :: scaled_radius
     logical(l_def)                  :: apply_partition_check
 
@@ -78,7 +78,7 @@ contains
 
     call base_mesh_nml%get_value( 'prime_mesh_name', prime_mesh_name )
     call base_mesh_nml%get_value( 'geometry', geometry )
-    call extrusion_nml%get_value( 'domain_top', domain_top )
+    call extrusion_nml%get_value( 'domain_height', domain_height )
     call planet_nml%get_value( 'scaled_radius', scaled_radius )
 
     !--------------------------------------
@@ -106,7 +106,7 @@ contains
     end select
 
     allocate( extrusion, source=create_extrusion() )
-    extrusion_2d = uniform_extrusion_type( domain_top,    &
+    extrusion_2d = uniform_extrusion_type( domain_height,    &
                                            domain_bottom, &
                                            one_layer, TWOD )
 

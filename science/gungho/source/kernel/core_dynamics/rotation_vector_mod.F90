@@ -14,7 +14,7 @@
 module rotation_vector_mod
 
 use constants_mod,     only: r_def, i_def
-use planet_config_mod, only: scaled_omega, scaled_radius
+use planet_config_mod, only: scaled_omega
 use log_mod,           only: log_event, LOG_LEVEL_ERROR
 
 implicit none

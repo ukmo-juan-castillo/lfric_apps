@@ -10,7 +10,7 @@
 module analytic_streamfunction_profiles_mod
 
 use constants_mod,           only: r_def, i_def, pi
-use extrusion_config_mod,    only: domain_top
+use extrusion_config_mod,    only: domain_height
 use initial_wind_config_mod, only: profile_sbr_streamfunction,      &
                                    profile_dcmip301_streamfunction, &
                                    profile_div_free_reversible,     &
@@ -78,9 +78,9 @@ function analytic_streamfunction( chi, choice, num_options,    &
 
     psi(1) = 0.0_r_def
     psi(3) = 0.0_r_def
-    psi(2) = - u0 * domain_top / pi *                                             &
+    psi(2) = - u0 * domain_height / pi *                                             &
               sin(2.0_r_def * pi * (chi(1) / (2.0_r_def * domain_max_x) + 0.5_r_def)) * &
-              sin(pi * chi(3) / domain_top)
+              sin(pi * chi(3) / domain_height)
   case ( profile_div_free_reversible )
     ! A deformational divergence-free time-varying flow
     ! based upon a test in Cotter & Kuzmin 2016
@@ -89,23 +89,23 @@ function analytic_streamfunction( chi, choice, num_options,    &
 
     psi(1) = 0.0_r_def
     psi(3) = 0.0_r_def
-    psi(2) = L * domain_top / time_period *                                    &
-              ( - chi(3) / domain_top                                          &
+    psi(2) = L * domain_height / time_period *                                    &
+              ( - chi(3) / domain_height                                          &
                 + 1.0_r_def / pi * (-0.5_r_def + time / time_period)           &
                 * sin(2.0_r_def * pi * (chi(1) / L - time / time_period))      &
-                * sin(2.0_r_def * pi * chi(3) / domain_top))
+                * sin(2.0_r_def * pi * chi(3) / domain_height))
 
   case ( profile_rotational )
     ! A solid body rotation in a vertical slice
     ! The stream function is smoothed towards the edge of the domain
     ! to prevent errors at the boundaries
-    time_period = domain_top  ! One rotation when T = H
-    vortex_zcentre = domain_top / 2.0_r_def
-    lr = domain_top
+    time_period = domain_height  ! One rotation when T = H
+    vortex_zcentre = domain_height / 2.0_r_def
+    lr = domain_height
     la = 10.0_r_def * lr / 25.0_r_def
     lb = 12.0_r_def * lr / 25.0_r_def
     ld = lr * sqrt((chi(1) / (domain_max_x * 2.0_r_def)) ** 2.0_r_def &
-                   + ((chi(3) - vortex_zcentre) / domain_top) ** 2.0_r_def)
+                   + ((chi(3) - vortex_zcentre) / domain_height) ** 2.0_r_def)
 
     coeffs(1) = pi / time_period
     coeffs(2) = - pi * la / (time_period * (lb - la))

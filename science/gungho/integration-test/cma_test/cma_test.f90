@@ -90,7 +90,7 @@ program cma_test
   ! Number of vertical layers
   integer(kind=i_def) :: nlayers
   ! vertical domain size
-  real   (kind=r_def) :: domain_top
+  real   (kind=r_def) :: domain_height
   ! Grid spacing in horizontal and vertical
   real   (kind=r_def) :: dx, dz
   character(str_def)  :: base_mesh_names(1)
@@ -255,9 +255,9 @@ program cma_test
 
   call init_collections()
 
-  if (configuration%namelist_exists('planet')) then
-    nml_obj => configuration%get_namelist('planet')
-    call nml_obj%get_value( 'radius', radius )
+  if (configuration%namelist_exists('extrusion')) then
+    nml_obj => configuration%get_namelist('extrusion')
+    call nml_obj%get_value( 'planet_radius', radius )
   end if
 
   if (configuration%namelist_exists('base_mesh')) then
@@ -314,9 +314,9 @@ program cma_test
   ! Otherwise the derivative and mass terms in the
   ! Helmholtz-operator are not well balanced and errors could go unnoticed
   nlayers = mesh%get_nlayers()
-  domain_top = mesh%get_domain_top()
+  domain_height = mesh%get_domain_top()
   dx = sqrt(4._r_def*pi/ncells_2d)*radius
-  dz = domain_top / nlayers
+  dz = domain_height / nlayers
 
   if ( ( dx < 0.1_r_def) .or. ( dx > 10.0_r_def) ) then
      call log_event( "Average dx has to be in range 0.1 ... 10.0", &

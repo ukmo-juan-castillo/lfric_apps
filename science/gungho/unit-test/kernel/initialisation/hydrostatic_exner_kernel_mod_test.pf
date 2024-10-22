@@ -58,12 +58,10 @@ module hydrostatic_exner_kernel_mod_test
                                                     4.0e3_r_def,   &
                                                     40.0e3_r_def /)
   real(r_def), parameter :: gravity  = 10.0_r_def
-  real(r_def), parameter :: radius   = 6000000.0_r_def
-  real(r_def), parameter :: omega    = 8.0E-5_r_def
+  real(r_def), parameter :: planet_radius = 6000000.0_r_def
   real(r_def), parameter :: p_zero   = 100000.0_r_def
   real(r_def), parameter :: rd       = 300.0_r_def
   real(r_def), parameter :: cp       = 1000.0_r_def
-  real(r_def), parameter :: scaling  = 1.0_r_def
 
 contains
 
@@ -72,10 +70,12 @@ contains
 
     use base_mesh_config_mod,      only : geometry_planar, &
                                           topology_fully_periodic
-    use sci_chi_transform_mod,     only : init_chi_transforms
+    use extrusion_config_mod,    only : method_uniform, &
+                                        stretching_method_linear
     use finite_element_config_mod, only : cellshape_quadrilateral, &
                                           coord_system_xyz
     use feign_config_mod,          only : feign_base_mesh_config,           &
+                                          feign_extrusion_config,           &
                                           feign_finite_element_config,      &
                                           feign_initial_temperature_config, &
                                           feign_planet_config,              &
@@ -84,6 +84,7 @@ contains
     use idealised_config_mod,      only : test_gravity_wave
     use initial_temperature_config_mod, &
                                    only : perturb_none
+    use sci_chi_transform_mod,     only : init_chi_transforms
 
     implicit none
 
@@ -106,6 +107,13 @@ contains
                topology=topology_fully_periodic, &
                fplane=.false., f_lat_deg=0.0_r_def )
 
+    call feign_extrusion_config( planet_radius=planet_radius,                &
+                                 domain_height=10.0_r_def,                   &
+                                 method=method_uniform,                      &
+                                 number_of_layers=2_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=1.0_r_def )
+
     call feign_finite_element_config(      &
         cellshape=cellshape_quadrilateral, &
         coord_order=0_i_def,               &
@@ -123,9 +131,9 @@ contains
                                            profile_data=profile_data,             &
                                            profile_heights=profile_heights )
 
-    call feign_planet_config( gravity=gravity, radius=radius, omega=omega,  &
-                              rd=rd, cp=cp, p_zero=p_zero,                  &
-                              scaling_factor=scaling )
+    call feign_planet_config( gravity=gravity, omega=8.0E-5_r_def, &
+                              rd=rd, cp=cp, p_zero=p_zero,         &
+                              scaling_factor=1.0_r_def )
 
     call feign_initial_density_config( density_background=0.0_r_def,        &
                                        density_max=1.0_r_def,               &
@@ -275,7 +283,8 @@ contains
                                  this%chi2,                           &
                                  this%chi3,                           &
                                  this%panel_id,                       &
-                                 gravity, p_zero, rd, cp, radius,     &
+                                 gravity, p_zero, rd, cp,             &
+                                 planet_radius,                       &
                                  this%ndf_w3, this%undf_w3,           &
                                  this%map_w3(:,cell),                 &
                                  this%ndf_wt, this%undf_wt,           &
@@ -347,7 +356,8 @@ contains
                                  this%chi2,                           &
                                  this%chi3,                           &
                                  this%panel_id,                       &
-                                 gravity, p_zero, rd, cp, radius,     &
+                                 gravity, p_zero, rd, cp,             &
+                                 planet_radius,                       &
                                  this%ndf_w3, this%undf_w3,           &
                                  this%map_w3(:,cell),                 &
                                  this%ndf_wt, this%undf_wt,           &

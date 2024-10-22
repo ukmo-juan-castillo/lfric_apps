@@ -38,7 +38,7 @@ module analytic_orography_field_cartesian_mod_test
   character(str_def), parameter   :: mesh_name        = 'unit_test'
   character(len=str_max_filename) :: file_prefix      = "data/mesh_BiP40x40-5x5"
   real(r_def),        parameter   :: domain_bottom    = 0.0_r_def
-  real(r_def),        parameter   :: domain_top       = 10000.0_r_def
+  real(r_def),        parameter   :: domain_height    = 10000.0_r_def
   real(r_def),        parameter   :: surface_pressure = 1000.0e2_r_def
   integer(i_def),     parameter   :: nlayers          = 10_i_def
   integer(i_def),     parameter   :: element_order    = 0_i_def
@@ -82,9 +82,10 @@ contains
                          fplane          = .false.,                 &
                          f_lat_deg       = 0.0_r_def )
 
-    call feign_extrusion_config( method=method_uniform, &
-                                 domain_top=domain_top, &
-                                 number_of_layers=nlayers, &
+    call feign_extrusion_config( method=method_uniform,       &
+                                 planet_radius=6000.0_r_def,  &
+                                 domain_height=domain_height, &
+                                 number_of_layers=nlayers,    &
                                  stretching_height=1.0_r_def, &
                                  stretching_method=stretching_method_linear)
 
@@ -199,7 +200,7 @@ contains
     call local_mesh%init_cell_owner()
     local_mesh_ptr => local_mesh
 
-    extrusion = uniform_extrusion_type( domain_bottom, domain_top, nlayers, &
+    extrusion = uniform_extrusion_type( domain_bottom, domain_height, nlayers, &
                                         PRIME_EXTRUSION )
     ! Construct a mesh which is uniform in vertical for purpose of the test
     mesh = mesh_type( local_mesh_ptr, extrusion )
@@ -221,7 +222,7 @@ contains
     ! Get physical height of flat domain surface (0 in Cartesian coordinates)
     height_flat_surface = 0.0_r_def
     ! Get domain top
-    height_domain_top = domain_top + height_flat_surface
+    height_domain_top = domain_height + height_flat_surface
     ! Create uniform chi_3 field
     call mesh%get_eta(eta)
     do i = 1, undf

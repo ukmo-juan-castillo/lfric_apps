@@ -63,14 +63,14 @@ module assign_orography_field_mod
     subroutine analytic_orography_interface(nlayers,                     &
                                             ndf_chi, undf_chi, map_chi,  &
                                             ndf_pid, undf_pid, map_pid,  &
-                                            domain_surface, domain_top,  &
+                                            domain_surface, domain_height,  &
                                             chi_1, chi_2, chi_3, panel_id)
       import :: r_def, i_def
       implicit none
       integer(kind=i_def), intent(in) :: nlayers, undf_chi, undf_pid
       integer(kind=i_def), intent(in) :: ndf_chi, ndf_pid
       integer(kind=i_def), intent(in) :: map_chi(ndf_chi), map_pid(ndf_pid)
-      real(kind=r_def),    intent(in) :: domain_surface, domain_top
+      real(kind=r_def),    intent(in) :: domain_surface, domain_height
       real(kind=r_def), intent(inout) :: chi_1(undf_chi), chi_2(undf_chi), chi_3(undf_chi)
       real(kind=r_def),    intent(in) :: panel_id(undf_pid)
     end subroutine analytic_orography_interface
@@ -83,7 +83,7 @@ module assign_orography_field_mod
                                          chi_1, chi_2, chi_3,        &
                                          panel_id,                   &
                                          surface_altitude,           &
-                                         domain_surface, domain_top, &
+                                         domain_surface, domain_height, &
                                          ndf_chi, undf_chi,          &
                                          map_chi,                    &
                                          ndf_pid, undf_pid,          &
@@ -102,7 +102,7 @@ module assign_orography_field_mod
       real(kind=r_def), dimension(undf_chi), intent(inout)  :: chi_1, chi_2, chi_3
       real(kind=r_def), dimension(undf_pid), intent(in)     :: panel_id
       real(kind=r_def), dimension(undf),     intent(in)     :: surface_altitude
-      real(kind=r_def), intent(in)                          :: domain_surface, domain_top
+      real(kind=r_def), intent(in)                          :: domain_surface, domain_height
     end subroutine ancil_orography_interface
 
   end interface
@@ -158,7 +158,7 @@ contains
     type( field_proxy_type )     :: chi_proxy(3)
     type( field_proxy_type )     :: panel_id_proxy
     type( domain_type )          :: domain
-    real(kind=r_def)             :: domain_top, domain_surface
+    real(kind=r_def)             :: domain_height, domain_surface
     integer(kind=i_def)          :: cell
     integer(kind=i_def)          :: undf_chi, ndf_chi, nlayers
     integer(kind=i_def)          :: undf_pid, ndf_pid
@@ -198,7 +198,7 @@ contains
     domain_surface = domain%get_base_height()
 
     ! Get domain top from the mesh object and domain_surface
-    domain_top = mesh%get_domain_top() + domain_surface
+    domain_height = mesh%get_domain_top() + domain_surface
 
     if (orog_init_option==orog_init_option_none) then
 
@@ -246,7 +246,7 @@ contains
                                 undf_pid,          &
                                 map_pid(:,cell),   &
                                 domain_surface,    &
-                                domain_top,        &
+                                domain_height,        &
                                 chi_proxy(1)%data, &
                                 chi_proxy(2)%data, &
                                 chi_proxy(3)%data, &
@@ -338,7 +338,7 @@ contains
                              chi_proxy(3)%data,          &
                              panel_id_proxy%data,        &
                              sfc_alt_proxy%data,         &
-                             domain_surface, domain_top, &
+                             domain_surface, domain_height, &
                              ndf_chi, undf_chi,          &
                              map_chi(:,cell),            &
                              ndf_pid, undf_pid,          &
@@ -376,7 +376,7 @@ contains
   !> @param[in]     undf_pid       Panel ID array size and loop bound
   !> @param[in]     map_pid        Indirection map for panel_id
   !> @param[in]     domain_surface Physical height of flat domain surface (m)
-  !> @param[in]     domain_top     Physical height of domain top (m)
+  !> @param[in]     domain_height     Physical height of domain top (m)
   !> @param[in,out] chi_1          1st coordinate field in Wchi
   !> @param[in,out] chi_2          2nd coordinate field in Wchi
   !> @param[in,out] chi_3          3rd coordinate field in Wchi
@@ -384,7 +384,7 @@ contains
   !=============================================================================
   subroutine analytic_orography_spherical_xyz(nlayers, ndf_chi, undf_chi, map_chi, &
                                               ndf_pid, undf_pid, map_pid,          &
-                                              domain_surface, domain_top,          &
+                                              domain_surface, domain_height,          &
                                               chi_1, chi_2, chi_3, panel_id)
 
     implicit none
@@ -394,7 +394,7 @@ contains
     integer(kind=i_def), intent(in)    :: ndf_chi, ndf_pid
     integer(kind=i_def), intent(in)    :: map_chi(ndf_chi)
     integer(kind=i_def), intent(in)    :: map_pid(ndf_pid)
-    real(kind=r_def),    intent(in)    :: domain_surface, domain_top
+    real(kind=r_def),    intent(in)    :: domain_surface, domain_height
     real(kind=r_def),    intent(inout) :: chi_1(undf_chi), chi_2(undf_chi), chi_3(undf_chi)
     real(kind=r_def),    intent(in)    :: panel_id(undf_pid)
     ! Internal variables
@@ -404,7 +404,7 @@ contains
     real(kind=r_def)    :: eta
     real(kind=r_def)    :: longitude, latitude, r
 
-    domain_depth = domain_top - domain_surface
+    domain_depth = domain_height - domain_surface
 
     ! Calculate orography and update chi_3
     do df = 1, ndf_chi
@@ -420,11 +420,11 @@ contains
 
         ! Calculate nondimensional coordinate from current height coordinate
         ! (chi_3) with flat domain_surface
-        eta = z2eta_linear(r, domain_surface, domain_top)
+        eta = z2eta_linear(r, domain_surface, domain_height)
 
         select case(stretching_method)
         case(stretching_method_linear)
-          chi_3_r = eta2z_linear(eta, domain_surface + surface_height, domain_top)
+          chi_3_r = eta2z_linear(eta, domain_surface + surface_height, domain_height)
         case default
           chi_3_r = domain_surface + &
              eta2z_smooth(eta, surface_height, domain_depth, stretching_height)
@@ -455,7 +455,7 @@ contains
   !> @param[in]     undf_pid       Panel ID array size and loop bound
   !> @param[in]     map_pid         Indirection map for panel_id
   !> @param[in]     domain_surface Physical height of flat domain surface (m)
-  !> @param[in]     domain_top     Physical height of domain top (m)
+  !> @param[in]     domain_height     Physical height of domain top (m)
   !> @param[in,out] chi_1          1st coordinate field in Wchi
   !> @param[in,out] chi_2          2nd coordinate field in Wchi
   !> @param[in,out] chi_3          3rd coordinate field in Wchi
@@ -469,7 +469,7 @@ contains
                                                  undf_pid,       &
                                                  map_pid,        &
                                                  domain_surface, &
-                                                 domain_top,     &
+                                                 domain_height,  &
                                                  chi_1,          &
                                                  chi_2,          &
                                                  chi_3,          &
@@ -482,7 +482,7 @@ contains
     integer(kind=i_def), intent(in)    :: ndf_chi, ndf_pid
     integer(kind=i_def), intent(in)    :: map_chi(ndf_chi)
     integer(kind=i_def), intent(in)    :: map_pid(ndf_pid)
-    real(kind=r_def),    intent(in)    :: domain_surface, domain_top
+    real(kind=r_def),    intent(in)    :: domain_surface, domain_height
     real(kind=r_def),    intent(inout) :: chi_1(undf_chi), chi_2(undf_chi), chi_3(undf_chi)
     real(kind=r_def),    intent(in)    :: panel_id(undf_pid)
     ! Internal variables
@@ -491,7 +491,7 @@ contains
     real(kind=r_def)    :: eta
     real(kind=r_def)    :: longitude, latitude, radius, dummy_radius
 
-    domain_depth = domain_top - domain_surface
+    domain_depth = domain_height - domain_surface
 
     ipanel = int(panel_id(map_pid(1)), i_def)
 
@@ -542,7 +542,7 @@ contains
   !> @param[in]     undf_pid       Panel ID array size and loop bound
   !> @param[in]     map_pid        Indirection map for panel_id
   !> @param[in]     domain_surface Physical height of flat domain surface (m)
-  !> @param[in]     domain_top     Physical height of domain top (m)
+  !> @param[in]     domain_height     Physical height of domain top (m)
   !> @param[in,out] chi_1          1st coordinate field in Wchi
   !> @param[in,out] chi_2          2nd coordinate field in Wchi
   !> @param[in,out] chi_3          3rd coordinate field in Wchi
@@ -550,7 +550,7 @@ contains
   !=============================================================================
   subroutine analytic_orography_cartesian(nlayers, ndf_chi, undf_chi, map_chi, &
                                           ndf_pid, undf_pid, map_pid,          &
-                                          domain_surface, domain_top,          &
+                                          domain_surface, domain_height,          &
                                           chi_1, chi_2, chi_3, panel_id)
 
     implicit none
@@ -560,7 +560,7 @@ contains
     integer(kind=i_def), intent(in)    :: ndf_chi, ndf_pid
     integer(kind=i_def), intent(in)    :: map_chi(ndf_chi)
     integer(kind=i_def), intent(in)    :: map_pid(ndf_pid)
-    real(kind=r_def),    intent(in)    :: domain_surface, domain_top
+    real(kind=r_def),    intent(in)    :: domain_surface, domain_height
     real(kind=r_def),    intent(inout) :: chi_1(undf_chi), chi_2(undf_chi), chi_3(undf_chi)
     real(kind=r_def),    intent(in)    :: panel_id(undf_pid)
 
@@ -569,7 +569,7 @@ contains
     real(kind=r_def)    :: surface_height, domain_depth
     real(kind=r_def)    :: eta
 
-    domain_depth = domain_top - domain_surface
+    domain_depth = domain_height - domain_surface
 
     ! Calculate orography and update chi_3
     do df = 1, ndf_chi
@@ -581,11 +581,11 @@ contains
 
         ! Calculate nondimensional coordinate from current height coordinate
         ! (chi_3) with flat domain_surface
-        eta = z2eta_linear(chi_3(dfk), domain_surface, domain_top)
+        eta = z2eta_linear(chi_3(dfk), domain_surface, domain_height)
 
         select case(stretching_method)
         case(stretching_method_linear)
-          chi_3(dfk) = eta2z_linear(eta, domain_surface + surface_height, domain_top)
+          chi_3(dfk) = eta2z_linear(eta, domain_surface + surface_height, domain_height)
         case default
           chi_3(dfk) = domain_surface + &
              eta2z_smooth(eta, surface_height, domain_depth, stretching_height)
@@ -611,7 +611,7 @@ contains
   !> @param[in]     panel_id       Field giving the ID for mesh panels
   !> @param[in]     surface_altitude Surface altitude field data
   !> @param[in]     domain_surface Physical height of flat domain surface (m)
-  !> @param[in]     domain_top     Physical height of domain top (m)
+  !> @param[in]     domain_height     Physical height of domain top (m)
   !> @param[in]     ndf_chi        Array size and loop bound for map_chi
   !> @param[in]     undf_chi       Column coordinates' array size and loop bound
   !> @param[in]     map_chi        Indirection map for coordinate field
@@ -627,7 +627,7 @@ contains
                                            chi_1, chi_2, chi_3,        &
                                            panel_id,                   &
                                            surface_altitude,           &
-                                           domain_surface, domain_top, &
+                                           domain_surface, domain_height, &
                                            ndf_chi, undf_chi,          &
                                            map_chi,                    &
                                            ndf_pid, undf_pid,          &
@@ -651,7 +651,7 @@ contains
   real(kind=r_def), dimension(undf_chi), intent(inout) :: chi_1, chi_2, chi_3
   real(kind=r_def), dimension(undf_pid), intent(in)    :: panel_id
   real(kind=r_def), dimension(undf),     intent(in)    :: surface_altitude
-  real(kind=r_def), intent(in)                         :: domain_surface, domain_top
+  real(kind=r_def), intent(in)                         :: domain_surface, domain_height
 
   ! Internal variables
   integer(kind=i_def) :: k, df, dfchi, dfk
@@ -659,7 +659,7 @@ contains
   real(kind=r_def)    :: surface_height(ndf_chi), domain_depth
   real(kind=r_def)    :: longitude, latitude, r
 
-  domain_depth = domain_top - domain_surface
+  domain_depth = domain_height - domain_surface
 
   ! Calculate new surface_height at each chi dof
   surface_height(:) = 0.0_r_def
@@ -680,13 +680,13 @@ contains
 
       ! Calculate nondimensional coordinate from current flat height coordinate
       ! (chi_3) with flat domain_surface
-      eta = z2eta_linear(r, domain_surface, domain_top)
+      eta = z2eta_linear(r, domain_surface, domain_height)
 
       ! Calculate new height spherical coordinate (chi_3_r) from its
       ! nondimensional coordinate eta and surface_height
       select case(stretching_method)
       case(stretching_method_linear)
-        chi_3_r = eta2z_linear(eta, domain_surface+surface_height(df), domain_top)
+        chi_3_r = eta2z_linear(eta, domain_surface+surface_height(df), domain_height)
       case default
         chi_3_r = domain_surface + &
            eta2z_smooth(eta, surface_height(df), domain_depth, stretching_height)
@@ -716,7 +716,7 @@ contains
   !> @param[in]     panel_id       Field giving the ID for mesh panels
   !> @param[in]     surface_altitude Surface altitude field data
   !> @param[in]     domain_surface Physical height of flat domain surface (m)
-  !> @param[in]     domain_top     Physical height of domain top (m)
+  !> @param[in]     domain_height     Physical height of domain top (m)
   !> @param[in]     ndf_chi        Array size and loop bound for map_chi
   !> @param[in]     undf_chi       Column coordinates' array size and loop bound
   !> @param[in]     map_chi        Indirection map for coordinate field
@@ -732,7 +732,7 @@ contains
                                            chi_1, chi_2, chi_3,        &
                                            panel_id,                   &
                                            surface_altitude,           &
-                                           domain_surface, domain_top, &
+                                           domain_surface, domain_height, &
                                            ndf_chi, undf_chi,          &
                                            map_chi,                    &
                                            ndf_pid, undf_pid,          &
@@ -756,14 +756,14 @@ contains
   real(kind=r_def), dimension(undf_chi), intent(inout) :: chi_1, chi_2, chi_3
   real(kind=r_def), dimension(undf_pid),  intent(in)   :: panel_id
   real(kind=r_def), dimension(undf),     intent(in)    :: surface_altitude
-  real(kind=r_def), intent(in)                         :: domain_surface, domain_top
+  real(kind=r_def), intent(in)                         :: domain_surface, domain_height
 
   ! Internal variables
   integer(kind=i_def) :: k, df, dfchi, dfk
   real(kind=r_def)    :: eta
   real(kind=r_def)    :: surface_height(ndf_chi), domain_depth
 
-  domain_depth = domain_top - domain_surface
+  domain_depth = domain_height - domain_surface
 
   ! Calculate new surface_height at each chi dof
   surface_height(:) = 0.0_r_def
@@ -810,7 +810,7 @@ end subroutine ancil_orography_spherical_sph
   !> @param[in]     panel_id       Field giving the ID for mesh panels
   !> @param[in]     surface_altitude Surface altitude field data
   !> @param[in]     domain_surface Physical height of flat domain surface (m)
-  !> @param[in]     domain_top     Physical height of domain top (m)
+  !> @param[in]     domain_height     Physical height of domain top (m)
   !> @param[in]     ndf_chi        Array size and loop bound for map_chi
   !> @param[in]     undf_chi       Column coordinates' array size and loop bound
   !> @param[in]     map_chi        Indirection map for coordinate field
@@ -826,7 +826,7 @@ end subroutine ancil_orography_spherical_sph
                                        chi_1, chi_2, chi_3,        &
                                        panel_id,                   &
                                        surface_altitude,           &
-                                       domain_surface, domain_top, &
+                                       domain_surface, domain_height, &
                                        ndf_chi, undf_chi,          &
                                        map_chi,                    &
                                        ndf_pid, undf_pid,          &
@@ -850,14 +850,14 @@ end subroutine ancil_orography_spherical_sph
   real(kind=r_def), dimension(undf_chi), intent(inout) :: chi_1, chi_2, chi_3
   real(kind=r_def), dimension(undf_pid),  intent(in)   :: panel_id
   real(kind=r_def), dimension(undf),     intent(in)    :: surface_altitude
-  real(kind=r_def), intent(in)                         :: domain_surface, domain_top
+  real(kind=r_def), intent(in)                         :: domain_surface, domain_height
 
   ! Internal variables
   integer(kind=i_def) :: k, df, dfchi, dfk
   real(kind=r_def)    :: eta
   real(kind=r_def)    :: surface_height(ndf_chi), domain_depth
 
-  domain_depth = domain_top - domain_surface
+  domain_depth = domain_height - domain_surface
 
   ! Calculate new surface_height at each chi dof
   surface_height(:) = 0.0_r_def
@@ -874,13 +874,13 @@ end subroutine ancil_orography_spherical_sph
 
       ! Calculate nondimensional coordinate from current height coordinate
       ! (chi_3) with flat domain_surface
-      eta = z2eta_linear(chi_3(dfk), domain_surface, domain_top)
+      eta = z2eta_linear(chi_3(dfk), domain_surface, domain_height)
 
       ! Calculate new height coordinate from its nondimensional coordinate
       ! eta and surface_height
       select case(stretching_method)
       case(stretching_method_linear)
-        chi_3(dfk) = eta2z_linear(eta, domain_surface+surface_height(df), domain_top)
+        chi_3(dfk) = eta2z_linear(eta, domain_surface+surface_height(df), domain_height)
       case default
         chi_3(dfk) = domain_surface + &
            eta2z_smooth(eta, surface_height(df), domain_depth, stretching_height)

@@ -17,7 +17,7 @@
 module shallow_hot_jupiter_forcings_mod
 
   use constants_mod,     only: r_def, i_def, pi
-  use planet_config_mod, only: scaling_factor, radius, omega
+  use planet_config_mod, only: scaling_factor, omega
 
   implicit none
 

@@ -13,10 +13,10 @@ module bl_imp_du_kernel_mod
                                       ANY_SPACE_1, ANY_SPACE_2,               &
                                       GH_INTEGER, GH_REAL, GH_SCALAR, GH_WRITE
   use constants_mod,            only: r_def, i_def, r_bl
+  use extrusion_config_mod,     only: planet_radius
   use fs_continuity_mod,        only: W1, W2, WTheta
   use kernel_mod,               only: kernel_type
   use nlsizes_namelist_mod,     only: bl_levels
-  use planet_config_mod,        only: radius
   use timestepping_config_mod,  only: outer_iterations
   use blayer_config_mod,        only: fric_heating, bl_mix_w
 
@@ -433,7 +433,7 @@ contains
 
     ! Topmost level
     k = bl_levels-1
-    r_sq = (height_w1(map_w1(df) + k) + radius)**2
+    r_sq = (height_w1(map_w1(df) + k) + planet_radius)**2
     du_bl_sp(k) = -dtrdz(k) * r_sq * tau(k)
     ! addition of non-turbulent increments
     du_bl_sp(k) = gamma2 * ( du_bl_sp(k) + du_nt(k) )
@@ -447,8 +447,8 @@ contains
 
     ! Downward sweep
     do k = bl_levels-2,1,-1
-      r_sq = (height_w1(map_w1(df) + k) + radius)**2
-      rr_sq = (height_w1(map_w1(df) + k+1) + radius)**2
+      r_sq = (height_w1(map_w1(df) + k) + planet_radius)**2
+      rr_sq = (height_w1(map_w1(df) + k+1) + planet_radius)**2
 
       du_bl_sp(k) = dtrdz(k) * ( rr_sq * tau(k+1) - r_sq * tau(k) )
       ! addition of non-turbulent increments
@@ -471,8 +471,8 @@ contains
 
     ! Surface level
     k = 0
-    r_sq = (height_w1(map_w1(df) + k) + radius)**2
-    rr_sq = (height_w1(map_w1(df) + k+1) + radius)**2
+    r_sq = (height_w1(map_w1(df) + k) + planet_radius)**2
+    rr_sq = (height_w1(map_w1(df) + k+1) + planet_radius)**2
 
     du_bl_sp(k) = dtrdz(k) * rr_sq * tau(k+1)
     ! addition of non-turbulent increments

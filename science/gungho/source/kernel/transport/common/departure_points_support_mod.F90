@@ -394,9 +394,9 @@ contains
     real(kind=r_tran),   intent(inout) ::  dep_pts(1:nlayers-1)
 
     integer(kind=i_def) :: k
-    real(kind=r_tran) :: domain_top
+    real(kind=r_tran) :: domain_height
 
-    domain_top = real(nlayers,r_tran)
+    domain_height = real(nlayers,r_tran)
 
     do k = 1, nlayers-2
 
@@ -404,7 +404,7 @@ contains
         ! If departure point above is less than departure point below, set
         ! the above point equal to the below point plus epsilon, but
         ! within the domain
-        dep_pts(k+1) = min(dep_pts(k) + epsilon(1.0_r_tran),domain_top)
+        dep_pts(k+1) = min(dep_pts(k) + epsilon(1.0_r_tran),domain_height)
       end if
 
     end do

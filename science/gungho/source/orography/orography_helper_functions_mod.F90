@@ -39,13 +39,13 @@ contains
   !>
   !> @param[in] eta            Nondimensional (terrain following) coordinate
   !> @param[in] surface_height Surface height (m)
-  !> @param[in] domain_top     Height of the domain (m)
+  !> @param[in] domain_height     Height of the domain (m)
   !> @param[in] eta_c          Physical height at the interface to constant layers
   !> @return    z              Physical height (m)
   !=============================================================================
   real(kind=r_def) function eta2z_smooth(eta,                &
                                          surface_height,     &
-                                         domain_top,         &
+                                         domain_height,         &
                                          stretching_height ) &
                                          result(z)
 
@@ -54,13 +54,13 @@ contains
     ! Arguments
     real(kind=r_def), intent(in) :: eta
     real(kind=r_def), intent(in) :: surface_height
-    real(kind=r_def), intent(in) :: domain_top
+    real(kind=r_def), intent(in) :: domain_height
     real(kind=r_def), intent(in) :: stretching_height
 
     ! Value of eta at stretching_height
     real(kind=r_def) :: eta_c
 
-    eta_c = stretching_height/domain_top
+    eta_c = stretching_height/domain_height
 
     ! If physical height is above the top of the domain, then set eta_c=1
     if ( eta_c > 1.0_r_def ) eta_c=1.0_r_def
@@ -68,10 +68,10 @@ contains
     ! Calculate physical height from eta
     if ( eta < eta_c )then
       ! Quadratic
-      z = eta*domain_top + (1.0_r_def - eta/eta_c)**2*surface_height
+      z = eta*domain_height + (1.0_r_def - eta/eta_c)**2*surface_height
     else
       ! Linear
-      z = eta*domain_top
+      z = eta*domain_height
     end if
 
     return
@@ -86,12 +86,12 @@ contains
   !>
   !> @param[in] eta            Nondimensional (terrain following) coordinate
   !> @param[in] surface_height Surface height (m)
-  !> @param[in] domain_top     Height of the domain (m)
+  !> @param[in] domain_height     Height of the domain (m)
   !> @return    z              Physical height (m)
   !=============================================================================
   real(kind=r_def) function eta2z_linear(eta,            &
                                          surface_height, &
-                                         domain_top)     &
+                                         domain_height)     &
                                          result(z)
 
     implicit none
@@ -99,10 +99,10 @@ contains
     ! Arguments
     real(kind=r_def), intent(in) :: eta
     real(kind=r_def), intent(in) :: surface_height
-    real(kind=r_def), intent(in) :: domain_top
+    real(kind=r_def), intent(in) :: domain_height
 
     ! Calculate physical height from eta
-    z = eta*domain_top + (1.0_r_def - eta)*surface_height
+    z = eta*domain_height + (1.0_r_def - eta)*surface_height
 
     return
   end function eta2z_linear
@@ -116,12 +116,12 @@ contains
   !>
   !> @param[in] z              Physical height (m)
   !> @param[in] surface_height Surface height (m)
-  !> @param[in] domain_top     Height of the domain (m)
+  !> @param[in] domain_height     Height of the domain (m)
   !> @return    eta            Nondimensional (terrain following) coordinate
   !=============================================================================
   real(kind=r_def) function z2eta_linear(z,              &
                                          surface_height, &
-                                         domain_top)     &
+                                         domain_height)     &
                                          result(eta)
 
     implicit none
@@ -129,10 +129,10 @@ contains
     ! Arguments
     real(kind=r_def), intent(in) :: z
     real(kind=r_def), intent(in) :: surface_height
-    real(kind=r_def), intent(in) :: domain_top
+    real(kind=r_def), intent(in) :: domain_height
 
     ! Calculate eta from physical height
-    eta = (z - surface_height)/(domain_top - surface_height)
+    eta = (z - surface_height)/(domain_height - surface_height)
 
     return
   end function z2eta_linear

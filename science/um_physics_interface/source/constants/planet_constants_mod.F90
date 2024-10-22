@@ -140,7 +140,8 @@ contains
 
 subroutine set_planet_constants()
 
-  use planet_config_mod, only: gravity, radius, rd, epsilon,         &
+  use extrusion_config_mod, only: radius => planet_radius
+  use planet_config_mod, only: gravity, rd, epsilon,                 &
                                lfric_recip_epsilon => recip_epsilon, &
                                lfric_omega => omega,                 &
                                lfric_cp => cp,                       &

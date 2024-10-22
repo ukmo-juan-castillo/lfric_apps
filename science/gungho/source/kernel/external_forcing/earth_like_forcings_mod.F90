@@ -17,7 +17,7 @@
 module earth_like_forcings_mod
 
   use constants_mod,     only: r_def, i_def, pi
-  use planet_config_mod, only: scaling_factor, radius
+  use planet_config_mod, only: scaling_factor
 
   implicit none
 

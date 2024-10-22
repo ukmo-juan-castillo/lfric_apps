@@ -105,9 +105,10 @@ theta_forcing='temp_tend',
 wind_forcing='none',
 /
 &extrusion
-domain_top=85000,
+domain_height=85000,
 method='um_L85_50t_35s_85km',
 number_of_layers=85,
+planet_radius=6371229.0,
 stretching_height=16641.984,
 stretching_method='smooth',
 /
@@ -422,7 +423,6 @@ cp=1005.0,
 gravity=9.80665,
 omega=7.292116E-5,
 p_zero=100000.0,
-radius=6371229.0,
 rd=287.05,
 scaling_factor=1.0,
 /

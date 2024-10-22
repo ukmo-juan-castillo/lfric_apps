@@ -300,7 +300,7 @@ function yz2longlat(y, z, domain_max_y)
   ! The z coordinate is modified such that it is in the interval [-pi/2,pi/2]
   ! The y coordinate is modified such that it is in the interval [0,2*pi]
 
-  use extrusion_config_mod, only : domain_top
+  use extrusion_config_mod, only : domain_height
 
   implicit none
   real(kind=r_def), intent(in) :: y
@@ -309,7 +309,7 @@ function yz2longlat(y, z, domain_max_y)
 
   real(kind=r_def) :: yz2longlat(2)
 
-  yz2longlat(2) = pi*z/domain_top - pi/2.0_r_def ! z --> latitude
+  yz2longlat(2) = pi*z/domain_height - pi/2.0_r_def ! z --> latitude
   yz2longlat(1) = pi*(y/domain_max_y+1.0_r_def)  ! y --> longitude
 
 end function yz2longlat
@@ -352,7 +352,7 @@ end function yz_NL_wind_case_1
 !> @result u Wind field vector (u,v,w)
 function curl_free_reversible(x, z, t, domain_max_x) result(u)
 
-  use extrusion_config_mod,   only : domain_top
+  use extrusion_config_mod,   only : domain_height
 
   implicit none
   real(kind=r_def), intent(in)    :: x
@@ -366,7 +366,7 @@ function curl_free_reversible(x, z, t, domain_max_x) result(u)
   time_period = domain_length  ! Profile advected round once
 
   ! This profile will only work if the domain height is big enough
-  if (domain_length > sqrt(2.0_r_def) * domain_top + EPS) then
+  if (domain_length > sqrt(2.0_r_def) * domain_height + EPS) then
     call log_event('Curl-free reversible wind profile only ' // &
                    'works when height >= length', LOG_LEVEL_ERROR)
   end if
@@ -374,12 +374,12 @@ function curl_free_reversible(x, z, t, domain_max_x) result(u)
   u(1) = (domain_length / time_period) * (1.0_r_def - 0.5_r_def               &
           * (t / time_period - 0.5_r_def)                                     &
           * sin(4.0_r_def * pi * (x / domain_length - t / time_period))       &
-          * cos(2.0_r_def * pi * z / domain_top))
+          * cos(2.0_r_def * pi * z / domain_height))
   u(2) = 0.0_r_def
-  u(3) = - 0.25_r_def * domain_length**2.0_r_def / (domain_top * time_period) &
+  u(3) = - 0.25_r_def * domain_length**2.0_r_def / (domain_height * time_period) &
           * (t / time_period - 0.5_r_def)                                     &
           * cos(4.0_r_def * pi * (x / domain_length - t / time_period))       &
-          * sin(2.0_r_def * pi * z / domain_top)
+          * sin(2.0_r_def * pi * z / domain_height)
 
 end function curl_free_reversible
 
@@ -397,7 +397,7 @@ function analytic_wind( chi, time, choice, num_options, &
                         domain_max_x, domain_max_y,     &
                         option_arg ) result(u)
 
-  use extrusion_config_mod,   only : domain_top
+  use extrusion_config_mod,   only : domain_height
 
   implicit none
 
@@ -541,13 +541,13 @@ function analytic_wind( chi, time, choice, num_options, &
       ! Translated longitude
       long_dash = chi(1) - 2.0_r_def * pi * time / end_time
       ! Set divergent correction velocity
-      u_d = - scaled_radius * cos(chi(2)) * w0 * pi / domain_top &
-            * cos(pi * z / domain_top) * sin(long_dash)          &
+      u_d = - scaled_radius * cos(chi(2)) * w0 * pi / domain_height &
+            * cos(pi * z / domain_height) * sin(long_dash)          &
             * cos(2.0_r_def * pi * time / end_time)
       ! Set velocity
       u(1) = u0 *  cos(chi(2)) + u_d
       u(2) = 0.0_r_def
-      u(3) = w0 * sin(pi * z / domain_top) * cos(long_dash) &
+      u(3) = w0 * sin(pi * z / domain_height) * cos(long_dash) &
              * cos(2.0_r_def * pi * time / end_time)
     case (profile_dcmip_101)
       ! DCMIP 1.1 transport test.
@@ -562,7 +562,7 @@ function analytic_wind( chi, time, choice, num_options, &
       long_dash = chi(1) - 2.0_r_def * pi * time / end_time
       ! Pressure related variables
       p         = p0*exp(-g * z / ( Rd * T0 ))
-      ptop      = p0*exp(-g * domain_top / ( Rd * T0 ))
+      ptop      = p0*exp(-g * domain_height / ( Rd * T0 ))
       rhoz      = p / ( Rd * T0 )
       ! Set divergent correction velocity
       u_d = scaled_radius * w0 / (b * ptop) * cos(chi(2)) * cos(chi(2))      &
@@ -587,18 +587,18 @@ function analytic_wind( chi, time, choice, num_options, &
       ! Translated longitude
       long_dash = chi(1) - 2.0_r_def * pi * time / end_time
       ! Set divergent correction velocity
-      u_d = 2.0_r_def * sin(2.0_r_def * pi *( z / domain_top - 0.5_r_def )) *              &
-            sin(pi * z / domain_top) - cos(2.0_r_def * pi *( z / domain_top - 0.5_r_def )) &
-            * cos(pi * z / domain_top)
+      u_d = 2.0_r_def * sin(2.0_r_def * pi *( z / domain_height - 0.5_r_def )) *              &
+            sin(pi * z / domain_height) - cos(2.0_r_def * pi *( z / domain_height - 0.5_r_def )) &
+            * cos(pi * z / domain_height)
       ! Set velocity
-      u(1) = scaled_radius * w0 * pi / domain_top                     &
+      u(1) = scaled_radius * w0 * pi / domain_height                     &
              * sin(long_dash) * sin(long_dash)                        &
              * cos(pi * time / end_time) * cos(chi(2))  * cos(chi(2)) &
              * u_d + 2.0_r_def * pi * scaled_radius / end_time * cos(chi(2))
       u(2) = 0.0_r_def
       u(3) = w0 * sin(2.0_r_def * long_dash)                       &
-                * cos(2.0_r_def * pi *( z / domain_top - 0.5_r_def )) &
-                * sin(pi * z / domain_top) * cos(pi * time / end_time) * cos(chi(2))
+                * cos(2.0_r_def * pi *( z / domain_height - 0.5_r_def )) &
+                * sin(pi * z / domain_height) * cos(pi * time / end_time) * cos(chi(2))
     case default
       write( log_scratch_space, '(A)' )  'Invalid velocity profile choice, stopping'
       call log_event( log_scratch_space, LOG_LEVEL_ERROR )

@@ -82,7 +82,8 @@ module jedi_lfric_mesh_interface_test
 
     call feign_extrusion_config(    &
       method=method_uniform,        &
-      domain_top=1.0_r_def,         &
+      planet_radius=6000.00_r_def,  &
+      domain_height=1.0_r_def,      &
       number_of_layers=5_i_def,     &
       stretching_height=1.0_r_def,  &
       stretching_method=stretching_method_linear)

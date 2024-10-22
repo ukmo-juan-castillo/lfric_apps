@@ -92,7 +92,7 @@ module um_physics_init_mod
                                      par_gen_rhpert_in => par_gen_rhpert,     &
                                      par_radius_ppn_max_in => par_radius_ppn_max
 
-  use extrusion_config_mod,      only : domain_top, number_of_layers
+  use extrusion_config_mod,      only : domain_height, number_of_layers
 
   use formulation_config_mod,    only : moisture_formulation,    &
                                         moisture_formulation_dry
@@ -991,7 +991,7 @@ contains
       mp_dz_scal     = 2.0_r_um
 
       ! Domain top used in microphysics - contained in mphys_bypass_mod
-      mphys_mod_top  = real(domain_top, r_um)
+      mphys_mod_top  = real(domain_height, r_um)
 
       ! Options only relevent to old microphysics scheme
       if (.not. microphysics_casim) then

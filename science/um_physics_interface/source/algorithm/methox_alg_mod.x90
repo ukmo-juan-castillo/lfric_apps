@@ -14,7 +14,7 @@ module methox_alg_mod
   use timer_mod,            only: timer
 
   use constants_mod,             only: r_def, i_def, pi, l_def
-  use extrusion_config_mod,      only: domain_top, number_of_layers
+  use extrusion_config_mod,      only: domain_height, number_of_layers
   use level_heights_mod,         only: eta_theta_levels
   use science_conversions_mod, only: seconds_per_day
   use planet_config_mod,         only: p_zero
@@ -101,7 +101,7 @@ contains
       do k = 0, number_of_layers
 
         ! Estimate pressure using typical middle atmosphere scale height
-        pressure = p_zero * exp(-domain_top*eta_theta_levels(k)/scale_ht)
+        pressure = p_zero * exp(-domain_height*eta_theta_levels(k)/scale_ht)
 
         ! Calculate methane oxidation coefficient
         if (pressure <= p1_methox) then

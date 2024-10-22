@@ -24,7 +24,7 @@ USE log_mod,                                ONLY: log_event,       &
                                                   LOG_LEVEL_ERROR, &
                                                   log_scratch_space
 USE extrusion_config_mod,                   ONLY: number_of_layers, &
-                                                  domain_top
+                                                  domain_height
 ! Shumlib modules
 USE f_shum_file_mod,                        ONLY: shum_file_type
 USE f_shum_fixed_length_header_indices_mod, ONLY: horiz_grid_type, &
@@ -98,11 +98,11 @@ CALL shumlib(routinename//'::get_real_constants_by_index',                     &
      um_input_file % get_real_constants_by_index(                              &
      rh_height_model_top, dump_model_top))
 ! Check that height of the top of the model is the same.
-IF (ABS(dump_model_top - domain_top) > tolerance ) THEN
+IF (ABS(dump_model_top - domain_height) > tolerance ) THEN
    WRITE(log_scratch_space, '(2(A,F0.12))')                                    &
         "Mismatch between top of model in UM "                                 &
         // " dump: ", dump_model_top,                                          &
-        " and top of model in LFRic namelist: ", domain_top
+        " and top of model in LFRic namelist: ", domain_height
   CALL log_event(log_scratch_space, LOG_LEVEL_ERROR)
 END IF
 

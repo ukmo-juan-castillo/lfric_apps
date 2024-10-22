@@ -15,16 +15,7 @@ module sample_eos_operators_kernel_mod_test
   implicit none
 
   private
-  public :: sample_eos_operators_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: sample_eos_operators_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type sample_eos_operators_test_type
+  public :: set_up, tear_down, test_all
 
   real(r_def), parameter :: bvf_square = 0.0001_r_def
   real(r_def), parameter :: theta_surf = 300.0_r_def
@@ -41,32 +32,30 @@ module sample_eos_operators_kernel_mod_test
                                                     4.0e3_r_def,   &
                                                     40.0e3_r_def /)
 
-  real(r_def), parameter :: gravity  = 10.0_r_def
-  real(r_def), parameter :: radius   = 6000000.0_r_def
-  real(r_def), parameter :: omega    = 8.0E-5_r_def
   real(r_def), parameter :: p_zero   = 100000.0_r_def
   real(r_def), parameter :: rd       = 300.0_r_def
   real(r_def), parameter :: cp       = 1000.0_r_def
   real(r_def), parameter :: kappa    = rd/cp
-  real(r_def), parameter :: scaling  = 1.0_r_def
 
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
     use base_mesh_config_mod,      only : geometry_planar,    &
                                           topology_fully_periodic
+    use extrusion_config_mod,      only : method_uniform, &
+                                          stretching_method_linear
     use finite_element_config_mod, only : cellshape_quadrilateral
     use feign_config_mod,          only : feign_base_mesh_config,           &
+                                          feign_extrusion_config,           &
                                           feign_initial_temperature_config, &
                                           feign_planet_config
     use initial_temperature_config_mod, &
                                    only : perturb_none
 
     implicit none
-
-    class(sample_eos_operators_test_type), intent(inout) :: this
 
     call feign_base_mesh_config                     &
              ( file_prefix='foo',                   &
@@ -75,6 +64,13 @@ contains
                prepartitioned=.false.,              &
                topology=topology_fully_periodic,    &
                fplane=.false., f_lat_deg=0.0_r_def )
+
+    call feign_extrusion_config( planet_radius=6000000.0_r_def,              &
+                                 domain_height=10.0_r_def,                   &
+                                 method=method_uniform,                      &
+                                 number_of_layers=2_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=1.0_r_def )
 
     call feign_initial_temperature_config( bvf_square=bvf_square, &
                                            theta_surf=theta_surf, &
@@ -85,28 +81,27 @@ contains
                                            profile_data=profile_data,             &
                                            profile_heights=profile_heights )
 
-    call feign_planet_config( gravity=gravity, radius=radius, omega=omega, &
+    call feign_planet_config( gravity=10.0_r_def, omega=8.0E-5_r_def, &
                               rd=rd, cp=cp, p_zero=p_zero,                 &
-                              scaling_factor=scaling )
+                              scaling_factor=1.0_r_def )
 
-  end subroutine setUp
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
+  @after
+  subroutine tear_down()
 
     use configuration_mod,        only: final_configuration
 
     implicit none
 
-    class(sample_eos_operators_test_type), intent(inout) :: this
-
     call final_configuration()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   @test
-  subroutine test_all( this )
+  subroutine test_all()
 
     use sample_eos_operators_kernel_mod, only : sample_eos_operators_code
 
@@ -123,8 +118,6 @@ contains
     use, intrinsic :: iso_fortran_env, only: real64
 
     implicit none
-
-    class(sample_eos_operators_test_type), intent(inout) :: this
 
     real(r_solver), parameter :: tol = 1.0e-12_r_solver
     real(r_solver)            :: use_tol

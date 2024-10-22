@@ -19,9 +19,10 @@
 /
 
 &extrusion
-domain_top=30000.0,
+domain_height=30000.0,
 method='dcmip',
 number_of_layers=30,
+planet_radius=6371229.0
 stretching_method='linear',
 /
 
@@ -150,7 +151,6 @@ zero_w2v_wind=.false.,
 
 &planet
   gravity        = 9.80665
-  radius         = 6371229.0
   omega          = 7.292116E-5
   rd             = 287.05
   cp             = 1005.0

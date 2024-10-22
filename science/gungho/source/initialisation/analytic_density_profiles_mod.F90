@@ -53,7 +53,7 @@ use reference_profile_mod,      only : reference_profile
 use analytic_temperature_profiles_mod, &
                                 only : analytic_temperature
 use deep_baroclinic_wave_mod,   only : deep_baroclinic_wave
-use extrusion_config_mod,       only : domain_top
+use extrusion_config_mod,       only : domain_height
 
 implicit none
 

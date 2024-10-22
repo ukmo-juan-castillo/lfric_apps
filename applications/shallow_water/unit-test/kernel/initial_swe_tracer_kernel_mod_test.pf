@@ -33,31 +33,26 @@ module initial_swe_tracer_kernel_mod_test
   implicit none
 
   private
-  public :: initial_swe_tracer_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: initial_swe_tracer_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type initial_swe_tracer_test_type
+  public :: set_up, tear_down, test_all
 
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
     use base_mesh_config_mod,      only : geometry_planar,    &
                                           topology_fully_periodic
-    use sci_chi_transform_mod,     only : init_chi_transforms
+    use extrusion_config_mod,      only : method_uniform, &
+                                          stretching_method_linear
     use feign_config_mod,          only : feign_base_mesh_config,      &
+                                          feign_extrusion_config,      &
                                           feign_finite_element_config, &
                                           feign_planet_config,         &
                                           feign_shallow_water_settings_config
     use finite_element_config_mod, only : cellshape_quadrilateral, &
                                           coord_system_xyz
+    use sci_chi_transform_mod,     only : init_chi_transforms
     use shallow_water_settings_config_mod,                           &
                                    only : momentum_form_momentum,    &
                                           time_scheme_semi_implicit, &
@@ -65,14 +60,19 @@ contains
 
     implicit none
 
-    class(initial_swe_tracer_test_type), intent(inout) :: this
-
     call feign_base_mesh_config( file_prefix='foo',                   &
                                  prime_mesh_name='unit_test',         &
                                  geometry=geometry_planar,            &
                                  topology=topology_fully_periodic,    &
                                  prepartitioned=.false.,              &
                                  fplane=.false., f_lat_deg=0.0_r_def )
+
+    call feign_extrusion_config( method=method_uniform,                      &
+                                 planet_radius=6000000.0_r_def,              &
+                                 domain_height=10.0_r_def,                   &
+                                 number_of_layers=5_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=10.0_r_def )
 
     call feign_finite_element_config( cellshape=cellshape_quadrilateral, &
                                       coord_order=0_i_def,               &
@@ -82,7 +82,6 @@ contains
                                       vorticity_in_w1=.false. )
 
     call feign_planet_config( gravity=10.0_r_def,     &
-                              radius=6000000.0_r_def, &
                               omega=0.01_r_def,       &
                               rd=300.0_r_def,         &
                               cp=1000.0_r_def,        &
@@ -97,33 +96,30 @@ contains
 
     call init_chi_transforms()
 
-  end subroutine setUp
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
+  @after
+  subroutine tear_down()
 
-    use sci_chi_transform_mod,    only: final_chi_transforms
-    use configuration_mod,        only: final_configuration
+    use sci_chi_transform_mod, only: final_chi_transforms
+    use configuration_mod,     only: final_configuration
 
     implicit none
-
-    class(initial_swe_tracer_test_type), intent(inout) :: this
 
     ! Finalise namelists
     call final_chi_transforms()
     call final_configuration()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use initial_swe_tracer_kernel_mod, only : initial_swe_tracer_code
 
    implicit none
-
-    class(initial_swe_tracer_test_type), intent(inout) :: this
 
     real(r_def), parameter :: tol = 1.0e-12_r_def
     real(r_def), parameter :: dx = 2.0_r_def

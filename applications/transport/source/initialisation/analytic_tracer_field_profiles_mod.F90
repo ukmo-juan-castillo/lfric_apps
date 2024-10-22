@@ -37,7 +37,7 @@ use initial_tracer_field_config_mod, &
 use base_mesh_config_mod,       only : geometry, &
                                        geometry_spherical
 use planet_config_mod,          only : p_zero, Rd, kappa, scaled_radius
-use extrusion_config_mod,       only : domain_top
+use extrusion_config_mod,       only : domain_height
 
 implicit none
 
@@ -135,11 +135,11 @@ function analytic_tracer_field(chi, choice, domain_max_x) result(tracer)
     tracer = h1+h2
 
   case( test_cosine_bell )
-    bubble_height = domain_top/12.0_r_def
+    bubble_height = domain_height/12.0_r_def
     d1 = min( 1.0_r_def, ( l1 / 0.5_r_def )**2 + &
-         ( ( radius - scaled_radius - domain_top/2.0_r_def ) / bubble_height )**2 )
+         ( ( radius - scaled_radius - domain_height/2.0_r_def ) / bubble_height )**2 )
     d2 = min( 1.0_r_def, ( l2 / 0.5_r_def )**2 + &
-         ( ( radius - scaled_radius - domain_top/2.0_r_def ) / bubble_height )**2 )
+         ( ( radius - scaled_radius - domain_height/2.0_r_def ) / bubble_height )**2 )
     tracer = field_background + ( (field_max - field_background) / 2.0_r_def ) * &
               ( ( 1.0_r_def + cos( pi*d1 ) ) + ( 1.0_r_def + cos( pi*d2 ) ) )
 
@@ -218,7 +218,7 @@ function analytic_tracer_field(chi, choice, domain_max_x) result(tracer)
 
   case( test_eternal_fountain )
     bubble_width = 0.4_r_def * domain_max_x
-    bubble_height = 0.1_r_def * domain_top
+    bubble_height = 0.1_r_def * domain_height
 
     if ( ( (chi(1) + bubble_width / 2.0_r_def) &
             * (bubble_width / 2.0_r_def - chi(1)) > 0.0_r_def ) &
@@ -230,9 +230,9 @@ function analytic_tracer_field(chi, choice, domain_max_x) result(tracer)
 
   case ( test_rotational, test_curl_free_reversible, &
          test_translational, test_div_free_reversible )
-    bubble_zc = domain_top / 4.0_r_def
+    bubble_zc = domain_height / 4.0_r_def
     bubble_width = domain_max_x / 5.0_r_def
-    bubble_height = domain_top / 10.0_r_def
+    bubble_height = domain_height / 10.0_r_def
     bubble_radius = bubble_height / 2.0_r_def
 
     ! Elliptical distance from centre of bubble
@@ -244,9 +244,9 @@ function analytic_tracer_field(chi, choice, domain_max_x) result(tracer)
                 * exp(-(bubble_dist / bubble_radius)**2.0_r_def)
 
   case( test_vertical_cylinder )
-    bubble_zc = domain_top / 4.0_r_def
+    bubble_zc = domain_height / 4.0_r_def
     bubble_width = domain_max_x / 2.0_r_def
-    bubble_height = domain_top / 4.0_r_def
+    bubble_height = domain_height / 4.0_r_def
     bubble_radius = bubble_height / 2.0_r_def
 
     ! Elliptical distance from centre of bubble

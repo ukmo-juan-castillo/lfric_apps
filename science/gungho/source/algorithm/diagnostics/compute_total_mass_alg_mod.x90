@@ -34,6 +34,7 @@ contains
                                               integral_method_fd, &
                                               integral_method_fe
     use extrusion_mod,                  only: TWOD
+    use extrusion_config_mod,           only: planet_radius
     use fem_constants_mod,              only: get_mass_matrix
     use fs_continuity_mod,              only: W3, Wtheta
     use field_mod,                      only: field_type
@@ -50,7 +51,6 @@ contains
     use mesh_collection_mod,            only: mesh_collection
     use operator_mod,                   only: operator_type
     use physical_op_constants_mod,      only: get_da_msl_proj
-    use planet_config_mod,              only: radius
 
     implicit none
 
@@ -93,9 +93,12 @@ contains
 
       total_mass = 0.0_r_def
 
-      call invoke( compute_column_integral_kernel_type( rho, height_w3, height_wth, &
-                                                        tot_col_mass, radius ),     &
-                   inc_X_times_Y( tot_col_mass, dA ),                               &
+      call invoke( compute_column_integral_kernel_type( rho,             &
+                                                        height_w3,       &
+                                                        height_wth,      &
+                                                        tot_col_mass,    &
+                                                        planet_radius ), &
+                   inc_X_times_Y( tot_col_mass, dA ),                    &
                    sum_X( total_mass, tot_col_mass ) )
 
       nullify( height_w3, height_wth, twod_mesh, dA )

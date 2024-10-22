@@ -71,9 +71,10 @@ encorr_usage='none',
 integral_method='fe',
 /
 &extrusion
-domain_top=80000.0,
+domain_height=80000.0,
 method='um_L70_50t_20s_80km',
 number_of_layers=70,
+planet_radius=6371229.0,
 stretching_height=17507.0,
 stretching_method='smooth',
 /
@@ -253,7 +254,6 @@ cp=1005.0,
 gravity=9.80665,
 omega=7.292116E-5,
 p_zero=100000.0,
-radius=6371229.0,
 rd=287.05,
 scaling_factor=1.0,
 /

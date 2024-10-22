@@ -11,21 +11,13 @@ module ancil_orography_spherical_mod_test
   implicit none
 
   private
-  public :: ancil_orography_spherical_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: ancil_orography_spherical_test_type
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type ancil_orography_spherical_test_type
+  public :: set_up, tear_down, test_all
 
   integer(i_def), parameter :: nlayers = 1
   real(r_def), parameter :: dlat = 1.0_r_def/180.0_r_def
   real(r_def), parameter :: dlon = 1.0_r_def/180.0_r_def
   real(r_def), parameter :: dr = 1000.0_r_def
-  real(r_def), parameter :: domain_top = nlayers*dr
+  real(r_def), parameter :: domain_height = nlayers*dr
   real(r_def), parameter :: radius   = 6371229.0_r_def
   real(r_def), parameter :: domain_surface = radius
 
@@ -35,7 +27,7 @@ module ancil_orography_spherical_mod_test
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  subroutine set_up()
 
     use base_mesh_config_mod,      only : geometry_spherical,      &
                                           topology_fully_periodic
@@ -49,8 +41,6 @@ contains
 
     implicit none
 
-    class(ancil_orography_spherical_test_type), intent(inout) :: this
-
     call feign_base_mesh_config(                                    &
                          file_prefix     = 'foo',                   &
                          prime_mesh_name = 'unit_test',             &
@@ -62,7 +52,8 @@ contains
 
     call feign_extrusion_config( &
                          method           = method_uniform,          &
-                         domain_top       = domain_top,              &
+                         planet_radius    = radius,                  &
+                         domain_height    = domain_height,           &
                          number_of_layers = nlayers,                 &
                          stretching_height= 1.0_r_def,               &
                          stretching_method= stretching_method_linear &
@@ -75,24 +66,22 @@ contains
                                       rehabilitate=.true.,               &
                                       vorticity_in_w1=.false. )
 
-  end subroutine setUp
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
+  subroutine tear_down()
 
     use configuration_mod,        only: final_configuration
 
     implicit none
 
-    class(ancil_orography_spherical_test_type), intent(inout) :: this
-
     call final_configuration()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use, intrinsic :: iso_fortran_env, only : real64
     use sci_average_w3_to_w0_kernel_mod, only : average_w3_to_w0_code
@@ -115,9 +104,6 @@ contains
     use coord_transform_mod, only : xyz2llr
 
     implicit none
-
-    class(ancil_orography_spherical_test_type), intent(inout) :: this
-
 
     ! Fields
     real(r_def), allocatable :: srf_alt_w3(:)
@@ -215,7 +201,7 @@ contains
                                          panel_id,           &
                                          srf_alt_w0,         &
                                          domain_surface,     &
-                                         domain_top,         &
+                                         domain_height,      &
                                          ndf_wchi,           &
                                          undf_wchi,          &
                                          map_wchi(:, cell),  &

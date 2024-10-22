@@ -8,9 +8,10 @@
 module um_domain_init_mod
 
   ! LFRic namelists which have been read
-  use extrusion_config_mod,        only : domain_top, number_of_layers
+  use extrusion_config_mod,        only : domain_height,    &
+                                          number_of_layers, &
+                                          planet_radius
   use nlsizes_namelist_mod,        only : bl_levels
-  use planet_config_mod,           only : radius
   use cloud_config_mod,            only : use_fsd_eff_res
   use section_choice_config_mod,   only : microphysics,      &
                                           microphysics_um,   &
@@ -82,7 +83,7 @@ contains
                  sum_X(sum_delta, delta)  , &
                  sum_X(sum_ones,  ones)     )
 
-    delta_lambda = sum_delta / ( sum_ones * radius )
+    delta_lambda = sum_delta / ( sum_ones * planet_radius )
     delta_phi    = delta_lambda
 
     if ( microphysics == microphysics_um                                    &
@@ -100,7 +101,7 @@ contains
 
     k = 1
     do while ( k < bl_levels .and. &
-      domain_top * eta_theta_levels(k) < 6000.0_r_def )
+      domain_height * eta_theta_levels(k) < 6000.0_r_def )
       k = k+1
     end do
     nl_bl_levels = k
@@ -110,7 +111,7 @@ contains
     !-----------------------------------------------------------------------
 
     k = 1
-    do while ( domain_top * eta_theta_levels(k) < 2000.0_r_def)
+    do while ( domain_height * eta_theta_levels(k) < 2000.0_r_def)
       k = k+1
       if ( k > size( eta_theta_levels ) )then
         write( log_scratch_space, '(A)' )                                   &

@@ -12,10 +12,10 @@ use argument_mod,         only: arg_type,              &
                                 GH_READ, GH_READWRITE, &
                                 GH_WRITE, CELL_COLUMN, &
                                 ANY_DISCONTINUOUS_SPACE_1
+use extrusion_config_mod, only: planet_radius
 use fs_continuity_mod,    only: WTHETA
 use kernel_mod,           only: kernel_type
 use cloud_config_mod,     only: use_fsd_eff_res
-use planet_config_mod,    only: radius
 use fsd_parameters_mod,   only: fsd_eff_lam, f_cons
 use um_physics_init_mod,  only: fsd_min_conv_frac, fsd_conv_const, fsd_nonconv_const
 
@@ -117,7 +117,7 @@ subroutine fsd_condensate_code( nlayers,                    &
     if (use_fsd_eff_res) then
       ! Use a fixed effective resolution in FSD parametrization.
       do k = 1, nlayers
-        x_in_km(k) = fsd_eff_lam * radius * m_to_km
+        x_in_km(k) = fsd_eff_lam * planet_radius * m_to_km
       end do
     else
       ! Use edge length as measure of horizontal distance in FSD parametrization

@@ -14,59 +14,15 @@ module geopotential_gradient_kernel_mod_test
   implicit none
 
   private
-  public :: geopotential_gradient_test_type, test_all
+  public :: test_all
 
-  @TestCase
-  type, extends(TestCase) :: geopotential_gradient_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type geopotential_gradient_test_type
-
-  real(r_def), parameter :: gravity  = 10.0_r_def
-  real(r_def), parameter :: radius   = 6000000.0_r_def
-  real(r_def), parameter :: omega    = 8.0E-5_r_def
-  real(r_def), parameter :: p_zero   = 100000.0_r_def
-  real(r_def), parameter :: rd       = 300.0_r_def
-  real(r_def), parameter :: cp       = 1000.0_r_def
-  real(r_def), parameter :: scaling  = 1.0_r_def
+  real(r_def), parameter :: gravity = 10.0_r_def
 
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    use finite_element_config_mod, only : cellshape_quadrilateral
-    use feign_config_mod,          only : feign_planet_config
-
-    implicit none
-
-    class(geopotential_gradient_test_type), intent(inout) :: this
-
-    call feign_planet_config( gravity=gravity, radius=radius, omega=omega, &
-                              rd=rd, cp=cp, p_zero=p_zero,                 &
-                              scaling_factor=scaling )
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    use configuration_mod,        only: final_configuration
-
-    implicit none
-
-    class(geopotential_gradient_test_type), intent(inout) :: this
-
-    call final_configuration()
-
-  end subroutine tearDown
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use, intrinsic :: iso_fortran_env,    only : real64
     use geopotential_gradient_kernel_mod, only : geopotential_gradient_code
@@ -81,8 +37,6 @@ contains
     use get_unit_test_q3x3x3_quadrature_mod, only : get_gaussian_q3x3x3_quadrature_weights_xy, &
                                                     get_gaussian_q3x3x3_quadrature_weights_z
     implicit none
-
-    class(geopotential_gradient_test_type), intent(inout) :: this
 
     real(r_def), parameter :: tol = 1.0e-3_r_def     ! r_def 64bit tolerance
     real(r_def), parameter :: dx = 6000.0_r_def, &

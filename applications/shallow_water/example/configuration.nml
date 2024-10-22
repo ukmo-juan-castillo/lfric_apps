@@ -74,9 +74,6 @@ gravity        = 1.0
         !                     10.0    for thermal double vortex test case (non-dim)
         !                     9.80616 for thermal double vortex test case
         !                     9.80616 for vortex field test case
-radius         = 1.0
-        ! Recommended values: 6371229 for spherical and dimensional test cases
-        !                     1.0     for non-dimensional test cases (i.e. PUSM)
 omega          = 5.0
         ! Equal to f/2. for coriolis parameter f in shallow water equations
         ! Recommended values: 7.292116E-5 for spherical test cases
@@ -252,9 +249,12 @@ limit_cfl=.false.
 
 &extrusion
 method           = 'uniform'
-domain_top       = 1.0
+domain_height    = 1.0
 number_of_layers = 1
         ! Have just one layer for shallow water equations
+planet_radius    = 1.0
+        ! Recommended values: 6371229 for spherical and dimensional test cases
+        !                     1.0     for non-dimensional test cases (i.e. PUSM)
 stretching_method='linear'
 /
 

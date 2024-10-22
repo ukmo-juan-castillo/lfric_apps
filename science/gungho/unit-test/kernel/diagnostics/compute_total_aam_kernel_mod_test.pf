@@ -28,49 +28,44 @@ module compute_total_aam_kernel_mod_test
   implicit none
 
   private
-  public :: compute_total_aam_kernel_test_type, test_all
+  public :: set_up, tear_down, test_all
 
-  @TestCase
-  type, extends(TestCase) :: compute_total_aam_kernel_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type compute_total_aam_kernel_test_type
-
-  real(r_def), parameter :: gravity  = 10.0_r_def
-  real(r_def), parameter :: radius   = 6000000.0_r_def
-  real(r_def), parameter :: omega    = 8.0E-5_r_def
-  real(r_def), parameter :: p_zero   = 100000.0_r_def
-  real(r_def), parameter :: rd       = 300.0_r_def
-  real(r_def), parameter :: cp       = 1000.0_r_def
-  real(r_def), parameter :: scaling  = 1.0_r_def
-  real(r_def), parameter :: lat_c    = 0.0_r_def
+  real(r_def), parameter :: lat_c = 0.0_r_def
+  real(r_def), parameter :: omega = 8.0E-5_r_def
+  real(r_def), parameter :: planet_radius = 6000000.0_r_def
 
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
     use base_mesh_config_mod,      only : geometry_spherical, &
                                           topology_fully_periodic
+    use extrusion_config_mod,      only : method_uniform, &
+                                          stretching_method_linear
     use sci_chi_transform_mod,     only : init_chi_transforms
     use finite_element_config_mod, only : cellshape_quadrilateral, &
                                           coord_system_xyz
-    use feign_config_mod,          only : feign_finite_element_config, &
-                                          feign_base_mesh_config, &
+    use feign_config_mod,          only : feign_extrusion_config,      &
+                                          feign_finite_element_config, &
+                                          feign_base_mesh_config,      &
                                           feign_planet_config
     implicit none
-
-    class(compute_total_aam_kernel_test_type), intent(inout) :: this
 
     call feign_base_mesh_config( file_prefix='foo',                &
                                  prime_mesh_name='unit_test',      &
                                  geometry=geometry_spherical,      &
                                  prepartitioned=.false.,           &
                                  topology=topology_fully_periodic, &
-                                 fplane=.false., f_lat_deg=lat_c )
+                                 fplane=.false., f_lat_deg=0.0_r_def )
+
+    call feign_extrusion_config( planet_radius=planet_radius,                &
+                                 domain_height=10.0_r_def,                   &
+                                 method=method_uniform,                      &
+                                 number_of_layers=2_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=1.0_r_def )
 
     call feign_finite_element_config(           &
              cellshape=cellshape_quadrilateral, &
@@ -80,39 +75,37 @@ contains
              rehabilitate=.true.,               &
              vorticity_in_w1=.false. )
 
-    call feign_planet_config( gravity=gravity, radius=radius, omega=omega, &
-                              rd=rd, cp=cp, p_zero=p_zero,                 &
-                              scaling_factor=scaling )
+    call feign_planet_config( gravity=10.0_r_def, omega=omega, &
+                              rd=300.0_r_def, cp=1000.0_r_def, &
+                              p_zero=100000.0_r_def,           &
+                              scaling_factor=1.0_r_def )
 
     call init_chi_transforms()
 
-  end subroutine setUp
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
+  @after
+  subroutine tear_down()
 
     use configuration_mod,        only: final_configuration
     use sci_chi_transform_mod,    only: final_chi_transforms
 
     implicit none
 
-    class(compute_total_aam_kernel_test_type), intent(inout) :: this
-
     call final_configuration()
     call final_chi_transforms()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use, intrinsic :: iso_fortran_env, only: real64
     use compute_total_aam_kernel_mod, only : compute_total_aam_code
 
     implicit none
-
-    class(compute_total_aam_kernel_test_type), intent(inout) :: this
 
     real(r_def), parameter :: wind   = 100.0_r_def     ! r_def 64bit
     real(r_def), parameter :: rho0   = 1.5_r_def
@@ -192,7 +185,7 @@ contains
     ! Chi is our global coordinate.
     ! Take cell to lat = 0, lon = 0 by changing x -> x + radius
     ! Thus chi1 is the local vertical coordinate and chi2 points zonally
-    chi1(:) = chi1(:) + radius
+    chi1(:) = chi1(:) + planet_radius
 
     u(:) = 0.0_r_def
     rho(:) = rho0
@@ -240,7 +233,8 @@ contains
     ! Doing this integral and a Taylor expansion (assuming cell is small compared to r) gives:
     ! rho * (wind + Omega * radius * cos(phi)) * radius * cos(phi) * dx * dy * dz
     ! We use this as our approximate answer to test the kernel.
-    answer = rho0 * (wind + omega * radius * cos(lat_c)) * radius * cos(lat_c) * dx * dy * dz
+    answer = rho0 * (wind + omega * planet_radius * cos(lat_c)) &
+             * planet_radius * cos(lat_c) * dx * dy * dz
     if ( r_def == real64 ) then
       use_tol = tol
     else

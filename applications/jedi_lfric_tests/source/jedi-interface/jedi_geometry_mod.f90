@@ -107,7 +107,7 @@ subroutine initialise( self, mpi_comm, configuration )
   type(mpi_type)               :: mpi_obj
   type(namelist_type), pointer :: geometry_configuration
   integer                      :: i_horizontal
-  real(real64)                 :: domain_top
+  real(real64)                 :: domain_height
   real(real64)                 :: stretching_height
   real(real64), allocatable    :: lonlat(:,:),          &
                                   sigma_W3_levels(:),   &
@@ -148,7 +148,7 @@ subroutine initialise( self, mpi_comm, configuration )
   end do
 
   ! Here JEDI deals with physical coordinates
-  domain_top = mesh%get_domain_top()
+  domain_height = mesh%get_domain_top()
   sigma_W3_levels = get_sigma_w3_levels(mesh)
   sigma_Wtheta_levels = get_sigma_wtheta_levels(mesh)
   stretching_height = get_stretching_height()

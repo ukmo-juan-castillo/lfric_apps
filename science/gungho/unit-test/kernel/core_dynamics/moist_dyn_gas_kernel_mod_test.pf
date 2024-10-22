@@ -32,21 +32,13 @@ module moist_dyn_gas_kernel_mod_test
   integer(i_def), parameter :: ndf_wtheta = 2
   integer(i_def), parameter :: undf_wtheta = nlayers * ndf_wtheta
 
-  ! Data for planet namelist
-  real(r_def), parameter :: cp              = 1000.0_r_def
-  real(r_def), parameter :: gravity         = 10.0_r_def
-  real(r_def), parameter :: omega           = 8.0E-5_r_def
-  real(r_def), parameter :: p_zero          = 100000.0_r_def
-  real(r_def), parameter :: radius          = 6000000.0_r_def
-  real(r_def), parameter :: rd              = 300.0_r_def
-  real(r_def), parameter :: scaling_factor  = 1.0_r_def
-
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine setUp( this )
 
-    use feign_config_mod, only: feign_planet_config
+    use extrusion_config_mod, only: method_uniform, stretching_method_linear
+    use feign_config_mod,     only: feign_extrusion_config, feign_planet_config
 
     implicit none
 
@@ -56,9 +48,16 @@ contains
     allocate(this%mr_v(undf_wtheta))
     allocate(this%moist_dyn_gas(undf_wtheta))
 
-    call feign_planet_config( cp = cp, gravity = gravity,  omega = omega, &
-                              p_zero = p_zero, radius = radius, rd = rd,  &
-                              scaling_factor = scaling_factor )
+    call feign_extrusion_config( planet_radius=6000000.0_r_def,              &
+                                 domain_height=10.0_r_def,                   &
+                                 method=method_uniform,                      &
+                                 number_of_layers=2_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=1.0_r_def )
+    call feign_planet_config( cp = 1000.0_r_def, gravity = 10.0_r_def,    &
+                              omega = 8.0E-5_r_def,                       &
+                              p_zero = 100000.0_r_def, rd = 300.0_r_def,  &
+                              scaling_factor = 1.0_r_def )
 
   end subroutine setUp
 

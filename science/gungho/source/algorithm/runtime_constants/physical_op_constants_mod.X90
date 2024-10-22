@@ -232,7 +232,7 @@ contains
 
     real(r_def) :: gravity
     real(r_def) :: f_lat
-    real(r_def) :: domain_top
+    real(r_def) :: domain_height
     real(r_def) :: radius
     real(r_def) :: scaled_omega
     real(r_def) :: scaled_radius
@@ -297,8 +297,8 @@ contains
     call finite_element_nml%get_value( 'element_order', element_order )
     call finite_element_nml%get_value( 'rehabilitate', rehabilitate )
     call io_nml%get_value( 'subroutine_timers', subroutine_timers )
-    call extrusion_nml%get_value( 'domain_top', domain_top )
-    call planet_nml%get_value( 'radius', radius )
+    call extrusion_nml%get_value( 'domain_height', domain_height )
+    call extrusion_nml%get_value( 'planet_radius', radius )
     call planet_nml%get_value( 'gravity', gravity )
     call planet_nml%get_value( 'scaled_omega', scaled_omega )
     call planet_nml%get_value( 'scaled_radius', scaled_radius )
@@ -512,7 +512,7 @@ contains
           call dA_msl_proj_inventory%add_field(dA_msl_proj, w3_2d_k0_fs, twod_mesh)
           dA_at_w2 => get_dA_at_w2(mesh%get_id())
           call invoke(calc_da_msl_proj_kernel_type(dA_at_w2, dA_msl_proj, &
-                                                   radius, domain_top,    &
+                                                   radius, domain_height,    &
                                                    geometry, geometry_spherical))
           nullify(w3_2d_k0_fs, dA_at_w2, dA_msl_proj)
 

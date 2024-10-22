@@ -13,24 +13,12 @@ module reference_profile_mod_test
   implicit none
 
   private
-  public :: reference_profile_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: reference_profile_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type reference_profile_test_type
+  public :: set_up, tear_down, test_all
 
   real(r_def), parameter :: gravity  = 10.0_r_def
-  real(r_def), parameter :: radius   = 6000000.0_r_def
-  real(r_def), parameter :: omega    = 8.0E-5_r_def
   real(r_def), parameter :: p_zero   = 100000.0_r_def
   real(r_def), parameter :: rd       = 300.0_r_def
   real(r_def), parameter :: cp       = 1000.0_r_def
-  real(r_def), parameter :: scaling  = 1.0_r_def
 
   real(r_def), parameter :: bvf_square = 0.0001_r_def
   real(r_def), parameter :: theta_surf = 300.0_r_def
@@ -47,19 +35,22 @@ module reference_profile_mod_test
                                                     4.0e3_r_def,   &
                                                     40.0e3_r_def /)
 
-
   real(r_def), parameter :: surface_pressure = 1000.0e2_r_def
 
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
     use base_mesh_config_mod,      only : geometry_planar,    &
                                           topology_fully_periodic
+    use extrusion_config_mod,      only : method_uniform, &
+                                          stretching_method_linear
     use finite_element_config_mod, only : cellshape_quadrilateral, &
                                           coord_system_xyz
     use feign_config_mod,          only : feign_base_mesh_config,           &
+                                          feign_extrusion_config,           &
                                           feign_initial_temperature_config, &
                                           feign_planet_config,              &
                                           feign_finite_element_config,      &
@@ -72,14 +63,19 @@ contains
 
     implicit none
 
-    class(reference_profile_test_type), intent(inout) :: this
-
     call feign_base_mesh_config( file_prefix='foo',                &
                                  prime_mesh_name='unit_test',      &
                                  geometry=geometry_planar,         &
                                  prepartitioned=.false.,           &
                                  topology=topology_fully_periodic, &
                                  fplane=.false., f_lat_deg=0.0_r_def )
+
+    call feign_extrusion_config( planet_radius=6000000.0_r_def,              &
+                                 domain_height=10.0_r_def,                   &
+                                 method=method_uniform,                      &
+                                 number_of_layers=2_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=1.0_r_def )
 
     call feign_initial_temperature_config( bvf_square=bvf_square,                 &
                                            theta_surf=theta_surf,                 &
@@ -93,9 +89,9 @@ contains
     call feign_initial_pressure_config( method = method_balanced,             &
                                         surface_pressure = surface_pressure )
 
-    call feign_planet_config( gravity=gravity, radius=radius, omega=omega, &
+    call feign_planet_config( gravity=gravity, omega=8.0E-5_r_def, &
                               rd=rd, cp=cp, p_zero=p_zero,                 &
-                              scaling_factor=scaling )
+                              scaling_factor=1.0_r_def )
 
     call feign_finite_element_config(                       &
          cellshape = cellshape_quadrilateral,               &
@@ -105,32 +101,29 @@ contains
          rehabilitate = .true.,                             &
          vorticity_in_w1 =.false. )
 
-  end subroutine setUp
+  end subroutine set_up
 
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
+  @after
+  subroutine tear_down()
 
-    use configuration_mod,        only: final_configuration
+    use configuration_mod, only: final_configuration
 
     implicit none
 
-    class(reference_profile_test_type), intent(inout) :: this
-
     call final_configuration()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use idealised_config_mod,  only : test_gravity_wave
     use reference_profile_mod, only : reference_profile
 
     implicit none
-
-    class(reference_profile_test_type), intent(inout) :: this
 
     real(r_def), parameter :: tol = 1.0e-14_r_def
     real(r_def), parameter :: kappa = rd / cp

@@ -15,25 +15,11 @@ module shallow_hot_jupiter_kernel_mod_test
   implicit none
 
   private
-  public :: test_all
+  public :: set_up, tear_down, test_all
 
-  @TestCase
-  type, extends(TestCase), public :: shallow_hot_jupiter_test_type
-    private
-  contains
-    procedure setup
-    procedure tearDown
-    procedure test_all
-  end type shallow_hot_jupiter_test_type
-
-  real(kind=r_def), parameter :: gravity      = 8.0_r_def
-  real(kind=r_def), parameter :: radius       = 1.0e8_r_def
-  real(kind=r_def), parameter :: omega        = 2.1e-5_r_def
-  real(kind=r_def), parameter :: p_zero       = 100000.0_r_def
   real(kind=r_def), parameter :: rd           = 3779.0_r_def
   real(kind=r_def), parameter :: cp           = 13226.5_r_def
   real(kind=r_def), parameter :: kappa        = rd/cp
-  real(kind=r_def), parameter :: scaling      = 1.0_r_def
   real(kind=r_def), parameter :: dlat         = 1.0_r_def, dlon = 1.0_r_def, dz = 10000.0_r_def
   real(kind=r_def), parameter :: dt           = 600.0_r_def
   real(kind=r_def), parameter :: Z_STRAT      = 2.0e6_r_def
@@ -41,20 +27,29 @@ module shallow_hot_jupiter_kernel_mod_test
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
+    use extrusion_config_mod,       only : method_uniform, &
+                                           stretching_method_linear
+    use feign_config_mod,           only : feign_extrusion_config,      &
+                                           feign_finite_element_config, &
+                                           feign_planet_config,         &
+                                           feign_timestepping_config
+    use finite_element_config_mod,  only : cellshape_quadrilateral, &
+                                           coord_system_xyz
     use sci_chi_transform_mod,      only : init_chi_transforms
     use timestepping_config_mod,    only : method_semi_implicit, &
                                            runge_kutta_method_ssp3
-    use feign_config_mod,           only : feign_finite_element_config, &
-                                           feign_planet_config,        &
-                                            feign_timestepping_config
-    use finite_element_config_mod,  only : cellshape_quadrilateral, &
-                                           coord_system_xyz
 
     implicit none
 
-    class(shallow_hot_jupiter_test_type), intent(inout) :: this
+    call feign_extrusion_config( planet_radius=1.0e8_r_def,                  &
+                                 domain_height=10.0_r_def,                   &
+                                 method=method_uniform,                      &
+                                 number_of_layers=2_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=1.0_r_def )
 
     call feign_finite_element_config( cellshape=cellshape_quadrilateral, &
                                       coord_order=0_i_def,               &
@@ -63,9 +58,9 @@ contains
                                       rehabilitate=.true.,               &
                                       vorticity_in_w1=.false. )
 
-    call feign_planet_config( gravity=gravity, radius=radius, omega=omega, &
-                              rd=rd, cp=cp, p_zero=p_zero,                 &
-                              scaling_factor=scaling )
+    call feign_planet_config( gravity=8.0_r_def, omega=2.1e-5_r_def, &
+                              rd=rd, cp=cp, p_zero=100000.0_r_def,   &
+                              scaling_factor=1.0_r_def )
 
     call feign_timestepping_config( method=method_semi_implicit,                        &
                                     dt=real(dt, r_second), alpha=0.5_r_def,             &
@@ -76,27 +71,26 @@ contains
 
     call init_chi_transforms()
 
-  end subroutine setUp
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
+  @after
+  subroutine tear_down()
 
     use sci_chi_transform_mod, only: final_chi_transforms
     use configuration_mod, only: final_configuration
 
     implicit none
 
-    class(shallow_hot_jupiter_test_type), intent(inout) :: this
-
     ! Finalise namelists
     call final_configuration()
     call final_chi_transforms()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use, intrinsic :: iso_fortran_env, only : real64
     use shallow_hot_jupiter_kernel_mod, only : shallow_hot_jupiter_code
@@ -111,8 +105,6 @@ contains
                                              get_wchi_m3x3_dofmap
 
     implicit none
-
-    class(shallow_hot_jupiter_test_type), intent(inout) :: this
 
     real(kind=r_def) :: lon0, lat0, rad0
     real(kind=r_def) :: tol ! Tolerance to default precision

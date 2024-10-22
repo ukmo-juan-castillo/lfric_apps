@@ -82,7 +82,7 @@ contains
   !!                     Base height of damping layer
   !! @param[in] dl_strength
   !!                     Strength of damping layer
-  !! @param[in] domain_top
+  !! @param[in] domain_height
   !!                     The model domain height
   !! @param[in] radius   The planet radius
   !! @param[in] element_order The model finite element order
@@ -106,7 +106,7 @@ contains
   subroutine compute_dl_matrix_code(cell, nlayers, ncell_3d,     &
                                     mm, chi1, chi2, chi3,        &
                                     panel_id, dl_base_height,    &
-                                    dl_strength, domain_top,     &
+                                    dl_strength, domain_height,     &
                                     radius, element_order, dt,   &
                                     ndf_w2, basis_w2,            &
                                     ndf_chi, undf_chi, map_chi,  &
@@ -136,7 +136,7 @@ contains
     real(kind=r_def),    intent(in)    :: panel_id(undf_pid)
     real(kind=r_def),    intent(in)    :: dl_base_height
     real(kind=r_def),    intent(in)    :: dl_strength
-    real(kind=r_def),    intent(in)    :: domain_top
+    real(kind=r_def),    intent(in)    :: domain_height
     real(kind=r_def),    intent(in)    :: radius
     real(kind=r_second), intent(in)    :: dt
     real(kind=r_def),    intent(in)    :: wqp_h(nqp_h)
@@ -200,14 +200,14 @@ contains
 
                 if (dl_type == dl_type_latitude) then
                   mu_at_quad = damping_layer_func(z, dl_strength, &
-                                                  dl_base_height, domain_top, lat_at_quad)
+                                                  dl_base_height, domain_height, lat_at_quad)
                 else
                   mu_at_quad = damping_layer_func(z, dl_strength, &
-                                                  dl_base_height, domain_top, 0.0_r_def)
+                                                  dl_base_height, domain_height, 0.0_r_def)
                 end if
               else
                 mu_at_quad = damping_layer_func(chi3_at_quad, dl_strength, &
-                                                dl_base_height, domain_top, 0.0_r_def)
+                                                dl_base_height, domain_height, 0.0_r_def)
               end if
 
               integrand = wqp_h(qp1) * wqp_v(qp2) *                          &
@@ -237,10 +237,10 @@ contains
   !! @param[in]  height         Physical height on which to compute value of damping layer function.
   !! @param[in]  dl_strength    Damping layer function coefficient and maximum value of damping layer function.
   !! @param[in]  dl_base_height Height above which damping layer is active.
-  !! @param[in]  domain_top     Top of the computational domain.
+  !! @param[in]  domain_height     Top of the computational domain.
   !! @param[in]  latitude     Latitude at which to computer the damping function
   !! @return     dl_val         Value of damping layer function.
-  function damping_layer_func(height, dl_strength, dl_base_height, domain_top, latitude) result (dl_val)
+  function damping_layer_func(height, dl_strength, dl_base_height, domain_height, latitude) result (dl_val)
 
     implicit none
 
@@ -248,7 +248,7 @@ contains
     real(kind=r_def),   intent(in)  :: height
     real(kind=r_def),   intent(in)  :: dl_strength
     real(kind=r_def),   intent(in)  :: dl_base_height
-    real(kind=r_def),   intent(in)  :: domain_top
+    real(kind=r_def),   intent(in)  :: domain_height
     real(kind=r_def),   intent(in)  :: latitude
     real(kind=r_def)                :: dl_val
     real(kind=r_def)                :: height_star
@@ -257,14 +257,14 @@ contains
     real(kind=r_def), parameter     :: taper_lat = 50.0_r_def
 
     if (abs(latitude) < taper_lat*degrees_to_radians) then
-      height_star = domain_top + (height-domain_top)*cos(latitude)
+      height_star = domain_height + (height-domain_height)*cos(latitude)
     else
-      height_star = domain_top + (height-domain_top)*cos(taper_lat*degrees_to_radians)
+      height_star = domain_height + (height-domain_height)*cos(taper_lat*degrees_to_radians)
     end if
 
     if (height_star >= dl_base_height) then
       dl_val = dl_strength*sin(0.5_r_def*PI*(height_star-dl_base_height) / &
-                                            (domain_top-dl_base_height))**2
+                                            (domain_height-dl_base_height))**2
     else
       dl_val = 0.0_r_def
     end if

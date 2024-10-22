@@ -21,7 +21,9 @@
 # dependent changes should be updated to the revision at which those
 # changes were committed to the project's trunk
 
-export lfric_core_rev=51174
+#export lfric_core_rev=51174
+#export lfric_core_sources=
+export lfric_core_rev=51209
 export lfric_core_sources=
 
 export casim_rev=11541

@@ -42,7 +42,7 @@ module gungho_extrusion_mod
                                    method_um_L85_50t_35s_85km, &
                                    method_um_L70_61t_9s_40km,  &
                                    method_um_L70_50t_20s_80km, &
-                                   domain_top,                 &
+                                   domain_height,                 &
                                    number_of_layers
   use log_mod,              only : log_event,       &
                                    log_level_error, &
@@ -499,42 +499,42 @@ contains
     select case (method)
       case (method_uniform)
         allocate( new, source=uniform_extrusion_type( atmosphere_bottom, &
-                                                      domain_top,        &
+                                                      domain_height,        &
                                                       number_of_layers,  &
                                                       PRIME_EXTRUSION ) )
       case (method_um_L38_29t_9s_40km)
         allocate( new, source=um_L38_29t_9s_40km_extrusion_type( atmosphere_bottom, &
-                                                                 domain_top,        &
+                                                                 domain_height,        &
                                                                  number_of_layers,  &
                                                                  PRIME_EXTRUSION ) )
       case (method_um_L85_50t_35s_85km)
         allocate( new, source=um_L85_50t_35s_85km_extrusion_type( atmosphere_bottom, &
-                                                                 domain_top,         &
+                                                                 domain_height,         &
                                                                  number_of_layers,   &
                                                                  PRIME_EXTRUSION ) )
       case (method_um_L70_50t_20s_80km)
         allocate( new, source=um_L70_50t_20s_80km_extrusion_type( atmosphere_bottom, &
-                                                                 domain_top,         &
+                                                                 domain_height,         &
                                                                  number_of_layers,   &
                                                                  PRIME_EXTRUSION ) )
       case (method_um_L70_61t_9s_40km)
        allocate( new, source=um_L70_61t_9s_40km_extrusion_type( atmosphere_bottom,   &
-                                                                 domain_top,         &
+                                                                 domain_height,         &
                                                                  number_of_layers,   &
                                                                  PRIME_EXTRUSION ) )
       case (method_quadratic)
         allocate( new, source=quadratic_extrusion_type( atmosphere_bottom, &
-                                                        domain_top,        &
+                                                        domain_height,        &
                                                         number_of_layers,  &
                                                         PRIME_EXTRUSION ) )
       case (method_geometric)
         allocate( new, source=geometric_extrusion_type( atmosphere_bottom, &
-                                                        domain_top,        &
+                                                        domain_height,        &
                                                         number_of_layers,  &
                                                         PRIME_EXTRUSION ) )
       case (method_dcmip)
         allocate( new, source=dcmip_extrusion_type( atmosphere_bottom, &
-                                                    domain_top,        &
+                                                    domain_height,        &
                                                     number_of_layers,  &
                                                     PRIME_EXTRUSION ) )
       case default

@@ -10,29 +10,26 @@
 
 module analytic_swe_wind_profiles_mod_test
 
-  use constants_mod,           only: r_def, i_def
+  use constants_mod, only: r_def, i_def
   use pFUnit_Mod
 
   implicit none
 
   private
-  public :: analytic_swe_wind_profiles_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: analytic_swe_wind_profiles_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type analytic_swe_wind_profiles_test_type
+  public :: set_up, tear_down, test_all
 
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
+    use base_mesh_config_mod,              only: geometry_spherical,      &
+                                                 topology_fully_periodic
+    use extrusion_config_mod,              only : method_uniform, &
+                                                  stretching_method_linear
     use feign_config_mod,                  only: feign_base_mesh_config,    &
+                                                 feign_extrusion_config,    &
                                                  feign_planet_config,       &
                                                  feign_initial_wind_config, &
                                                  feign_shallow_water_settings_config
@@ -40,20 +37,8 @@ contains
                                                  swe_test_swe_mountain,  &
                                                  time_scheme_semi_implicit
     use initial_wind_config_mod,           only: profile_none
-    use base_mesh_config_mod,              only: geometry_spherical,      &
-                                                 topology_fully_periodic
 
     implicit none
-
-    class(analytic_swe_wind_profiles_test_type), intent(inout) :: this
-
-    call feign_planet_config( gravity=10.0_r_def,      &
-                              radius=6000000.0_r_def,  &
-                              omega=8.0E-5_r_def,      &
-                              rd=300.0_r_def,          &
-                              cp=1000.0_r_def,         &
-                              p_zero=100000.0_r_def,   &
-                              scaling_factor=1.0_r_def )
 
     call feign_base_mesh_config                     &
              ( file_prefix='foo',                   &
@@ -62,6 +47,20 @@ contains
                prepartitioned=.false.,              &
                topology=topology_fully_periodic,    &
                fplane=.false., f_lat_deg=0.0_r_def )
+
+    call feign_extrusion_config( method=method_uniform,                      &
+                                 planet_radius=6000000.0_r_def,              &
+                                 domain_height=10.0_r_def,                   &
+                                 number_of_layers=5_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=10.0_r_def )
+
+    call feign_planet_config( gravity=10.0_r_def,      &
+                              omega=8.0E-5_r_def,      &
+                              rd=300.0_r_def,          &
+                              cp=1000.0_r_def,         &
+                              p_zero=100000.0_r_def,   &
+                              scaling_factor=1.0_r_def )
 
     call feign_initial_wind_config( profile=profile_none,               &
                                     profile_data_u=(/ 0.0_r_def /),     &
@@ -88,33 +87,30 @@ contains
                   swe_test = swe_test_swe_mountain,        &
                   ref_gp = 10000.0_r_def )
 
-  end subroutine setUp
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  subroutine tearDown( this )
+  @after
+  subroutine tear_down()
 
     use configuration_mod, only: final_configuration
 
     implicit none
 
-    class(analytic_swe_wind_profiles_test_type), intent(inout) :: this
-
     call final_configuration()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use analytic_swe_wind_profiles_mod,    only: analytic_swe_wind
     use constants_mod,                     only: PI
     use planet_config_mod,                 only: scaled_radius
     use shallow_water_settings_config_mod, only: swe_test_swe_mountain
-    implicit none
 
-    class(analytic_swe_wind_profiles_test_type), intent(inout) :: this
+    implicit none
 
     real(kind=r_def) :: xyz(3)
     real(kind=r_def) :: wind(3), answer(3)

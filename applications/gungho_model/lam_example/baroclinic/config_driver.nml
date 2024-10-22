@@ -23,9 +23,10 @@ vertical_method='trapezoidal',
 dynamics='gungho',
 /
 &extrusion
-domain_top=30000.0,
+domain_height=30000.0,
 method='dcmip',
 number_of_layers=10,
+planet_radius=6371229.0,
 stretching_method='linear',
 /
 &files
@@ -159,7 +160,6 @@ cp=1005.0,
 gravity=9.80665,
 omega=7.292116E-5,
 p_zero=100000.0,
-radius=6371229.0,
 rd=287.05,
 scaling_factor=1.0,
 /

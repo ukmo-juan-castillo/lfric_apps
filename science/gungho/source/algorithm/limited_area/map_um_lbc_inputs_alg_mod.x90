@@ -11,12 +11,12 @@
 !>          mixing ratios and dry density.
 module map_um_lbc_inputs_alg_mod
 
+  use extrusion_config_mod,           only: planet_radius
   use field_mod,                      only: field_type
   use fs_continuity_mod,              only: W3
   use constants_mod,                  only: i_def, r_def
   use sci_sample_wtheta_to_w3_kernel_mod, only: sample_wtheta_to_w3_kernel_type
   use geometric_constants_mod,        only: get_height
-  use planet_config_mod,              only: radius
 
   implicit none
 
@@ -61,8 +61,8 @@ contains
     ! at this stage rho is not yet dry
     call height_w3%copy_field_properties( radius_w3 )
 
-    call invoke( a_plus_X( radius_w3, radius, height_w3 ), &
-                 X_divideby_Y( rho, rho_r2, radius_w3 ),   &
+    call invoke( a_plus_X( radius_w3, planet_radius, height_w3 ), &
+                 X_divideby_Y( rho, rho_r2, radius_w3 ),          &
                  inc_X_divideby_Y( rho, radius_w3 ) )
 
     ! Next we need the specific humidity variables

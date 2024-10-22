@@ -31,52 +31,46 @@ module compute_total_pv_kernel_mod_test
   implicit none
 
   private
-  public :: compute_total_pv_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: compute_total_pv_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type compute_total_pv_test_type
+  public :: set_up, tear_Down, test_all
 
   integer(i_def), parameter :: element_order = 0
 
-  real(r_def), parameter :: gravity  = 10.0_r_def
-  real(r_def), parameter :: radius   = 6000000.0_r_def
-  real(r_def), parameter :: omega    = 8.0E-5_r_def
-  real(r_def), parameter :: p_zero   = 100000.0_r_def
-  real(r_def), parameter :: rd       = 300.0_r_def
-  real(r_def), parameter :: cp       = 1000.0_r_def
-  real(r_def), parameter :: scaling  = 1.0_r_def
-  real(r_def), parameter :: lat_c    = 0.0_r_def
+  real(r_def), parameter :: planet_radius = 6000000.0_r_def
 
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
-    use sci_chi_transform_mod,     only : init_chi_transforms
     use base_mesh_config_mod,      only : geometry_spherical, &
                                           topology_fully_periodic
+    use extrusion_config_mod,      only : method_uniform, &
+                                          stretching_method_linear
     use finite_element_config_mod, only : cellshape_quadrilateral, &
                                           coord_system_xyz
-    use feign_config_mod,          only : feign_finite_element_config, &
+    use feign_config_mod,          only : feign_extrusion_config,      &
+                                          feign_finite_element_config, &
                                           feign_planet_config,         &
                                           feign_base_mesh_config
+    use sci_chi_transform_mod,     only : init_chi_transforms
 
     implicit none
-
-    class(compute_total_pv_test_type), intent(inout) :: this
 
     call feign_base_mesh_config( file_prefix='foo',                &
                                  prime_mesh_name='unit_test',      &
                                  geometry=geometry_spherical,      &
                                  prepartitioned=.false.,           &
                                  topology=topology_fully_periodic, &
-                                 fplane=.false., f_lat_deg=lat_c )
+                                 fplane=.false., f_lat_deg=0.0_r_def )
+
+    call feign_extrusion_config( planet_radius=planet_radius,                &
+                                 domain_height=10.0_r_def,                   &
+                                 method=method_uniform,                      &
+                                 number_of_layers=2_i_def,                   &
+                                 stretching_method=stretching_method_linear, &
+                                 stretching_height=1.0_r_def )
+
     call feign_finite_element_config(           &
              cellshape=cellshape_quadrilateral, &
              coord_order=0_i_def,               &
@@ -85,35 +79,34 @@ contains
              rehabilitate=.true.,               &
              vorticity_in_w1=.false. )
 
-    call feign_planet_config( gravity=gravity, radius=radius, omega=omega, &
-                              rd=rd, cp=cp, p_zero=p_zero,                 &
-                              scaling_factor=scaling )
+    call feign_planet_config( gravity=10.0_r_def, omega=8.0E-5_r_def, &
+                              rd=300.0_r_def, cp=1000.0_r_def,        &
+                              p_zero=100000.0_r_def,                  &
+                              scaling_factor=1.0_r_def )
     call init_chi_transforms()
-  end subroutine setUp
+
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
+  @after
+  subroutine tear_down()
 
     use configuration_mod,        only: final_configuration
 
     implicit none
 
-    class(compute_total_pv_test_type), intent(inout) :: this
-
     call final_configuration()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use, intrinsic :: iso_fortran_env, only : real64
     use compute_total_pv_kernel_mod,   only : compute_total_pv_code
 
     implicit none
-
-    class(compute_total_pv_test_type), intent(inout) :: this
 
     real(r_def), parameter :: tol    = 1.0e-6_r_def   ! r_def 64bit
     real(r_def), parameter :: tol32  = 1.0e-4_r_def   ! r_def 32bit
@@ -216,7 +209,7 @@ contains
                               dx, dy, dz, 0.0_r_def, map_wchi, nlayers)
     panel_id(:) = 1.0_r_def
     lat_0 = PI/4.0_r_def
-    call llr2xyz(0.0_r_def, lat_0, radius, x0, y0, z0)
+    call llr2xyz(0.0_r_def, lat_0, planet_radius, x0, y0, z0)
     call xyz2llr(dx, dy, dz, dlon, dlat, dr)
     chi1(:) = chi1(:) + x0
     chi2(:) = chi2(:) + y0

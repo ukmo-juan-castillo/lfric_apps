@@ -17,57 +17,42 @@ module gungho_extrusion_mod_test
   implicit none
 
   private
-  public test_planar, test_spherical, test_dcmip, test_shifted_dcmip
-
-  @TestCase
-  type, public, extends(TestCase) :: gungho_extrusion_test_type
-    private
-  contains
-    private
-    procedure, public  :: setUp
-    procedure, public  :: tearDown
-    procedure, public  :: test_planar
-    procedure, public  :: test_spherical
-    procedure, public  :: test_dcmip
-    procedure, public  :: test_shifted_dcmip
-    procedure          :: identify_extrusion
-  end type gungho_extrusion_test_type
+  public set_up, tear_down, &
+         test_planar, test_spherical, test_dcmip, test_shifted_dcmip
 
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
     implicit none
 
-    class(gungho_extrusion_test_type), intent(inout) :: this
+    ! Empty procedure.
 
-  end subroutine setUp
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
+  @after
+  subroutine tear_down()
 
     use configuration_mod,        only: final_configuration
 
     implicit none
 
-    class(gungho_extrusion_test_type), intent(inout) :: this
-
     call final_configuration()
 
-  end subroutine tearDown
+  end subroutine tear_down
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_planar( this )
+  @test
+  subroutine test_planar()
 
     use base_mesh_config_mod, only : geometry_planar, &
                                      topology_fully_periodic
     use extrusion_config_mod, only : method_uniform, stretching_method_linear
 
     implicit none
-
-    class(gungho_extrusion_test_type), intent(inout) :: this
 
     class(extrusion_type), allocatable :: unit_under_test
 
@@ -80,22 +65,22 @@ contains
              fplane=.false.,                   &
              f_lat_deg=0.0_r_def )
 
-    call feign_extrusion_config( domain_top=13.5_r_def, &
-                                 method=method_uniform, &
-                                 number_of_layers=7_i_def, &
-                                 stretching_height=1.0_r_def, &
+    call feign_extrusion_config( planet_radius = 637100.0_r_def, &
+                                 domain_height=13.5_r_def,       &
+                                 method=method_uniform,          &
+                                 number_of_layers=7_i_def,       &
+                                 stretching_height=1.0_r_def,    &
                                  stretching_method=stretching_method_linear)
-    call feign_planet_config( gravity=9.98_r_def,       &
-                              radius=637100.0_r_def,    &
-                              omega=7.27E-5_r_def,      &
-                              rd=300.0_r_def,           &
-                              cp=1000.0_r_def,          &
-                              p_zero=100000.0_r_def,    &
+    call feign_planet_config( gravity=9.98_r_def,    &
+                              omega=7.27E-5_r_def,   &
+                              rd=300.0_r_def,        &
+                              cp=1000.0_r_def,       &
+                              p_zero=100000.0_r_def, &
                               scaling_factor=0.5_r_def )
 
     allocate( unit_under_test, source=create_extrusion() )
 
-    @assertEqual( 'uniform',  trim( this%identify_extrusion( unit_under_test ) ) )
+    @assertEqual( 'uniform',  trim( identify_extrusion( unit_under_test ) ) )
     @assertEqual( 0.0_r_def,  unit_under_test%get_atmosphere_bottom() )
     @assertEqual( 13.5_r_def, unit_under_test%get_atmosphere_top() )
     @assertEqual( 7_i_def,    unit_under_test%get_number_of_layers() )
@@ -105,8 +90,8 @@ contains
   end subroutine test_planar
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_spherical( this )
+  @test
+  subroutine test_spherical()
 
     use base_mesh_config_mod, only : geometry_spherical, &
                                      topology_fully_periodic
@@ -114,8 +99,6 @@ contains
                                      stretching_method_linear
 
     implicit none
-
-    class(gungho_extrusion_test_type), intent(inout) :: this
 
     class(extrusion_type), allocatable :: unit_under_test
 
@@ -128,22 +111,22 @@ contains
              fplane=.false.,                   &
              f_lat_deg=0.0_r_def )
 
-    call feign_extrusion_config( method=method_geometric,   &
-                                 domain_top=600000.0_r_def, &
-                                 number_of_layers=7_i_def,  &
-                                 stretching_height=1.0_r_def, &
+    call feign_extrusion_config( method=method_geometric,      &
+                                 planet_radius=637100.0_r_def, &
+                                 domain_height=600000.0_r_def, &
+                                 number_of_layers=7_i_def,     &
+                                 stretching_height=1.0_r_def,  &
                                  stretching_method=stretching_method_linear )
-    call feign_planet_config( gravity=9.98_r_def,       &
-                              radius=637100.0_r_def,    &
-                              omega=7.27E-5_r_def,      &
-                              rd=300.0_r_def,           &
-                              cp=1000.0_r_def,          &
-                              p_zero=100000.0_r_def,    &
+    call feign_planet_config( gravity=9.98_r_def,    &
+                              omega=7.27E-5_r_def,   &
+                              rd=300.0_r_def,        &
+                              cp=1000.0_r_def,       &
+                              p_zero=100000.0_r_def, &
                               scaling_factor=2.0_r_def )
 
     allocate( unit_under_test, source=create_extrusion() )
 
-    @assertEqual( 'geometric',    trim( this%identify_extrusion( unit_under_test ) ) )
+    @assertEqual( 'geometric',    trim( identify_extrusion( unit_under_test ) ) )
     @assertEqual( 318550.0_r_def, unit_under_test%get_atmosphere_bottom() )
     @assertEqual( 600000.0_r_def, unit_under_test%get_atmosphere_top() )
     @assertEqual( 7_i_def,        unit_under_test%get_number_of_layers() )
@@ -153,14 +136,12 @@ contains
   end subroutine test_spherical
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_dcmip( this )
+  @test
+  subroutine test_dcmip()
 
     use gungho_extrusion_mod, only : dcmip_extrusion_type
 
     implicit none
-
-    class(gungho_extrusion_test_type), intent(inout) :: this
 
     integer(i_def), parameter :: layers = 5
     real(r_def),    parameter :: expected(0:layers) &
@@ -180,15 +161,13 @@ contains
   end subroutine test_dcmip
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_shifted_dcmip( this )
+  @test
+  subroutine test_shifted_dcmip()
 
     use gungho_extrusion_mod, only : dcmip_extrusion_type
     use extrusion_mod,        only : shifted_extrusion_type
 
     implicit none
-
-    class(gungho_extrusion_test_type), intent(inout) :: this
 
     integer(i_def), parameter :: layers = 5
     real(r_def),    parameter :: expected(0:layers+1) &
@@ -211,7 +190,7 @@ contains
 
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  function identify_extrusion( this, extrusion ) result(id)
+  function identify_extrusion( extrusion ) result(id)
 
     use extrusion_mod,        only : uniform_extrusion_type,   &
                                      quadratic_extrusion_type, &
@@ -219,7 +198,6 @@ contains
     use gungho_extrusion_mod, only : dcmip_extrusion_type
     implicit none
 
-    class(gungho_extrusion_test_type), intent(in) :: this
     class(extrusion_type),             intent(in) :: extrusion
     character(9) :: id
 

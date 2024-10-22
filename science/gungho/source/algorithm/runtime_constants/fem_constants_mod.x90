@@ -46,8 +46,8 @@ module fem_constants_mod
                                                 lagged_orog
   use timestepping_config_mod,            only: tau_u
   use damping_layer_config_mod,           only: dl_base, dl_str
-  use extrusion_config_mod,               only: domain_top
-  use planet_config_mod,                  only: scaled_omega, radius
+  use extrusion_config_mod,               only: domain_height, planet_radius
+  use planet_config_mod,                  only: scaled_omega
   use base_mesh_config_mod,               only: f_lat
   use transport_config_mod,               only: broken_w2_projection, &
                                                 extended_mesh
@@ -652,7 +652,7 @@ contains
             compute_dl_matrix_kernel_type( mm_w2_plus_dl, chi_list(:,i), &
                                            panel_id_list(i),        &
                                            dl_base, dl_str,         &
-                                           domain_top, radius,      &
+                                           domain_height, planet_radius,      &
                                            element_order,           &
                                            delta_t,                 &
                                            qr) )

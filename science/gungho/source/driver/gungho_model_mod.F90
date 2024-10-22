@@ -395,7 +395,7 @@ contains
     integer(i_def) :: geometry
     integer(i_def) :: stencil_depth
     real(r_def)    :: domain_bottom
-    real(r_def)    :: domain_top
+    real(r_def)    :: domain_height
     real(r_def)    :: scaled_radius
 
     type(namelist_type), pointer :: base_mesh_nml   => null()
@@ -439,7 +439,7 @@ contains
     call base_mesh_nml%get_value( 'prime_mesh_name', prime_mesh_name )
     call base_mesh_nml%get_value( 'geometry', geometry )
     call base_mesh_nml%get_value( 'prepartitioned', prepartitioned )
-    call extrusion_nml%get_value( 'domain_top', domain_top )
+    call extrusion_nml%get_value( 'domain_height', domain_height )
     call planet_nml%get_value( 'scaled_radius', scaled_radius )
 
     base_mesh_nml   => null()
