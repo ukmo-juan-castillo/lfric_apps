@@ -1,5 +1,6 @@
-import sys
 import re
+import sys
+
 from metomi.rose.upgrade import MacroUpgrade
 
 
@@ -141,5 +142,34 @@ class vn20_t82(MacroUpgrade):
             config, ["namelist:vapour_forcing", "profile_data"], "0.0"
         )
         self.add_setting(config, ["namelist:vapour_forcing", "times"], "0.0")
+
+        return config, self.reports
+
+
+class vn20_t467(MacroUpgrade):
+    """Upgrade macro for ticket #467 by Mike Whitall."""
+
+    BEFORE_TAG = "vn2.0_t82"
+    AFTER_TAG = "vn2.0_t467"
+
+    def upgrade(self, config, meta_config=None):
+        # Commands From: science/um_physics_interface/rose-meta/um-microphysics
+        # Set l_mcr_precfrac (switch for prognostic precip fraction);
+        # So-far this has been hardwired in the code to be true if using
+        # the comorph convection scheme, and false if not.
+        # Replicate this when upgrading existing workflows from vn2.0,
+        # to ensure they preserve answers
+        nml = "namelist:convection"
+        cv_scheme = self.get_setting_value(config, [nml, "cv_scheme"])
+        if cv_scheme == "'comorph'":
+            l_mcr_precfrac = ".true."
+        else:
+            l_mcr_precfrac = ".false."
+        # end if
+        # Add new microphysics settings to namelist
+        nml = "namelist:microphysics"
+        self.add_setting(config, [nml, "i_update_precfrac"], "'homog'")
+        self.add_setting(config, [nml, "l_mcr_precfrac"], l_mcr_precfrac)
+        self.add_setting(config, [nml, "l_proc_fluxes"], ".false.")
 
         return config, self.reports

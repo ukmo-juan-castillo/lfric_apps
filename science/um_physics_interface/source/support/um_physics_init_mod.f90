@@ -113,7 +113,12 @@ module um_physics_init_mod
                                         microphysics_casim,                  &
                                         ci_input_in => ci_input,             &
                                         cic_input_in => cic_input,           &
-                                        c_r_correl_in => c_r_correl
+                                        c_r_correl_in => c_r_correl,         &
+                                        l_proc_fluxes_in => l_proc_fluxes,   &
+                                        l_mcr_precfrac_in => l_mcr_precfrac, &
+                                   i_update_precfrac_in => i_update_precfrac,&
+                                   i_update_precfrac_homog,                  &
+                                   i_update_precfrac_correl
 
   use mixing_config_mod,         only : smagorinsky,                 &
                                         mixing_method => method,     &
@@ -352,7 +357,8 @@ contains
         l_mcr_qgraup, casim_max_sed_length, fixed_number, wvarfac,           &
         l_orograin, l_orogrime, l_orograin_block,                            &
         fcrit, nsigmasf, nscalesf, l_progn_tnuc, mp_czero, mp_tau_lim,       &
-        l_subgrid_graupel_frac, l_mcr_precfrac
+        l_proc_fluxes, l_subgrid_graupel_frac, l_mcr_precfrac,               &
+        i_update_precfrac, i_homog_areas, i_sg_correl
     use mphys_psd_mod, only: x1g, x2g, x4g, x1gl, x2gl, x4gl
     use mphys_switches, only: set_mphys_switches,            &
         max_step_length, max_sed_length,                     &
@@ -1071,9 +1077,20 @@ contains
         l_ukca_aie2 = .true.
         l_glomap_clim_aie2 = .true.
 
-        ! Enforce this on with Comorph
-        if (cv_scheme == cv_scheme_comorph) then
-          l_mcr_precfrac = .true.
+        ! Namelist switch for improved numerical method / process-ordering
+        ! for sedimentation vs process-rates in WB microphysics
+        l_proc_fluxes = l_proc_fluxes_in
+
+        ! Namelist switch for prognostic precip fraction
+        l_mcr_precfrac = l_mcr_precfrac_in
+        if ( l_mcr_precfrac ) THEN
+          ! Set option for method of updating the precip fraction
+          select case ( i_update_precfrac_in )
+          case ( i_update_precfrac_homog )
+            i_update_precfrac = i_homog_areas
+          case ( i_update_precfrac_correl )
+            i_update_precfrac = i_sg_correl
+          end select
         end if
 
         select case (graupel_scheme)
