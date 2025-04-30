@@ -208,10 +208,10 @@ module inner_from_controller_rdef_alg_mod
 
   !=============================================================================
   !> @brief Increments the rdef inner product by ref_field.ref_field_inp
-  !> @param[in,out]  inner                 Inner product (rdef) to increment
-  !> @param[in,out]  transport_controller  Transport controller object containing the flux precomputations
-  !> @param[in]      mesh_idx              The mesh index of the desired fields
-  !> @param[in]      flux_pc_inp           Flux precomputations input fields at start of adjoint test
+  !> @param[in,out]  inner                  Inner product (rdef) to increment
+  !> @param[in,out]  transport_controller   Transport controller object containing the flux precomputations
+  !> @param[in]      mesh_idx               The mesh index of the desired fields
+  !> @param[in]      flux_pc_ref_field_inp  Flux precomputations input fields at start of adjoint test
   subroutine flux_pc_ref_field_inp_prod_rdef( inner,                &
                                               transport_controller, &
                                               mesh_idx,             &
@@ -256,7 +256,7 @@ module inner_from_controller_rdef_alg_mod
   !> @param[in,out]  inner                 Inner product (rdef) to increment
   !> @param[in,out]  transport_controller  Transport controller object containing the flux precomputations
   !> @param[in]      mesh_idx              The mesh index of the desired fields
-  !> @param[in]      field_sf              (Optional) scale factor for the increment
+  !> @param[in]      mass_sf               (Optional) scale factor for the increment
   subroutine flux_pc_ref_mass_prod_rdef( inner,                &
                                          transport_controller, &
                                          mesh_idx,             &
@@ -310,7 +310,7 @@ module inner_from_controller_rdef_alg_mod
   !> @param[in,out]  inner                 Inner product (rdef) to increment
   !> @param[in,out]  transport_controller  Transport controller object containing the flux precomputations
   !> @param[in]      mesh_idx              The mesh index of the desired fields
-  !> @param[in]      flux_pc_inp           Flux precomputations input fields at start of adjoint test
+  !> @param[in]      flux_pc_ref_mass_inp  Flux precomputations input fields at start of adjoint test
   subroutine flux_pc_ref_mass_inp_prod_rdef( inner,                &
                                              transport_controller, &
                                              mesh_idx,             &
@@ -483,7 +483,7 @@ module inner_from_controller_rdef_alg_mod
   !> @brief Increments the rdef inner product by transport_counter_field_n.transport_counter_field_n_inp
   !> @param[in,out]  inner                 Inner product (rdef) to increment
   !> @param[in,out]  transport_controller  Transport controller object containing the transport counter
-  !> @param[in]      field_n_counter_inp   Transport counter input fields at start of adjoint test
+  !> @param[in]      counter_field_n_inp   Transport counter input fields at start of adjoint test
   subroutine counter_field_n_inp_prod_rdef( inner,                &
                                             transport_controller, &
                                             counter_field_n_inp )

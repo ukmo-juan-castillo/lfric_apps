@@ -102,7 +102,7 @@ module inner_from_controller_rtran_alg_mod
   !> @param[in,out]  inner                 Inner product (rtran) to increment
   !> @param[in,out]  transport_controller  Transport controller object containing the flux precomputations
   !> @param[in]      mesh_idx              The mesh index of the desired fields
-  !> @param[in]      flux_pc_inp           Flux precomputations input fields at start of adjoint test
+  !> @param[in]      flux_pc_ref_flux_inp  Flux precomputations input fields at start of adjoint test
   subroutine flux_pc_ref_flux_inp_prod_rtran( inner,                &
                                               transport_controller, &
                                               mesh_idx,             &
@@ -198,10 +198,10 @@ module inner_from_controller_rtran_alg_mod
 
   !=============================================================================
   !> @brief Increments the rtran inner product by ref_field.ref_field_inp
-  !> @param[in,out]  inner                 Inner product (rtran) to increment
-  !> @param[in,out]  transport_controller  Transport controller object containing the flux precomputations
-  !> @param[in]      mesh_idx              The mesh index of the desired fields
-  !> @param[in]      flux_pc_inp           Flux precomputations input fields at start of adjoint test
+  !> @param[in,out]  inner                  Inner product (rtran) to increment
+  !> @param[in,out]  transport_controller   Transport controller object containing the flux precomputations
+  !> @param[in]      mesh_idx               The mesh index of the desired fields
+  !> @param[in]      flux_pc_ref_field_inp  Flux precomputations input fields at start of adjoint test
   subroutine flux_pc_ref_field_inp_prod_rtran( inner,                &
                                                transport_controller, &
                                                mesh_idx,             &
@@ -246,7 +246,7 @@ module inner_from_controller_rtran_alg_mod
   !> @param[in,out]  inner                 Inner product (rtran) to increment
   !> @param[in,out]  transport_controller  Transport controller object containing the flux precomputations
   !> @param[in]      mesh_idx              The mesh index of the desired fields
-  !> @param[in]      field_sf              (Optional) scale factor for the increment
+  !> @param[in]      mass_sf               (Optional) scale factor for the increment
   subroutine flux_pc_ref_mass_prod_rtran( inner,                &
                                           transport_controller, &
                                           mesh_idx,             &
@@ -300,7 +300,7 @@ module inner_from_controller_rtran_alg_mod
   !> @param[in,out]  inner                 Inner product (rtran) to increment
   !> @param[in,out]  transport_controller  Transport controller object containing the flux precomputations
   !> @param[in]      mesh_idx              The mesh index of the desired fields
-  !> @param[in]      flux_pc_inp           Flux precomputations input fields at start of adjoint test
+  !> @param[in]      flux_pc_ref_mass_inp  Flux precomputations input fields at start of adjoint test
   subroutine flux_pc_ref_mass_inp_prod_rtran( inner,                &
                                               transport_controller, &
                                               mesh_idx,             &
@@ -391,7 +391,7 @@ module inner_from_controller_rtran_alg_mod
   !> @brief Increments the rtran inner product by transport_counter_flux_fields.transport_counter_flux_fields_inp
   !> @param[in,out]  inner                 Inner product (rtran) to increment
   !> @param[in,out]  transport_controller  Transport controller object containing the transport counter
-  !> @param[in]      flux_counter_inp      Transport counter input fields at start of adjoint test
+  !> @param[in]      counter_flux_inp      Transport counter input fields at start of adjoint test
   subroutine counter_flux_inp_prod_rtran( inner,                &
                                           transport_controller, &
                                           counter_flux_inp )
@@ -471,16 +471,16 @@ module inner_from_controller_rtran_alg_mod
   !> @brief Increments the rtran inner product by transport_counter_field_n.transport_counter_field_n_inp
   !> @param[in,out]  inner                 Inner product (rtran) to increment
   !> @param[in,out]  transport_controller  Transport controller object containing the transport counter
-  !> @param[in]      field_n_counter_inp   Transport counter input fields at start of adjoint test
+  !> @param[in]      counter_field_n_inp   Transport counter input fields at start of adjoint test
   subroutine counter_field_n_inp_prod_rtran( inner,                &
                                              transport_controller, &
-                                             field_n_counter_inp )
+                                             counter_field_n_inp )
     implicit none
 
     ! Arguments
     real(kind=r_tran),               intent(inout) :: inner
     type(transport_controller_type), intent(inout) :: transport_controller
-    type(r_tran_field_type),            intent(in) :: field_n_counter_inp
+    type(r_tran_field_type),            intent(in) :: counter_field_n_inp
 
     ! Internal variables
     type(transport_counter_type),          pointer :: transport_counter
@@ -494,7 +494,7 @@ module inner_from_controller_rtran_alg_mod
       field_n_inner_prod = 0.0_r_def
       call invoke( x_innerproduct_y( field_n_inner_prod, &
                                      field_n_ptr,        &
-                                     field_n_counter_inp ) )
+                                     counter_field_n_inp ) )
       inner = inner + real( field_n_inner_prod, r_tran )
     end if
 

@@ -49,6 +49,8 @@ module adjt_flux_precomputations_alg_mod
   !> Determined by testing the equality of inner products
   !> < Mx, Mx > and < AMx, x >, where M is the tangent linear
   !> and A is the adjoint.
+  !> @param[in]  mesh         The model mesh
+  !> @param[in]  model_clock  The model clock
   subroutine adjt_flux_precomputations_initialiser_alg( mesh, model_clock )
 
     use adj_flux_precomputations_mod, only : adj_flux_precomputations_initialiser
@@ -190,6 +192,8 @@ module adjt_flux_precomputations_alg_mod
   !> Determined by testing the equality of inner products
   !> < Mx, Mx > and < AMx, x >, where M is the tangent linear
   !> and A is the adjoint.
+  !> @param[in]  mesh         The model mesh
+  !> @param[in]  model_clock  The model clock
   subroutine adjt_initialise_step_alg( mesh, model_clock )
 
     use adj_flux_precomputations_mod, only : adj_initialise_step
