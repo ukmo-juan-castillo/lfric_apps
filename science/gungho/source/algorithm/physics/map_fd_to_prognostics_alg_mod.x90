@@ -43,26 +43,28 @@ module map_fd_to_prognostics_alg_mod
                                              get_w3_to_w2_displacement
   use dycore_constants_mod,            only: get_coriolis,         &
                                              get_geopotential
-  use fs_continuity_mod,               only: W3, W2, W2broken
+  use fs_continuity_mod,               only: W3, W2, W2broken, Wtheta
   use sci_sort_ref_kernel_mod,         only: sort_ref_kernel_type
   use timer_mod,                       only: timer
   use combine_w2_field_kernel_mod,     only: combine_w2_field_kernel_type
   use idealised_config_mod,            only: perturb_init,     &
                                              perturb_magnitude
   use random_perturb_field_alg_mod,    only: random_perturb_field
+    use mr_indices_mod,                only: imr_v, imr_cl, imr_ci, imr_r, &
+                                             imr_s, imr_g
+  use moist_dyn_mod,                   only: num_moist_factors, gas_law
+  use moist_dyn_factors_alg_mod,       only: moist_dyn_factors_alg
 
   ! Configuration modules
   use base_mesh_config_mod,      only: geometry,           &
                                        geometry_spherical, &
                                        topology,           &
                                        topology_fully_periodic
-  use formulation_config_mod,    only: rotating
+  use formulation_config_mod,    only: rotating, shallow
   use io_config_mod,             only: subroutine_timers
   use physics_config_mod,        only: sample_physics_winds, &
                                        sample_physics_winds_correction
   use planet_config_mod,         only: gravity, p_zero, kappa, rd, cp
-
-
 
   implicit none
 
@@ -79,11 +81,6 @@ contains
   !>                                   fields
   subroutine map_fd_to_prognostics(configuration, prognostic_fields, mr, &
                                    moist_dyn, fd_fields)
-
-    use mr_indices_mod,             only : imr_v, imr_cl, imr_ci, imr_r, &
-                                           imr_s, imr_g
-    use moist_dyn_mod,              only : num_moist_factors, gas_law
-    use moist_dyn_factors_alg_mod,  only : moist_dyn_factors_alg
 
     implicit none
 
@@ -346,6 +343,8 @@ contains
     use sci_enforce_bc_kernel_mod,     only : enforce_bc_kernel_type
     use hydrostatic_coriolis_kernel_mod, &
                                        only : hydrostatic_coriolis_kernel_type
+    use hydro_shallow_to_deep_kernel_mod, &
+                                       only : hydro_shallow_to_deep_kernel_type
     use moist_dyn_mod,                 only : num_moist_factors
     use matrix_vector_kernel_mod,      only : matrix_vector_kernel_type
     use sci_dg_convert_hdiv_field_kernel_mod, &
@@ -355,11 +354,16 @@ contains
     use sci_psykal_builtin_light_mod,  only : invoke_convert_cart2sphere_vector
     use sci_mass_matrix_solver_alg_mod, &
                                        only : mass_matrix_solver_alg
+    use sample_eos_pressure_kernel_mod,  &
+                                       only : sample_eos_pressure_kernel_type
+    use sample_eos_rho_kernel_mod,     only : sample_eos_rho_kernel_type
+    use sci_sample_w3_to_wtheta_kernel_mod, &
+                                       only : sample_w3_to_wtheta_kernel_type
 
     implicit none
 
     type( field_type ), intent( inout ) :: exner
-    type( field_type ), intent( in )    :: theta, rho, u
+    type( field_type ), intent( inout ) :: theta, rho, u
     type( field_type ), intent( in )    :: moist_dyn(num_moist_factors)
     integer(i_def),     intent( in )    :: eos_height
     type( field_type ), intent( in ), optional, target :: lbc_mask
@@ -367,11 +371,14 @@ contains
     type(field_type)               :: c_terms(3)
     type(field_type)               :: physical_chi(3)
     type(field_type )              :: coriolis_term, r_c
+    type(field_type )              :: exner_in_wth
+    type(field_type )              :: temperature
     type(field_type),      pointer :: geopotential
     type(field_type),      pointer :: w2_rmultiplicity
     type(field_type),      pointer :: chi(:)
     type(field_type),      pointer :: panel_id
     type(field_type),      pointer :: height_w3
+    type(field_type),      pointer :: height_wth
     type(operator_type),   pointer :: coriolis
     type(mesh_type),       pointer :: mesh
     type(field_type),      pointer :: mask
@@ -379,10 +386,11 @@ contains
     integer(i_def)                 :: i, eos_level
 
     nullify(geopotential, w2_rmultiplicity, chi, panel_id, height_w3, &
-            coriolis, mesh, mask )
+            height_wth, coriolis, mesh, mask )
 
     mesh => exner%get_mesh()
     height_w3 => get_height( W3, mesh%get_id() )
+    height_wth => get_height( Wtheta, mesh%get_id() )
     geopotential => get_geopotential( mesh%get_id() )
 
     ! If lbc_mask wasn't supplied, create a dummy mask
@@ -449,16 +457,62 @@ contains
     eos_level = get_nearest_level( mesh, eos_height )
     if ( eos_level == (mesh%get_nlayers() + 1) ) eos_level = eos_level - 1
 
-    ! Initialize the vertical profile by starting with the equation of state at
-    ! eos_level, and then integrating from this level to the top and the bottom
-    ! using hydrostatic balance with Coriolis terms.
-    call invoke( hydrostatic_coriolis_kernel_type( exner, rho, theta,       &
-                                                   c_terms(3),              &
-                                                   moist_dyn, geopotential, &
-                                                   height_w3, mask,         &
-                                                   p_zero, kappa,           &
-                                                   rd, cp,                  &
-                                                   eos_level ) )
+    if (shallow) then
+      ! Initialize the vertical profile by starting with the equation of state at
+      ! eos_level, and then integrating from this level to the top and the bottom
+      ! using hydrostatic balance with Coriolis terms.
+      call invoke( hydrostatic_coriolis_kernel_type( exner, rho, theta,       &
+                                                     c_terms(3),              &
+                                                     moist_dyn, geopotential, &
+                                                     height_w3, mask,         &
+                                                     p_zero, kappa,           &
+                                                     rd, cp,                  &
+                                                     eos_level ) )
+   else
+      ! Initialize the vertical profile of exner pressure by initializing
+      ! with the equation of state, and then integrating from eos_level to
+      ! the surface using hydrostatic balance with Coriolis terms and
+      ! absolute temperature and constant gravity, followed by integrating
+      ! from the surface to the top with the model geopotential, followed
+      ! by rederiving potential temperature (theta) and density (rho).
+      call theta%copy_field_properties(exner_in_wth)
+      call theta%copy_field_properties(temperature)
+      call invoke( &
+             ! Compute exner from EoS
+             sample_eos_pressure_kernel_type( exner, rho,                    &
+                                              theta, moist_dyn(gas_law) ),   &
+
+             ! Compute exner in Wtheta (required to calculate T)
+             sample_w3_to_wtheta_kernel_type( exner_in_wth, exner,           &
+                                              height_wth, height_w3 ),       &
+
+             ! Compute absolute temperature T = theta * exner
+             X_times_Y( temperature, exner_in_wth, theta),                   &
+
+             ! Rebalance exner in vertical, using hydrostatic balance.
+             ! This integrates down using g (shallow) from eos_level and
+             ! then integrates up using phi (deep).
+             hydro_shallow_to_deep_kernel_type( exner, temperature,          &
+                                                c_terms(3),                  &
+                                                moist_dyn, geopotential,     &
+                                                height_w3, height_wth,       &
+                                                mask, gravity,               &
+                                                cp, eos_level ),             &
+
+             ! Recompute exner in Wtheta (required to calculate theta)
+             sample_w3_to_wtheta_kernel_type( exner_in_wth, exner,           &
+                                              height_wth, height_w3 ),       &
+
+             ! Recompute potential temperature, theta = T /exner
+             X_divideby_Y( theta, temperature, exner_in_wth ),               &
+
+             ! Recompute density using the equation of state
+             sample_eos_rho_kernel_type(rho, exner, theta,                   &
+                                        moist_dyn(gas_law),                  &
+                                        kappa, rd, p_zero)                   &
+             )
+
+    end if
 
     nullify( mesh )
 
