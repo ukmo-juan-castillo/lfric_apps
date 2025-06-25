@@ -16,7 +16,7 @@ module swe_predictors_alg_mod
 
   ! Constants and types
   use constants_mod,              only: r_def
-  use sci_fem_constants_mod,      only: get_im3_div
+  use sci_fem_constants_mod,      only: get_im3_div_fe
   use field_indices_mod,          only: isw_u, isw_g
   use field_mod,                  only: field_type
   use operator_mod,               only: operator_type
@@ -82,7 +82,7 @@ contains
       ! div_factor = 1 - beta*dt*m3_inv*div*wind_n
 
       ! Get div operator
-      im3_div  => get_im3_div(advected_state%vector(isw_g)%get_mesh_id())
+      im3_div  => get_im3_div_fe(advected_state%vector(isw_g)%get_mesh_id())
 
       ! Initialise fields used in divergence factor computation
       call divergence%initialise( advected_state%vector(isw_g)%get_function_space() )

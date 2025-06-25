@@ -9,7 +9,7 @@
 module advective_and_flux_alg_mod
 
   use constants_mod,                   only: i_def, l_def, r_tran
-  use sci_fem_constants_mod,           only: get_inverse_mass_matrix
+  use sci_fem_constants_mod,           only: get_inverse_mass_matrix_fv
   use r_tran_field_mod,                only: r_tran_field_type
   use field_mod,                       only: field_type
   use copy_field_alg_mod,              only: copy_field
@@ -60,7 +60,8 @@ contains
     use vertical_mass_flux_kernel_mod,   only: vertical_mass_flux_kernel_type
     use fs_continuity_mod,               only: W3, W2, W2h, W2v, Wtheta
     use mesh_mod,                        only: mesh_type
-    use sci_fem_constants_mod,           only: get_rmultiplicity
+    use sci_fem_constants_mod,           only: get_rmultiplicity_fe, &
+                                               get_rmultiplicity_fv
     use sample_field_kernel_mod,         only: sample_field_kernel_type
     use transport_config_mod,            only: operators,     &
                                                operators_fv,  &
@@ -98,11 +99,13 @@ contains
     integer(kind=i_def)                :: mono_stencil
     logical(kind=l_def)                :: do_horizontal_monotone, &
                                           do_vertical_monotone
+    logical(kind=l_def)                :: use_fe
 
     mesh => density%get_mesh()
 
     k_h = get_element_order_h_transport()
     k_v = get_element_order_v_transport()
+    use_fe = k_h > 0 .or. k_v > 0
 
     select case ( density%which_function_space() )
       case ( W3 )
@@ -127,7 +130,11 @@ contains
                                                           recon_space,    &
                                                           ndata_first = .false. )
             call reconstruction_field%initialise( vector_space=recon_fs )
-            rmultiplicity_rdef => get_rmultiplicity(recon_space, mesh%get_id())
+            if (use_fe) then
+              rmultiplicity_rdef => get_rmultiplicity_fe(recon_space, mesh%get_id())
+            else
+              rmultiplicity_rdef => get_rmultiplicity_fv(recon_space, mesh%get_id())
+            end if
             call rmultiplicity%initialise(  &
                vector_space = rmultiplicity_rdef%get_function_space()  )
             call copy_field(rmultiplicity_rdef, rmultiplicity)
@@ -165,8 +172,8 @@ contains
               case default
                 call log_event('W3 reconstruction at W2: direction not recognised', LOG_LEVEL_ERROR)
             end select
-            recon_fs => function_space_collection%get_fs( mesh, k_h, k_v, W3, &
-                                                          ndata,              &
+            recon_fs => function_space_collection%get_fs( mesh, 0, 0, W3, &
+                                                          ndata,          &
                                                           ndata_first = .false. )
             call reconstruction_field%initialise( vector_space=recon_fs )
             call reconstruct_w3_field_alg(reconstruction_field, density, direction, &
@@ -186,7 +193,7 @@ contains
 
             ! Compute the advective update m3_inv * u.grad(density)
             if ( do_advective ) then
-              m3_inv => get_inverse_mass_matrix( W3, density%get_mesh_id() )
+              m3_inv => get_inverse_mass_matrix_fv( W3, density%get_mesh_id() )
               call invoke( setval_c( adv_inc, 0.0_r_tran ) )
               ! Different advective update kernel dependent on direction
               if ( do_horizontal ) then

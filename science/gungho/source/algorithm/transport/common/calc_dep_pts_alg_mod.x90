@@ -92,10 +92,11 @@ module calc_dep_pts_alg_mod
                                                get_detj_at_w2_below,           &
                                                get_detj_at_w3_r_tran,          &
                                                get_panel_edge_dist
-  use sci_geometric_constants_mod,       only: get_height,                     &
+  use sci_geometric_constants_mod,       only: get_height_fv,                  &
                                                get_face_selector_ew,           &
                                                get_face_selector_ns,           &
-                                               get_detj_at_w2,                 &
+                                               get_detj_at_w2_fe,              &
+                                               get_detj_at_w2_fv,              &
                                                get_panel_id
 
   implicit none
@@ -553,7 +554,7 @@ contains
     ! SL-style Lagrangian departure points -------------------------------------
     case (vertical_method_midpoint, vertical_method_trapezoidal)
       ! Get cell height
-      height_w2_rdef => get_height(W2, mesh%get_id())
+      height_w2_rdef => get_height_fv(W2, mesh%get_id())
       call height_w2%initialise(vector_space = height_w2_rdef%get_function_space() )
       call copy_field(height_w2_rdef, height_w2 )
 
@@ -611,11 +612,25 @@ contains
     ! Mesh ID variable
     integer( kind=i_def ) :: mesh_id
 
+    ! Element orders
+    integer( kind=i_def ) :: element_order_h
+    integer( kind=i_def ) :: element_order_v
+
     ! Get Mesh ID
     mesh_id = advecting_wind%get_mesh_id()
 
+    ! Get element orders
+    element_order_h = advecting_wind%get_element_order_h()
+    element_order_v = advecting_wind%get_element_order_v()
+
     ! Get Det(J) at W2 using averaged Det(J)
-    detj_at_w2_ave_rdef  => get_detj_at_w2(mesh_id)
+    if (element_order_h == 0 .and. element_order_v == 0) then
+      ! Lowest order elements, use finite volume
+      detj_at_w2_ave_rdef  => get_detj_at_w2_fv(mesh_id)
+    else
+      ! Higher order elements, use finite element
+      detj_at_w2_ave_rdef  => get_detj_at_w2_fe(mesh_id)
+    end if
 
     ! Set detj_at_w2 to use average Det(J) of neighbouring cells
     call copy_field( detj_at_w2_ave_rdef, detj_at_w2 )

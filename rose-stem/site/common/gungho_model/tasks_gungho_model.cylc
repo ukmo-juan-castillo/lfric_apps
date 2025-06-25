@@ -405,7 +405,7 @@
         "DT": 10,
         "tsteps": 300,
         "use_xios": false,
-        "plot_str": "gw_cart_plot.py diagGungho $NODAL_DATA_DIR 300 8 theta T000000:T000100:T000200:T000300 $PLOT_DIR"
+        "plot_str": "gw_cart_plot.py diagGungho $NODAL_DATA_DIR 300 8 theta T000000:T000100:T000200:T000300 $PLOT_DIR",
     }) %}
 
 {% elif task_ns.conf_name == "skamarock_klemp_gw_p1-BiP75x4-4000x2000" %}

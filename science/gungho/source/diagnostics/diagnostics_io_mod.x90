@@ -20,7 +20,6 @@ module diagnostics_io_mod
   use io_config_mod,                 only: use_xios_io, write_fluxes
   use files_config_mod,              only: diag_stem_name
   use function_space_collection_mod, only: function_space_collection
-  use finite_element_config_mod,     only: element_order_h, element_order_v
   use fs_continuity_mod,             only: Wtheta, W2H
   use sci_geometric_constants_mod,   only: get_coordinates, &
                                            get_panel_id
@@ -191,6 +190,8 @@ subroutine write_vector_diagnostic( field_name, field, &
   character(len=1)                :: uchar
   character(len=str_max_filename) :: field_name_new
   integer(i_def)                  :: i
+  integer(i_def)                  :: element_order_h
+  integer(i_def)                  :: element_order_v
   integer(i_def)                  :: output_dim
   integer(i_timestep)             :: timestep
 
@@ -198,6 +199,9 @@ subroutine write_vector_diagnostic( field_name, field, &
 
   chi      => get_coordinates( mesh%get_id() )
   panel_id => get_panel_id( mesh%get_id() )
+
+  element_order_h = field%get_element_order_h()
+  element_order_v = field%get_element_order_v()
 
   ! Copy the input field to avoid risk of it being halo swapped which can cause
   ! spurious numerical differences between runs with and without diagnostic output

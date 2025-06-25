@@ -19,14 +19,10 @@ module compute_total_energy_alg_mod
   use extrusion_config_mod,          only: planet_radius
   use field_mod,                     only: field_type
   use field_collection_mod,          only: field_collection_type
-  use finite_element_config_mod,     only: element_order_h, &
-                                           element_order_v, &
-                                           nqp_h_exact,     &
-                                           nqp_v_exact
   use fs_continuity_mod,             only: W3, Wtheta
   use function_space_collection_mod, only: function_space_collection
   use function_space_mod,            only: function_space_type
-  use sci_geometric_constants_mod,   only: get_height,      &
+  use sci_geometric_constants_mod,   only: get_height_fv,   &
                                            get_coordinates, &
                                            get_panel_id,    &
                                            get_da_msl_proj
@@ -124,11 +120,18 @@ contains
     real( kind=r_def ) :: Lcf
     real( kind=r_def ) :: area
     real( kind=r_def ) :: surface_geopotential
+    integer(kind=i_def) :: nqp_h_exact, nqp_v_exact
+    integer(kind=i_def) :: element_order_h, element_order_v
 
     if ( subroutine_timers ) call timer( "compute_total_energy" )
 
     geopotential => get_geopotential( mesh%get_id() )
     surface_geopotential = planet_radius*gravity
+
+    element_order_h = u%get_element_order_h()
+    element_order_v = u%get_element_order_v()
+    nqp_h_exact = element_order_h + 3
+    nqp_v_exact = element_order_v + 3
 
     select case( integral_method )
     case( integral_method_fe )
@@ -174,8 +177,8 @@ contains
       call derived_fields%get_field( 'v_in_w3', v_in_w3 )
       call derived_fields%get_field( 'w_in_w3', w_in_w3 )
       dA => get_da_msl_proj( twod_mesh%get_id() )
-      height_w3 => get_height( W3, mesh%get_id() )
-      height_wth => get_height( Wtheta, mesh%get_id() )
+      height_w3 => get_height_fv( W3, mesh%get_id() )
+      height_wth => get_height_fv( Wtheta, mesh%get_id() )
 
       call energy_field%initialise( vector_space = &
                                     function_space_collection%get_fs(mesh, 0, 0, W3) )

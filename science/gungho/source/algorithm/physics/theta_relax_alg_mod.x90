@@ -21,7 +21,7 @@ module theta_relax_alg_mod
   use field_mod,                     only: field_type
   use fs_continuity_mod,             only: Wtheta, W3
   use function_space_collection_mod, only: function_space_collection
-  use sci_geometric_constants_mod,   only: get_height
+  use sci_geometric_constants_mod,   only: get_height_fv
   use mesh_mod,                      only: mesh_type
   use planet_config_mod,             only: kappa, p_zero
   use timestepping_config_mod,       only: dt
@@ -123,7 +123,7 @@ contains
       height_wth => exner_in_wth
     else
       mesh_id = dtheta_relax%get_mesh_id()
-      height_wth => get_height( Wtheta, mesh_id )
+      height_wth => get_height_fv( Wtheta, mesh_id )
     end if
     profile_extrap = .false.
     call invoke( setval_X( dtheta_relax, horiz_mean),                  &

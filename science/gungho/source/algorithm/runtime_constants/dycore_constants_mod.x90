@@ -19,7 +19,7 @@ module dycore_constants_mod
                                                 r_second, EPS
   use sci_geometric_constants_mod,        only: get_coordinates,               &
                                                 get_panel_id
-  use sci_fem_constants_mod,              only: get_qr
+  use sci_fem_constants_mod,              only: get_qr_fe
   use field_mod,                          only: field_type
   use fs_continuity_mod,                  only: W2, W3
   use function_space_collection_mod,      only: function_space_collection
@@ -37,7 +37,6 @@ module dycore_constants_mod
   ! Configuration
   use finite_element_config_mod,          only: element_order_h, &
                                                 element_order_v
-
 
   implicit none
 
@@ -116,7 +115,7 @@ contains
                                                 element_order_v, W2)
       chi => get_coordinates(mesh_id)
       panel_id => get_panel_id(mesh_id)
-      qr => get_qr()
+      qr => get_qr_fe()
 
       if ( subroutine_timers ) call timer('runtime_constants.dycore')
 
@@ -205,7 +204,7 @@ contains
     use compute_dl_matrix_kernel_mod, only: compute_dl_matrix_kernel_type
     use damping_layer_config_mod,     only: dl_base, dl_str
     use extrusion_config_mod,         only: domain_height, planet_radius
-    use sci_fem_constants_mod,        only: get_mass_matrix
+    use sci_fem_constants_mod,        only: get_mass_matrix_fe
     use formulation_config_mod,       only: dlayer_on, rotating, lagged_orog
     use lagged_orog_operator_kernel_mod, &
                                       only: lagged_orog_operator_kernel_type
@@ -313,7 +312,7 @@ contains
         if (dlayer_on) then
           chi => get_coordinates(mesh_id)
           panel_id => get_panel_id(mesh_id)
-          qr => get_qr()
+          qr => get_qr_fe()
 
           if ( subroutine_timers ) call timer('runtime_constants.dycore')
           call invoke( name = "compute_damping_layer_mass_matrix",             &
@@ -328,7 +327,7 @@ contains
           if ( subroutine_timers ) call timer('runtime_constants.dycore')
         else
           ! No damping layer, just copy the W2 mass matrix on this level
-          mm_w2 => get_mass_matrix(W2, mesh_id)
+          mm_w2 => get_mass_matrix_fe(W2, mesh_id)
           call invoke( operator_setval_x_kernel_type(mm_w2_dl, mm_w2) )
         end if
       end if

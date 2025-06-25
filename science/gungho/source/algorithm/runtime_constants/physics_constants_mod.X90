@@ -85,7 +85,7 @@ contains
   !> @param[in] mesh   The mesh to compute the operators for
   subroutine create_mixing_geometries(mesh)
 
-    use sci_geometric_constants_mod,   only: get_height, get_delta_at_wtheta
+    use sci_geometric_constants_mod,   only: get_height_fv, get_delta_at_wtheta
     use sci_calc_dz_centre_kernel_mod, only: calc_dz_centre_kernel_type
     use sci_calc_dz_face_kernel_mod,   only: calc_dz_face_kernel_type
     use extrusion_config_mod,          only: planet_radius
@@ -123,10 +123,10 @@ contains
 
     mesh_id = mesh%get_id()
 
-    height_w1 => get_height(W1, mesh_id)
-    height_w2 => get_height(W2, mesh_id)
-    height_w3 => get_height(W3, mesh_id)
-    height_wth => get_height(Wtheta, mesh_id)
+    height_w1 => get_height_fv(W1, mesh_id)
+    height_w2 => get_height_fv(W2, mesh_id)
+    height_w3 => get_height_fv(W3, mesh_id)
+    height_wth => get_height_fv(Wtheta, mesh_id)
     delta_at_wtheta => get_delta_at_wtheta(mesh_id)
 
     if ( subroutine_timers ) call timer('runtime_constants.physics')
@@ -393,7 +393,7 @@ contains
   !> @return The Pnm_max field
   function get_Pnm_star(mesh_id) result(Pnm_star)
 
-    use sci_geometric_constants_mod,   only: get_latitude
+    use sci_geometric_constants_mod,   only: get_latitude_fv
     use get_Pnm_star_kernel_mod,       only: get_Pnm_star_kernel_type
     use stochastic_physics_config_mod, only: stph_spectral_dim, stph_n_max
 
@@ -422,7 +422,7 @@ contains
     ! Create constant if it doesn't already exist
     if (.not. constant_exists) then
       twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
-      latitude => get_latitude(W3, mesh_id)
+      latitude => get_latitude_fv(W3, mesh_id)
       fs => function_space_collection%get_fs(twod_mesh, 0, 0, W3, stph_spectral_dim)
 
       if ( subroutine_timers ) call timer('runtime_constants.physics')

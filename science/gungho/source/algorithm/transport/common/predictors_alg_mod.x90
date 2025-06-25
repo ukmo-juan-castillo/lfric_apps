@@ -16,7 +16,8 @@ module predictors_alg_mod
 
   ! Constants and types
   use constants_mod,              only: r_def
-  use sci_fem_constants_mod,      only: get_im3_div
+  use sci_fem_constants_mod,      only: get_im3_div_fe, &
+                                        get_im3_div_fv
   use field_indices_mod,          only: igh_u, igh_d
   use field_mod,                  only: field_type
   use model_clock_mod,            only: model_clock_type
@@ -94,7 +95,12 @@ contains
       cast_dt = real(model_clock%get_seconds_per_step(), r_def)
 
       ! Get div operator and beta*dt
-      im3_div  => get_im3_div(advected_state(igh_d)%get_mesh_id())
+      if (advected_state(igh_d)%get_element_order_h() > 0 .or. &
+          advected_state(igh_d)%get_element_order_v() > 0) then
+        im3_div  => get_im3_div_fe(advected_state(igh_d)%get_mesh_id())
+      else
+        im3_div  => get_im3_div_fe(advected_state(igh_d)%get_mesh_id())
+      end if
       beta_dt = beta*cast_dt
 
       ! Initialise fields used in divergence factor computation

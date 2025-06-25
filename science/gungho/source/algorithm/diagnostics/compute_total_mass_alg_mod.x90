@@ -35,14 +35,14 @@ contains
                                               integral_method_fe
     use extrusion_mod,                  only: TWOD
     use extrusion_config_mod,           only: planet_radius
-    use sci_fem_constants_mod,          only: get_mass_matrix
+    use sci_fem_constants_mod,          only: get_mass_matrix_fe, &
+                                              get_mass_matrix_fv
     use fs_continuity_mod,              only: W3, Wtheta
     use field_mod,                      only: field_type
-    use finite_element_config_mod,      only: element_order_h, element_order_v
     use function_space_mod,             only: function_space_type
     use function_space_collection_mod,  only: function_space_collection
     use sci_geometric_constants_mod,    only: get_coordinates, &
-                                              get_height,      &
+                                              get_height_fv,   &
                                               get_panel_id,    &
                                               get_da_msl_proj
     use log_mod,                        only: log_event,         &
@@ -71,9 +71,13 @@ contains
     type( function_space_type ),  pointer :: w3_fs => null()
     type( field_type )                    :: mass
 
+    integer( kind=i_def ) :: element_order_h
+    integer( kind=i_def ) :: element_order_v
     integer( kind=i_def ) :: mesh_id, method_to_use
 
     mesh_id = mesh%get_id()
+    element_order_h = rho%get_element_order_h()
+    element_order_v = rho%get_element_order_v()
 
     if (present(method)) then
       method_to_use = method
@@ -83,8 +87,8 @@ contains
 
     select case( method_to_use )
     case( integral_method_fd )
-      height_w3  => get_height( W3, mesh_id )
-      height_wth => get_height( Wtheta, mesh_id )
+      height_w3  => get_height_fv( W3, mesh_id )
+      height_wth => get_height_fv( Wtheta, mesh_id )
       twod_mesh  => mesh_collection%get_mesh( mesh, TWOD )
       dA         => get_da_msl_proj( twod_mesh%get_id() )
 
@@ -105,7 +109,12 @@ contains
     case( integral_method_fe )
       w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
                                                  element_order_v, W3 )
-      mm_w3 => get_mass_matrix( W3, mesh_id )
+
+      if (element_order_h == 0 .and. element_order_v == 0) then
+        mm_w3 => get_mass_matrix_fv( W3, mesh_id )
+      else
+        mm_w3 => get_mass_matrix_fe( W3, mesh_id )
+      end if
 
       ! Initialise Mass
       call mass%initialise( vector_space = w3_fs )

@@ -32,8 +32,8 @@ contains
     use operator_mod,                  only: operator_type
     use sci_geometric_constants_mod,   only: get_coordinates, &
                                              get_panel_id
-    use sci_fem_constants_mod,         only: get_inverse_mass_matrix, &
-                                             get_qr
+    use sci_fem_constants_mod,         only: get_inverse_mass_matrix_fe, &
+                                             get_qr_fe
     use fs_continuity_mod,             only: W3
     use mesh_mod,                      only: mesh_type
     use quadrature_xyoz_mod,           only: quadrature_xyoz_type
@@ -61,10 +61,10 @@ contains
 
     mesh => state(igh_p)%get_mesh()
 
-    m3_inv   => get_inverse_mass_matrix( W3, mesh%get_id() )
+    m3_inv   => get_inverse_mass_matrix_fe( W3, mesh%get_id() )
     chi      => get_coordinates( mesh%get_id() )
     panel_id => get_panel_id( mesh%get_id() )
-    qr       => get_qr()
+    qr       => get_qr_fe()
 
     select case(eos_method)
     case(eos_method_sampled)

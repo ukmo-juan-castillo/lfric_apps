@@ -30,10 +30,11 @@ contains
     use operator_mod,                   only: operator_type
     use base_mesh_config_mod,           only: f_lat
     use planet_config_mod,              only: scaled_omega
-    use sci_fem_constants_mod,          only: get_qr, &
-                                              get_inverse_mass_matrix, &
-                                              get_rmultiplicity
-    use finite_element_config_mod,      only: element_order_h, element_order_v
+    use sci_fem_constants_mod,          only: get_qr_fe, get_qr_fv,       &
+                                              get_inverse_mass_matrix_fe, &
+                                              get_inverse_mass_matrix_fv, &
+                                              get_rmultiplicity_fv,       &
+                                              get_rmultiplicity_fe
     use fs_continuity_mod,              only: W0, W1, W3
     use function_space_collection_mod,  only: function_space_collection
     use function_space_mod,             only: function_space_type
@@ -60,21 +61,35 @@ contains
     type(field_type),           pointer :: chi(:) => null()
     type(field_type),           pointer :: panel_id => null()
     type(operator_type), pointer :: m3_inv => null()
+    integer(kind=i_def)          :: element_order_h
+    integer(kind=i_def)          :: element_order_v
+    logical(kind=l_def)          :: use_fe
 
     type(mesh_type), pointer :: mesh => null()
 
     mesh => u%get_mesh()
 
+    element_order_h = u%get_element_order_h()
+    element_order_v = u%get_element_order_v()
+    use_fe = element_order_h > 0 .or. u%get_element_order_v() > 0
+
     ! get chi and panel id fields
     chi      => get_coordinates( mesh%get_id() )
     panel_id => get_panel_id( mesh%get_id() )
-    qr => get_qr( )
-    m3_inv => get_inverse_mass_matrix(W3, mesh%get_id())
+    if (use_fe) then
+      qr => get_qr_fe( )
+      m3_inv => get_inverse_mass_matrix_fe(W3, mesh%get_id())
+      w0_rmultiplicity => get_rmultiplicity_fe(W0, mesh%get_id())
+    else
+      qr => get_qr_fv( )
+      m3_inv => get_inverse_mass_matrix_fv(W3, mesh%get_id())
+      w0_rmultiplicity => get_rmultiplicity_fv(W0, mesh%get_id())
+    end if
+
     call xi%initialise( vector_space = &
     function_space_collection%get_fs(mesh, element_order_h, element_order_v, W1) )
     call compute_vorticity_alg(xi, u, .false., w1_flag=.true.)
 
-    w0_rmultiplicity => get_rmultiplicity(W0, mesh%get_id())
     call theta_in_w0%initialise(vector_space = &
     function_space_collection%get_fs(mesh, element_order_h, element_order_v, W0) )
     call invoke( setval_c(theta_in_w0, 0.0_r_def), &

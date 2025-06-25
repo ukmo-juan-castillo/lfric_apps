@@ -10,12 +10,8 @@ module swe_rhs_alg_mod
 
   ! Constants
   use constants_mod,                  only: r_def, l_def, i_def
-  use sci_fem_constants_mod,          only: get_mass_matrix,                &
-                                            get_mass_matrix_diagonal,       &
-                                            get_qr,                         &
-                                            get_inverse_lumped_mass_matrix, &
-                                            get_div,                        &
-                                            get_curl
+  use sci_fem_constants_mod,          only: get_mass_matrix_fe, &
+                                            get_div
   use fs_continuity_mod,              only: W1, W2, W3
   use sci_geometric_constants_mod,    only: get_coordinates, &
                                             get_panel_id
@@ -138,8 +134,8 @@ contains
     call total_geopot%initialise( vector_space=rhs%vector(isw_g)%get_function_space() )
 
     ! Get mass matrices
-    mm_vel => get_mass_matrix(W2,mesh%get_id())
-    mm_wb  => get_mass_matrix(W3,mesh%get_id())
+    mm_vel => get_mass_matrix_fe(W2,mesh%get_id())
+    mm_wb  => get_mass_matrix_fe(W3,mesh%get_id())
 
     ! Set constants
     minus_alpha_dt = - alpha_dt

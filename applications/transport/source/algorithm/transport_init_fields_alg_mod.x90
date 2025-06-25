@@ -17,7 +17,7 @@ module transport_init_fields_alg_mod
   use divergence_alg_mod,                only: divergence_alg
   use sci_enforce_lower_bound_kernel_mod, &
                                          only: enforce_lower_bound_kernel_type
-  use sci_fem_constants_mod,             only: get_qr
+  use sci_fem_constants_mod,             only: get_qr_fe
   use finite_element_config_mod,         only: element_order_h, element_order_v
   use field_mod,                         only: field_type
   use sci_field_bundle_builtins_mod,     only: set_bundle_scalar
@@ -132,7 +132,7 @@ subroutine transport_init_fields_alg( mesh,         &
                                                element_order_v, Wtheta )
     chi  => get_coordinates(mesh%get_id())
     panel_id => get_panel_id(mesh%get_id())
-    qr => get_qr()
+    qr => get_qr_fe()
     w2_aerosol_fs => function_space_collection%get_fs( aerosol_mesh, element_order_h, &
                                                        element_order_v, W2 )
     w3_aerosol_fs => function_space_collection%get_fs( aerosol_mesh, element_order_h, &

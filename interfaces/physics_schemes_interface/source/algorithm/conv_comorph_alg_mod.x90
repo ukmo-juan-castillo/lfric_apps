@@ -15,7 +15,7 @@ module conv_comorph_alg_mod
        imr_s
 
   use timestepping_config_mod,     only: outer_iterations
-  use sci_geometric_constants_mod, only: get_height, get_delta_at_wtheta
+  use sci_geometric_constants_mod, only: get_height_fv, get_delta_at_wtheta
   use fs_continuity_mod,           only: W3, Wtheta
 
   use io_config_mod,        only: subroutine_timers
@@ -455,8 +455,8 @@ contains
     call microphysics_fields%get_field('ls_rain', ls_rain)
     call microphysics_fields%get_field('ls_snow', ls_snow)
 
-    height_wth => get_height(Wtheta, mesh%get_id())
-    height_w3  => get_height(W3, mesh%get_id())
+    height_wth => get_height_fv(Wtheta, mesh%get_id())
+    height_w3  => get_height_fv(W3, mesh%get_id())
 
     ! Initialise the convection diagnostics
     call initialise_diags_for_comorph(lowest_cv_base,       &

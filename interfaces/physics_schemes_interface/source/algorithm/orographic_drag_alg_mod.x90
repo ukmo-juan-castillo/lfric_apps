@@ -19,7 +19,7 @@ module orographic_drag_alg_mod
   use mesh_mod,             only: mesh_type
 
   use sci_geometric_constants_mod, &
-                               only: get_height
+                               only: get_height_fv
   use fs_continuity_mod,       only: W3, Wtheta
 
   ! XIOS output
@@ -108,8 +108,8 @@ contains
 
     mesh => theta%get_mesh()
 
-    height_wth => get_height(Wtheta, mesh%get_id())
-    height_w3  => get_height(W3, mesh%get_id())
+    height_wth => get_height_fv(Wtheta, mesh%get_id())
+    height_w3  => get_height_fv(W3, mesh%get_id())
 
     ! Unpack fields
     call derived_fields%get_field('u_in_w3', u_in_w3)

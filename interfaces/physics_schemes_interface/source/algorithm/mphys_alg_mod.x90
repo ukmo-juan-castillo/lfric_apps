@@ -18,7 +18,7 @@ module mphys_alg_mod
                                   output_diags_for_mphys
   use constants_mod,        only: r_def, i_def
 
-  use sci_geometric_constants_mod, only: get_height, get_dz_at_wtheta
+  use sci_geometric_constants_mod, only: get_height_fv, get_dz_at_wtheta
   use fs_continuity_mod,           only: W3, Wtheta
 
   implicit none
@@ -146,8 +146,8 @@ contains
 
     mesh => theta%get_mesh()
 
-    height_wth => get_height( Wtheta, mesh%get_id() )
-    height_w3  => get_height( W3, mesh%get_id() )
+    height_wth => get_height_fv( Wtheta, mesh%get_id() )
+    height_w3  => get_height_fv( W3, mesh%get_id() )
 
     call theta%copy_field_properties(dcfl_mphys)
     call theta%copy_field_properties(dcff_mphys)

@@ -49,12 +49,17 @@ subroutine set_rho_alg( rho, timestep, dt )
 
     real(kind=r_def)    :: time
 
+    integer(kind=i_def) :: element_order_h, element_order_v
+
     type( mesh_type ), pointer :: mesh => null()
 
     mesh => rho%get_mesh()
 
-    qr = quadrature_xyoz_type(nqp_h_exact, nqp_h_exact, nqp_v_exact, &
-                              quadrature_rule)
+    element_order_h = rho%get_element_order_h()
+    element_order_v = rho%get_element_order_v()
+
+    qr = quadrature_xyoz_type(element_order_h + 3, element_order_h + 3, &
+                              element_order_v + 3, quadrature_rule)
     chi => get_coordinates(mesh%get_id())
     panel_id => get_panel_id(mesh%get_id())
     ! Set rho according to formulation

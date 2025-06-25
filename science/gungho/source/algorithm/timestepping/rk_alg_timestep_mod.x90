@@ -21,16 +21,14 @@ module rk_alg_timestep_mod
   use timestep_method_mod,       only: timestep_method_type
 
   ! Configuration options
-  use finite_element_config_mod,          only: element_order_h, &
-                                                element_order_v, &
-                                                vorticity_in_w1
+  use finite_element_config_mod,          only: vorticity_in_w1
   use formulation_config_mod,             only: rotating, &
                                                 vector_invariant
   use runge_kutta_init_mod,               only: get_rk_timestepping_weights
   use timestepping_config_mod,            only: runge_kutta_method
   use derived_config_mod,                 only: bundle_size
-  use sci_fem_constants_mod,              only: get_qr, &
-                                                get_inverse_mass_matrix
+  use sci_fem_constants_mod,              only: get_qr_fe, &
+                                                get_inverse_mass_matrix_fe
   use sci_geometric_constants_mod,        only: get_coordinates, &
                                                 get_panel_id,    &
                                                 get_dx_at_w2
@@ -229,8 +227,15 @@ contains
     ! Function space for vorticity
     integer(i_def) :: vorticity_fs
 
+    ! Element orders to initialise function spaces with
+    integer(i_def) :: element_order_h
+    integer(i_def) :: element_order_v
+
     ! Get the mesh from one of the fields
     mesh => theta%get_mesh()
+
+    element_order_h = u%get_element_order_h()
+    element_order_v = u%get_element_order_v()
 
     ! Get weights for RK scheme
     call get_rk_timestepping_weights(self%num_rk_stage, self%ak, runge_kutta_method)
@@ -320,16 +325,20 @@ contains
 
     type(quadrature_rule_gaussian_type) :: gaussian_quadrature
 
-    integer(kind=i_def) :: stages, stage, mesh_id, outer, nqp_h, nqp_v
+    integer(kind=i_def) :: stages, stage, mesh_id, outer
+    integer(kind=i_def) :: element_order_h, element_order_v
+    integer(kind=i_def) :: nqp_h, nqp_v
     logical(kind=l_def) :: horizontal_face, vertical_face, cheap_update
 
     if ( subroutine_timers ) call timer('rk_alg')
-    qr => get_qr()
+    qr => get_qr_fe()
     mesh => theta%get_mesh()
     reference_element => mesh%get_reference_element()
     outer = 1_i_def
     horizontal_face = .true.
     vertical_face = .false.
+    element_order_h = u%get_element_order_h()
+    element_order_v = u%get_element_order_v()
     nqp_h = element_order_h + 2_i_def
     nqp_v = element_order_v + 2_i_def
     qrf = quadrature_face_type(nqp_h, nqp_v, horizontal_face, vertical_face, &
@@ -419,7 +428,7 @@ contains
       call bundle_axpy( real(model_clock%get_seconds_per_step(), r_def), &
                         self%inc, self%state_n, self%state, bundle_size)
       ! Recompute exner from eos
-      m3_inv => get_inverse_mass_matrix(W3, mesh_id)
+      m3_inv => get_inverse_mass_matrix_fe(W3, mesh_id)
       call invoke( project_eos_pressure_kernel_type( self%state(igh_p), self%state(igh_d),  &
                                                      self%state(igh_t), moist_dyn(gas_law), &
                                                      chi, panel_id, m3_inv, qr ) )

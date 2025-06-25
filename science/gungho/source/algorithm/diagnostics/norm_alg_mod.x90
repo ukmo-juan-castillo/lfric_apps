@@ -8,7 +8,8 @@
 module norm_alg_mod
 
   use constants_mod,                    only: r_def, l_def, EPS
-  use sci_fem_constants_mod,            only: get_mass_matrix
+  use sci_fem_constants_mod,            only: get_mass_matrix_fe, &
+                                              get_mass_matrix_fv
   use field_mod,                        only: field_type
   use log_mod,                          only: log_event,         &
                                               log_scratch_space, &
@@ -52,8 +53,14 @@ contains
 
     ! Initialise RHS field and get mass matrix
     call rhs_field%initialise(vector_space = field%get_function_space())
-    mass_matrix => get_mass_matrix(field%which_function_space(), &
-                                   field%get_mesh_id())
+
+    if (field%get_element_order_h() == 0 .and. field%get_element_order_v() == 0) then
+      mass_matrix => get_mass_matrix_fv(field%which_function_space(), &
+                                        field%get_mesh_id())
+    else
+      mass_matrix => get_mass_matrix_fe(field%which_function_space(), &
+                                        field%get_mesh_id())
+    end if
 
     call invoke( name = "l2_norm_calculation",                             &
                  setval_c(rhs_field, 0.0_r_def),                           &
@@ -95,8 +102,13 @@ contains
     ! Initialise difference field, RHS field and get mass matrix
     call diff_field%initialise(vector_space = field%get_function_space())
     call rhs_field%initialise(vector_space = field%get_function_space())
-    mass_matrix => get_mass_matrix(field%which_function_space(), &
-                                   field%get_mesh_id())
+    if (field%get_element_order_h() == 0 .and. field%get_element_order_v() == 0) then
+      mass_matrix => get_mass_matrix_fv(field%which_function_space(), &
+                                        field%get_mesh_id())
+    else
+      mass_matrix => get_mass_matrix_fe(field%which_function_space(), &
+                                        field%get_mesh_id())
+    end if
 
     ! Could call l2_norm_alg here but instead optimise by having single invoke
     call invoke( name = "abs_l2_error_calculation",                             &
@@ -139,8 +151,14 @@ contains
     ! Initialise difference field, RHS field and get mass matrix
     call diff_field%initialise(vector_space = field%get_function_space())
     call rhs_field%initialise(vector_space = field%get_function_space())
-    mass_matrix => get_mass_matrix(field%which_function_space(), &
-                                   field%get_mesh_id())
+
+    if (field%get_element_order_h() == 0 .and. field%get_element_order_v() == 0) then
+      mass_matrix => get_mass_matrix_fv(field%which_function_space(), &
+                                        field%get_mesh_id())
+    else
+      mass_matrix => get_mass_matrix_fe(field%which_function_space(), &
+                                        field%get_mesh_id())
+    end if
 
     ! No need to take square root as this has already happened
     rel_l2_error = abs_l2_error_alg(field, true_field)
@@ -218,8 +236,13 @@ contains
 
     call ones_field%initialise(vector_space = field%get_function_space())
     call rhs_field%initialise(vector_space = field%get_function_space())
-    mass_matrix => get_mass_matrix(field%which_function_space(), &
-                                   field%get_mesh_id())
+    if (field%get_element_order_h() == 0 .and. field%get_element_order_v() == 0) then
+      mass_matrix => get_mass_matrix_fv(field%which_function_space(), &
+                                        field%get_mesh_id())
+    else
+      mass_matrix => get_mass_matrix_fe(field%which_function_space(), &
+                                        field%get_mesh_id())
+    end if
 
     ! First calculate \int \inner(ones, field)*dV
     call invoke( name = "mean_calculation",                                &
@@ -302,8 +325,14 @@ contains
     call diff_field_2%initialise(vector_space = field_2%get_function_space())
     call rhs_field%initialise(vector_space = field_1%get_function_space())
 
-    mass_matrix => get_mass_matrix(field_1%which_function_space(), &
-                                   field_1%get_mesh_id())
+    if (field_1%get_element_order_h() == 0 .and. &
+        field_1%get_element_order_v() == 0) then
+      mass_matrix => get_mass_matrix_fv(field_1%which_function_space(), &
+                                        field_1%get_mesh_id())
+    else
+      mass_matrix => get_mass_matrix_fe(field_1%which_function_space(), &
+                                        field_1%get_mesh_id())
+    end if
 
     call invoke( name = "covariance_calculation",                      &
                  ! Set constant fields

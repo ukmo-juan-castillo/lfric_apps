@@ -46,7 +46,8 @@ module gungho_diagnostics_driver_mod
   use log_mod,                   only : log_event, &
                                         LOG_LEVEL_DEBUG
   use sci_geometric_constants_mod,      &
-                                 only : get_panel_id, get_height, get_da_msl_proj
+                                 only : get_panel_id, get_height_fe, &
+                                        get_height_fv, get_da_msl_proj
   use io_config_mod,             only : subroutine_timers, use_xios_io, write_fluxes
   use timer_mod,                 only : timer
   use transport_config_mod,      only : transport_ageofair
@@ -130,6 +131,7 @@ contains
     character(str_def) :: name
 
     integer :: fs
+    integer :: element_order_h, element_order_v
 
     procedure(write_interface), pointer  :: tmp_write_ptr => null()
 
@@ -149,8 +151,6 @@ contains
     moist_dyn => moist_dyn_array%bundle
     derived_fields => modeldb%fields%get_field_collection("derived_fields")
     panel_id => get_panel_id(mesh%get_id())
-    height_w3 => get_height(W3, mesh%get_id())
-    height_wth => get_height(Wtheta, mesh%get_id())
     con_tracer_last_outer =>  modeldb%fields%get_field_collection("con_tracer_last_outer")
 
     ! Can't just iterate through the prognostic/diagnostic collections as
@@ -160,6 +160,20 @@ contains
     call prognostic_fields%get_field('u', u)
     call prognostic_fields%get_field('rho', rho)
     call prognostic_fields%get_field('exner', exner)
+
+    ! Get element orders and get the finite element or finite volume height
+    element_order_h = theta%get_element_order_h()
+    element_order_v = theta%get_element_order_v()
+
+    if (element_order_h > 0 .or. element_order_v > 0) then
+      ! Get the finite element height
+      height_w3 => get_height_fe(W3, mesh%get_id())
+      height_wth => get_height_fe(Wtheta, mesh%get_id())
+    else
+      ! Get the finite volume height
+      height_w3 => get_height_fv(W3, mesh%get_id())
+      height_wth => get_height_fv(Wtheta, mesh%get_id())
+    end if
 
     ! Scalar fields
     call write_scalar_diagnostic('rho', rho, &

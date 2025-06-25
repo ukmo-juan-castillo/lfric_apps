@@ -18,7 +18,7 @@ module solver_constants_mod
   use copy_field_alg_mod,                 only: copy_field
   use sci_geometric_constants_mod,        only: get_coordinates,               &
                                                 get_panel_id
-  use sci_fem_constants_mod,              only: get_qr
+  use sci_fem_constants_mod,              only: get_qr_fe
   use field_mod,                          only: field_type
   use fs_continuity_mod,                  only: W2, W3, Wtheta
   use function_space_collection_mod,      only: function_space_collection
@@ -149,7 +149,7 @@ contains
   !> @return The mass matrix operator
   function get_mass_matrix_r_solver(space, mesh_id) result(mm_r_solver)
 
-    use sci_fem_constants_mod, only: get_mass_matrix
+    use sci_fem_constants_mod, only: get_mass_matrix_fe
 
     implicit none
 
@@ -187,7 +187,7 @@ contains
 
     if (.not. constant_exists) then
       ! Create constant if it doesn't already exist
-      mm_r_def => get_mass_matrix(space, mesh_id)
+      mm_r_def => get_mass_matrix_fe(space, mesh_id)
 
       if ( subroutine_timers ) call timer('runtime_constants.solver')
 
@@ -210,7 +210,7 @@ contains
   !> @return The inverse mass matrix operator at r_solver precision
   function get_inverse_mass_matrix_r_solver(space, mesh_id) result(mm_inv_r_solver)
 
-    use sci_fem_constants_mod, only: get_inverse_mass_matrix
+    use sci_fem_constants_mod, only: get_inverse_mass_matrix_fe
 
     implicit none
 
@@ -245,7 +245,7 @@ contains
 
     if (.not. constant_exists) then
       ! Create constant if it doesn't already exist
-      mm_inv_r_def => get_inverse_mass_matrix(space, mesh_id)
+      mm_inv_r_def => get_inverse_mass_matrix_fe(space, mesh_id)
 
       if ( subroutine_timers ) call timer('runtime_constants.solver')
 
@@ -328,7 +328,7 @@ contains
   !> @return The inverse mass matrix and div operator
   function get_im3_div_r_solver(mesh_id) result(im3_div_r_solver)
 
-    use sci_fem_constants_mod, only: get_inverse_mass_matrix, get_div
+    use sci_fem_constants_mod, only: get_div
 
     implicit none
 
@@ -357,7 +357,7 @@ contains
     if (.not. constant_exists) then
       chi => get_coordinates(mesh_id)
       panel_id => get_panel_id(mesh_id)
-      qr => get_qr()
+      qr => get_qr_fe()
       div => get_div(mesh_id)
       mm_w3_inv_r_solver => get_inverse_mass_matrix_r_solver(W3, mesh_id)
 
@@ -392,7 +392,7 @@ contains
   !> @return The normalisation field
   function get_normalisation(space, mesh_id) result(normalisation)
 
-    use sci_fem_constants_mod,       only: get_inverse_lumped_mass_matrix
+    use sci_fem_constants_mod,       only: get_inverse_lumped_mass_matrix_fe
     use w2_normalisation_kernel_mod, only: w2_normalisation_kernel_type
     use sci_multiplicity_kernel_mod, only: multiplicity_kernel_type
 
@@ -412,7 +412,7 @@ contains
     ! Special case, Wtheta normalisation is the lumped inverse mass matrix
     select case (space)
       case (Wtheta)
-        normalisation => get_inverse_lumped_mass_matrix(Wtheta, mesh_id)
+        normalisation => get_inverse_lumped_mass_matrix_fe(Wtheta, mesh_id)
 
       case (W2)
         ! Check if inventories is initialised

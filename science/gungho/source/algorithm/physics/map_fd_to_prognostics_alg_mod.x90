@@ -27,8 +27,8 @@ module map_fd_to_prognostics_alg_mod
 
   use quadrature_xyoz_mod,             only: quadrature_xyoz_type
   use quadrature_rule_gaussian_mod,    only: quadrature_rule_gaussian_type
-  use sci_fem_constants_mod,           only: get_rmultiplicity
-  use sci_geometric_constants_mod,     only: get_height,           &
+  use sci_fem_constants_mod,           only: get_rmultiplicity_fv
+  use sci_geometric_constants_mod,     only: get_height_fv,        &
                                              get_coordinates,      &
                                              get_panel_id,         &
                                              get_da_at_w2,         &
@@ -257,7 +257,7 @@ contains
     if (sample_physics_winds .and. sample_physics_winds_correction) then
 
       chi => get_coordinates(mesh%get_id())
-      rmultiplicity_w2 => get_rmultiplicity(W2, mesh%get_id())
+      rmultiplicity_w2 => get_rmultiplicity_fv(W2, mesh%get_id())
       panel_id => get_panel_id(mesh%get_id())
       call u_lon_w2%initialise( u%get_function_space() )
       call u_lat_w2%initialise( u%get_function_space() )
@@ -294,7 +294,7 @@ contains
     else if (sample_physics_winds) then
 
       w2b_fs => function_space_collection%get_fs(mesh, 0, 0, W2broken)
-      rmultiplicity_w2 => get_rmultiplicity(W2, mesh%get_id())
+      rmultiplicity_w2 => get_rmultiplicity_fv(W2, mesh%get_id())
       u_lon_map => get_u_lon_sample(mesh%get_id())
       u_lat_map => get_u_lat_sample(mesh%get_id())
       u_up_map  => get_u_up_sample(mesh%get_id())
@@ -393,8 +393,9 @@ contains
             height_wth, coriolis, mesh, mask )
 
     mesh => exner%get_mesh()
-    height_w3 => get_height( W3, mesh%get_id() )
-    height_wth => get_height( Wtheta, mesh%get_id() )
+    height_w3 => get_height_fv( W3, mesh%get_id() )
+    w2_rmultiplicity => get_rmultiplicity_fv( W2, mesh%get_id() )
+    height_wth => get_height_fv( Wtheta, mesh%get_id() )
     geopotential => get_geopotential( mesh%get_id() )
 
     ! If lbc_mask wasn't supplied, create a dummy mask
@@ -406,10 +407,9 @@ contains
       mask => dummy_mask
     end if
 
-    chi              => get_coordinates( mesh%get_id() )
-    panel_id         => get_panel_id( mesh%get_id() )
-    w2_rmultiplicity => get_rmultiplicity( W2, mesh%get_id() )
-    coriolis         => get_coriolis( mesh%get_id() )
+    chi      => get_coordinates( mesh%get_id() )
+    panel_id => get_panel_id( mesh%get_id() )
+    coriolis => get_coriolis( mesh%get_id() )
 
     ! Create intermediate fields.
     do i = 1,3

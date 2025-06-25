@@ -70,7 +70,7 @@ contains
   !> @return    self  The constructed preconditioner object
   function swe_mixed_diag_preconditioner_constructor(state) result(self)
 
-    use sci_fem_constants_mod, only: get_mass_matrix_diagonal
+    use sci_fem_constants_mod, only: get_mass_matrix_diagonal_fe
 
     implicit none
 
@@ -85,9 +85,9 @@ contains
 
     mesh_id = state%vector(isw_u)%get_mesh_id()
 
-    self%mm_diagonal_u => get_mass_matrix_diagonal(W2, mesh_id)
-    self%mm_diagonal_p => get_mass_matrix_diagonal(w3, mesh_id)
-    self%mm_diagonal_b => get_mass_matrix_diagonal(W3, mesh_id)
+    self%mm_diagonal_u => get_mass_matrix_diagonal_fe(W2, mesh_id)
+    self%mm_diagonal_p => get_mass_matrix_diagonal_fe(w3, mesh_id)
+    self%mm_diagonal_b => get_mass_matrix_diagonal_fe(W3, mesh_id)
 
     call log_event( 'done', LOG_LEVEL_INFO )
 

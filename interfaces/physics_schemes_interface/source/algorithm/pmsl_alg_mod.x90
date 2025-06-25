@@ -15,7 +15,7 @@ module pmsl_alg_mod
   use constants_mod,           only: r_def, i_def
   use level_heights_mod,       only: eta_theta_levels
   use sci_geometric_constants_mod,   &
-                               only: get_height, get_panel_id, get_dx_at_w2
+                               only: get_height_fv, get_panel_id, get_dx_at_w2
   use fs_continuity_mod,       only: Wtheta, W3
   use function_space_collection_mod, only: function_space_collection
   use mesh_mod,                only: mesh_type
@@ -91,8 +91,8 @@ contains
 
       ! Unpack fields
       call derived_fields%get_field('exner_in_wth', exner_wth)
-      height_w3       => get_height(W3, exner_w3%get_mesh_id())
-      height_wth      => get_height(Wtheta, theta_wth%get_mesh_id())
+      height_w3       => get_height_fv(W3, exner_w3%get_mesh_id())
+      height_wth      => get_height_fv(Wtheta, theta_wth%get_mesh_id())
 
       ! Find level above boundary layer to use in PMSL calculation
       ! domain_height is the top model height and is the same everywhere

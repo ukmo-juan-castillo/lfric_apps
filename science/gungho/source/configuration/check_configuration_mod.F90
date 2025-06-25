@@ -145,7 +145,8 @@ contains
                                            geometry_planar,                    &
                                            topology,                           &
                                            topology_fully_periodic,            &
-                                           topology_non_periodic
+                                           topology_non_periodic,              &
+                                           prime_mesh_name
     use departure_points_config_mod, only: horizontal_limit,                   &
                                            horizontal_limit_none,              &
                                            horizontal_limit_cap

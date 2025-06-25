@@ -18,7 +18,6 @@ module lipschitz_diag_alg_mod
   use integer_field_mod,               only: integer_field_type
   use r_tran_operator_mod,             only: r_tran_operator_type
 
-  use finite_element_config_mod,       only: element_order_h, element_order_v
   use sci_geometric_constants_mod,     only: get_face_selector_ew, &
                                              get_face_selector_ns
   use log_mod,                         only: LOG_LEVEL_INFO, log_event
@@ -131,7 +130,8 @@ contains
     ! Print stats for x, y and z Lipschitz numbers
     ! ------------------------------------------------------------------------ !
 
-    if (element_order_h == 0 .and. element_order_v == 0) then
+    if (wind%get_element_order_h() == 0 .and. &
+        wind%get_element_order_v() == 0) then
 
       ! Copy to r_def ----------------------------------------------------------
       call copy_field(lipschitz_x_r_tran, lipschitz_x_r_def)
@@ -242,7 +242,8 @@ contains
     ! Calculate x, y and z Lipschitz numbers
     ! ------------------------------------------------------------------------ !
 
-    if (element_order_h == 0 .or. element_order_v == 0) then
+    if (wind%get_element_order_h() == 0 .and. &
+        wind%get_element_order_v() == 0) then
       call invoke( fv_divergence_x_kernel_type(lipschitz_x, wind_w2h,          &
                                                detj),                          &
                    fv_divergence_y_kernel_type(lipschitz_y, wind_w2h,          &

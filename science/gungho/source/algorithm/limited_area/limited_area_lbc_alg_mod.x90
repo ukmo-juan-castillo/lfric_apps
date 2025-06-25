@@ -19,9 +19,11 @@ module limited_area_lbc_alg_mod
   use mr_indices_mod,                 only: nummr, mr_names, imr_v, &
                                             imr_cl, imr_s, imr_r
   use mesh_mod,                       only: mesh_type
-  use limited_area_constants_mod,     only: get_boundary_mask, &
-                                            get_blend_mask,    &
-                                            get_lbc_mask,      &
+  use limited_area_constants_mod,     only: get_boundary_mask_fe, &
+                                            get_boundary_mask_fv, &
+                                            get_blend_mask,       &
+                                            get_lbc_mask_fe,      &
+                                            get_lbc_mask_fv,      &
                                             get_onion_layers
   use limited_area_masks_alg_mod,     only: rim_width
   use fs_continuity_mod,              only: W2, W3, Wtheta
@@ -64,7 +66,12 @@ contains
     type(mesh_type),  pointer :: mesh => null()
 
     mesh => lam_wind_field%get_mesh()
-    mask => get_boundary_mask( W2, mesh%get_id() )
+    if (lam_wind_field%get_element_order_h() > 0 .or. &
+        lam_wind_field%get_element_order_v() > 0) then
+      mask => get_boundary_mask_fe( W2, mesh%get_id() )
+    else
+      mask => get_boundary_mask_fv( W2, mesh%get_id() )
+    end if
 
     call lbc_fields%get_field( 'boundary_u_driving', boundary_u_driving )
     call lbc_fields%get_field( 'boundary_u_diff', boundary_u_diff )
@@ -330,8 +337,13 @@ contains
     mesh    => lam_field%get_mesh()
 
     call lbc_fields%get_field( name, driving_field )
-    blend_mask    => get_blend_mask( fs_enum, mesh%get_id() )
-    lbc_mask      => get_lbc_mask( fs_enum, mesh%get_id() )
+    blend_mask => get_blend_mask( fs_enum, mesh%get_id() )
+    if (lam_field%get_element_order_h() > 0 .or. &
+        lam_field%get_element_order_v() > 0) then
+      lbc_mask => get_lbc_mask_fe( fs_enum, mesh%get_id() )
+    else
+      lbc_mask => get_lbc_mask_fv( fs_enum, mesh%get_id() )
+    end if
 
     ! Setup the temporary fields.
     call lam_field%copy_field_properties( lam_lbc )

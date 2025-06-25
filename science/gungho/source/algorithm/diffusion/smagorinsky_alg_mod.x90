@@ -30,7 +30,7 @@ module smagorinsky_alg_mod
   use moisture_conservation_alg_mod,   &
                                  only: moisture_conservation_alg
   use sci_geometric_constants_mod,     &
-                                 only: get_height, get_panel_id, &
+                                 only: get_height_fv, get_panel_id, &
                                        get_delta_at_wtheta, get_dx_at_w2
   use fs_continuity_mod,         only: W1, W2
 
@@ -102,8 +102,8 @@ subroutine smagorinsky_alg(dtheta_io, du_io, mr, theta, u, &
     call derived_fields%get_field('visc_h', visc_h)
     call derived_fields%get_field('visc_m', visc_m)
 
-    height_w1 => get_height(W1, mesh%get_id())
-    height_w2 => get_height(W2, mesh%get_id())
+    height_w1 => get_height_fv(W1, mesh%get_id())
+    height_w2 => get_height_fv(W2, mesh%get_id())
 
     dx_at_w2 => get_dx_at_w2(mesh%get_id())
     panel_id => get_panel_id(mesh%get_id())

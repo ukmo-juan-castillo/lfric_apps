@@ -10,7 +10,7 @@ module physics_mappings_alg_mod
   use base_mesh_config_mod,             only: geometry, &
                                               geometry_spherical
   use constants_mod,                    only: r_def, i_def, l_def
-  use sci_fem_constants_mod,            only: get_rmultiplicity
+  use sci_fem_constants_mod,            only: get_rmultiplicity_fv, get_qr_fv
   use field_mod,                        only: field_type
   use finite_element_config_mod,        only: coord_system, &
                                               coord_system_native
@@ -18,9 +18,9 @@ module physics_mappings_alg_mod
   use function_space_mod,               only: function_space_type
   use function_space_collection_mod,    only: function_space_collection
   use sci_galerkin_projection_alg_mod,  only: galerkin_projection_algorithm
-  use sci_geometric_constants_mod,      only: get_height, get_panel_id, &
-                                              get_coordinates,          &
-                                              get_face_selector_ew,     &
+  use sci_geometric_constants_mod,      only: get_height_fv, get_panel_id, &
+                                              get_coordinates,             &
+                                              get_face_selector_ew,        &
                                               get_face_selector_ns
   use integer_field_mod,                only: integer_field_type
   use log_mod,                          only: LOG_LEVEL_ERROR, log_event, &
@@ -68,8 +68,7 @@ contains
     type( field_type ), intent( in )    :: source_field
 
     ! quadrature rule
-    type( quadrature_xyoz_type )          :: qr
-    type( quadrature_rule_gaussian_type ) :: quadrature_rule
+    type( quadrature_xyoz_type ), pointer :: qr
     type( field_type )                    :: projected_field(1)
     type( field_type ), pointer           :: height_w3
     type( field_type ), pointer           :: height_wt
@@ -77,7 +76,6 @@ contains
     type(field_type), pointer             :: panel_id
     type( mesh_type ),  pointer           :: mesh
     integer( kind=i_def )                 :: space_dim
-    integer( kind=i_def )                 :: nqp_h_exact, nqp_v_exact
 
     call log_field_minmax( LOG_LEVEL_DEBUG, 'source field', source_field )
 
@@ -102,8 +100,8 @@ contains
       if (( target_field%which_function_space() == WTHETA ) &
            .and. ( source_field%which_function_space() == W3 ) ) then
         ! Target is lowest order Wtheta, source is lowest order W3
-        height_w3 => get_height(W3, mesh%get_id() )
-        height_wt => get_height(WTHETA, mesh%get_id() )
+        height_w3 => get_height_fv(W3, mesh%get_id() )
+        height_wt => get_height_fv(WTHETA, mesh%get_id() )
         call invoke( sample_w3_to_wtheta_kernel_type(target_field, source_field, &
                                                      height_wt, height_w3 ) )
 
@@ -119,12 +117,7 @@ contains
     else
       ! Do galerkin projection
       space_dim = 1_i_def
-
-      ! At lowest order, nqp_exact is 0+3
-      nqp_h_exact = 3
-      nqp_v_exact = 3
-      qr = quadrature_xyoz_type(nqp_h_exact, nqp_h_exact, nqp_v_exact, &
-                                quadrature_rule)
+      qr => get_qr_fv()
       call projected_field(1)%initialise( vector_space = target_field%get_function_space() )
       call galerkin_projection_algorithm( projected_field, source_field, &
                                           chi, panel_id, qr )
@@ -151,12 +144,10 @@ contains
     type( field_type )                  :: wind_map(3), physical_chi(3)
     type( field_type ), pointer         :: chi(:)
     type( field_type ), pointer         :: panel_id
-    ! quadrature rule
-    type( quadrature_xyoz_type )          :: qr
-    type( quadrature_rule_gaussian_type ) :: quadrature_rule
+    ! quatrature rule
+    type( quadrature_xyoz_type ), pointer :: qr
     type( field_type )                    :: projected_field(3)
     type( mesh_type ), pointer            :: mesh
-    integer( kind=i_def )                 :: nqp_h_exact, nqp_v_exact
     logical( kind=l_def )                 :: optimised_conversion
 
     mesh =>  source_field%get_mesh()
@@ -202,12 +193,7 @@ contains
     else
 
       ! This method remains for posterity, but should be used with caution.
-
-      ! At lowest order, nqp_exact is 0+3
-      nqp_h_exact = 3
-      nqp_v_exact = 3
-      qr = quadrature_xyoz_type(nqp_h_exact, nqp_h_exact, nqp_v_exact, &
-                                quadrature_rule)
+      qr => get_qr_fv()
 
       call projected_field(1)%initialise( vector_space = u1_field%get_function_space() )
       call projected_field(2)%initialise( vector_space = u2_field%get_function_space() )
@@ -263,7 +249,7 @@ contains
       call invoke( setval_c(physical_wind(i), 0.0_r_def) )
     end do
 
-    w2_rmultiplicity => get_rmultiplicity( W2, mesh%get_id() )
+    w2_rmultiplicity => get_rmultiplicity_fv( W2, mesh%get_id() )
 
     call invoke( setval_c(u1_wind, 0.0_r_def), &
                  setval_c(u2_wind, 0.0_r_def), &

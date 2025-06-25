@@ -33,7 +33,7 @@ module transport_driver_mod
   use fs_continuity_mod,                only: W3, Wtheta
   use sci_geometric_constants_mod,      only: get_chi_inventory,      &
                                               get_panel_id_inventory, &
-                                              get_height
+                                              get_height_fe
 
   use inventory_by_mesh_mod,            only: inventory_by_mesh_type
   use lfric_xios_context_mod,           only: lfric_xios_context_type
@@ -422,8 +422,8 @@ contains
                                       mesh, nodal_output_on_w3 )
       end if
       if (use_aerosols) then
-        height_w3 => get_height(W3, aerosol_mesh%get_id())
-        height_wth => get_height(Wtheta, aerosol_mesh%get_id())
+        height_w3 => get_height_fe(W3, aerosol_mesh%get_id())
+        height_wth => get_height_fe(Wtheta, aerosol_mesh%get_id())
         call write_scalar_diagnostic( 'aerosol_height_w3', height_w3, modeldb%clock, &
                                       aerosol_mesh, nodal_output_on_w3 )
         call write_scalar_diagnostic( 'aerosol_height_wth', height_wth, modeldb%clock, &
@@ -437,8 +437,8 @@ contains
                                       aerosol_mesh, nodal_output_on_w3 )
       end if
 
-      height_w3 => get_height(W3, mesh%get_id())
-      height_wth => get_height(Wtheta, mesh%get_id())
+      height_w3 => get_height_fe(W3, mesh%get_id())
+      height_wth => get_height_fe(Wtheta, mesh%get_id())
       call write_scalar_diagnostic( 'height_w3', height_w3, modeldb%clock, &
                                     mesh, nodal_output_on_w3 )
       call write_scalar_diagnostic( 'height_wth', height_wth, modeldb%clock, &

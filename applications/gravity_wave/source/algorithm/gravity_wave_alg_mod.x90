@@ -19,10 +19,9 @@ module gravity_wave_alg_mod
   ! Configuration options
   use finite_element_config_mod,      only: element_order_h, element_order_v
   use timestepping_config_mod,        only: dt, alpha
-  use sci_fem_constants_mod,          only: get_div,         &
-                                            get_mass_matrix, &
-                                            get_inverse_mass_matrix
-  use limited_area_constants_mod,     only: get_mask
+  use sci_fem_constants_mod,          only: get_div,                   &
+                                            get_inverse_mass_matrix_fe
+  use limited_area_constants_mod,     only: get_mask_fe
   use initial_temperature_config_mod, only: bvf_square
   use gravity_wave_constants_config_mod, only: cs_square,     &
                                                b_space,       &
@@ -519,7 +518,7 @@ contains
     !=== Do a single timestep ==============================================!
     mesh => wind%get_mesh()
     div => get_div(mesh%get_id())
-    m3_inv => get_inverse_mass_matrix(W3, mesh%get_id())
+    m3_inv => get_inverse_mass_matrix_fe(W3, mesh%get_id())
 
     if ( limited_area ) then
       select case(b_space)
@@ -533,9 +532,9 @@ contains
           call log_event( 'gravity_wave, gravity_wave_alg_mod: '//    &
                           'Invalid buoyancy space', LOG_LEVEL_ERROR )
       end select
-      w2_mask => get_mask(W2, mesh%get_id())
-      w3_mask => get_mask(W3, mesh%get_id())
-      wtheta_mask => get_mask(buoyancy_space, mesh%get_id())
+      w2_mask => get_mask_fe(W2, mesh%get_id())
+      w3_mask => get_mask_fe(W3, mesh%get_id())
+      wtheta_mask => get_mask_fe(buoyancy_space, mesh%get_id())
     endif
 
     call state%import_field(wind,     igw_u)

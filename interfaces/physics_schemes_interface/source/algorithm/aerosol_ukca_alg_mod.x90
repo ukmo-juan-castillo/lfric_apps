@@ -58,9 +58,10 @@ contains
     use field_indices_mod,             only: igh_t, igh_p
     use mr_indices_mod,                only: imr_v, imr_cl, imr_ci, imr_s
     use constants_mod,                 only: i_timestep, i_def
-    use sci_geometric_constants_mod,   only: get_latitude, get_longitude,      &
-                                             get_height, get_da_msl_proj,      &
-                                             get_detj_at_w3
+    use sci_geometric_constants_mod,   only: get_latitude_fv,                  &
+                                             get_longitude_fv,                 &
+                                             get_height_fv, get_da_msl_proj,   &
+                                             get_detj_at_w3_fv
     use physics_constants_mod,         only: get_rdz_w3
     use aerosol_ukca_kernel_mod,       only: aerosol_ukca_kernel_type
 
@@ -929,19 +930,19 @@ contains
     ! Get location, level heights, cell area and volume data
 
     mesh => sin_stellar_declination_rts%get_mesh()   ! 2-D mesh
-    latitude_w3  => get_latitude(W3, mesh%get_id())
-    longitude_w3 => get_longitude(W3, mesh%get_id())
+    latitude_w3  => get_latitude_fv(W3, mesh%get_id())
+    longitude_w3 => get_longitude_fv(W3, mesh%get_id())
     cell_area => get_da_msl_proj(mesh%get_id())
 
     mesh => state(igh_t)%get_mesh()                  ! 3-D mesh
-    height_wth => get_height( Wtheta, mesh%get_id() )
-    height_w3 => get_height( W3, mesh%get_id() )
+    height_wth => get_height_fv( Wtheta, mesh%get_id() )
+    height_w3 => get_height_fv( W3, mesh%get_id() )
     rdz_w3    => get_rdz_w3( mesh%get_id() )
 
 
     ! Get detj on shifted W3 grid (to use as grid_volume)
     shifted_mesh => mesh_collection%get_mesh(mesh, SHIFTED)
-    detj_shifted => get_detj_at_w3(shifted_mesh%get_id())
+    detj_shifted => get_detj_at_w3_fv(shifted_mesh%get_id())
 
     ! The call to um_sizes_init is required to ensure that the parent
     ! callback routine bl_tracer_mix passed to UKCA is compatible with

@@ -46,7 +46,7 @@ contains
     ! spectral_gwd kernels
     use spectral_gwd_kernel_mod,     only: spectral_gwd_kernel_type
     use drag_incs_kernel_mod,        only: drag_incs_kernel_type
-    use sci_geometric_constants_mod, only: get_latitude, get_height
+    use sci_geometric_constants_mod, only: get_latitude_fv, get_height_fv
     use um_sizes_init_mod,           only: um_sizes_init
 
    implicit none
@@ -112,9 +112,9 @@ contains
     mesh      => theta%get_mesh()
     twod_mesh => ls_rain%get_mesh()
 
-    latitude_w3 => get_latitude(W3, twod_mesh%get_id())
-    height_wth  => get_height(Wtheta, mesh%get_id())
-    height_w3   => get_height(W3, mesh%get_id())
+    latitude_w3 => get_latitude_fv(W3, twod_mesh%get_id())
+    height_wth  => get_height_fv(Wtheta, mesh%get_id())
+    height_w3   => get_height_fv(W3, mesh%get_id())
 
     call u_in_w3%copy_field_properties(du_spectral_gwd)
     call v_in_w3%copy_field_properties(dv_spectral_gwd)

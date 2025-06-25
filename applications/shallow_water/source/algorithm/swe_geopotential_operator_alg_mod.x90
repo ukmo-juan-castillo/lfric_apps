@@ -16,8 +16,8 @@
 module swe_geopot_operator_alg_mod
 
   use constants_mod,                      only: i_def, r_def
-  use sci_fem_constants_mod,              only: get_mass_matrix,            &
-                                                get_inverse_mass_matrix,    &
+  use sci_fem_constants_mod,              only: get_mass_matrix_fe,         &
+                                                get_inverse_mass_matrix_fe, &
                                                 get_div
   use field_mod,                          only: field_type
   use field_indices_mod,                  only: isw_u, isw_g
@@ -122,7 +122,7 @@ contains
     call ones_u%initialise(vector_space = wu)
     call M_lumped_u%initialise(vector_space = wu)
     call self%Hb_lumped_inv%initialise(vector_space = wu)
-    Mu => get_mass_matrix(W2, mesh_id)
+    Mu => get_mass_matrix_fe(W2, mesh_id)
 
     call invoke( setval_c( ones_u, 1.0_r_def ),                       &
                  setval_c( M_lumped_u, 0.0_r_def ),                   &
@@ -207,7 +207,7 @@ contains
 
         mesh_id = y%vector(isw_u)%get_mesh_id()
         div    => get_div(mesh_id)
-        M3_inv => get_inverse_mass_matrix(W3, mesh_id)
+        M3_inv => get_inverse_mass_matrix_fe(W3, mesh_id)
         const = self%alpha**2*dt**2*ref_gp
         call invoke( setval_c( self%grad_p, 0.0_r_def ),               &
                      transpose_matrix_vector_kernel_type( self%grad_p, &

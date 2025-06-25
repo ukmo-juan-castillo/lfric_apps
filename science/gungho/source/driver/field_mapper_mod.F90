@@ -20,8 +20,6 @@ module field_mapper_mod
                                                  moist_arr_dict, &
                                                  time_axis_dict
   use fs_continuity_mod,                  only : W2, W3, Wtheta, W2H
-  use finite_element_config_mod,          only : element_order_h, &
-                                                 element_order_v
   use boundaries_config_mod,              only : limited_area
   use gungho_time_axes_mod,               only : gungho_time_axes_type
   use lfric_xios_time_axis_mod,           only : time_axis_type
@@ -248,7 +246,8 @@ contains
                       log_level_error )
     end if
 
-    if (element_order_h > 0 .or. element_order_v > 0)then
+    if (theta%get_element_order_h() > 0 .or. &
+        theta%get_element_order_v() > 0) then
       call log_event( 'Physics: requires lowest order elements',               &
                       log_level_error )
     end if

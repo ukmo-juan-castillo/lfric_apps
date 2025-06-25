@@ -15,7 +15,8 @@ use field_mod,                   only: field_type
 use formulation_config_mod,      only: moisture_formulation,    &
                                        moisture_formulation_dry
 use fs_continuity_mod,           only: Wtheta
-use sci_geometric_constants_mod, only: get_height,      &
+use sci_geometric_constants_mod, only: get_height_fe,   &
+                                       get_height_fv,   &
                                        get_coordinates, &
                                        get_panel_id
 
@@ -68,7 +69,11 @@ type( field_type ), pointer :: height_wth => null()
 mesh_id = theta%get_mesh_id()
 chi => get_coordinates(mesh_id)
 panel_id => get_panel_id(mesh_id)
-height_wth => get_height(Wtheta, mesh_id)
+if ( theta%get_element_order_h() > 0 .or. theta%get_element_order_v() > 0 ) then
+  height_wth => get_height_fe(Wtheta, mesh_id)
+else
+  height_wth => get_height_fv(Wtheta, mesh_id)
+end if
 profile_extrap = .true.
 
 profile_size    = temp_prof_size

@@ -123,7 +123,7 @@ module spt_main_alg_mod
   use sci_w0_to_wth_average_kernel_mod, only: w0_to_wth_average_kernel_type
 
   ! Operators
-  use sci_fem_constants_mod,       only: get_rmultiplicity
+  use sci_fem_constants_mod,       only: get_rmultiplicity_fv
   use sci_geometric_constants_mod, only: get_dz_at_wtheta
 
   ! Physical constants
@@ -425,7 +425,7 @@ module spt_main_alg_mod
     ! Initiate field_w0
     vector_space_w0 => function_space_collection%get_fs( mesh, 0, 0, W0 )
     call field_w0%initialise(vector_space_w0)
-    rmultiplicity_w0 => get_rmultiplicity( W0, mesh%get_id()) ! 1/multiplicity of w0
+    rmultiplicity_w0 => get_rmultiplicity_fv( W0, mesh%get_id()) ! 1/multiplicity of w0
 
     ! Do filtering for Theta
     if (.not. spt_mse_conservation) then

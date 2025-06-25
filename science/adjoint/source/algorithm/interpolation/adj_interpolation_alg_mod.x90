@@ -14,7 +14,7 @@ module adj_interpolation_alg_mod
   use adj_sci_average_w2b_to_w2_kernel_mod,      only: adj_average_w2b_to_w2_kernel_type
   use invoke_adj_cvt_hdiv_field_kernel_mod,      only: invoke_adj_convert_hdiv_field_kernel
   use constants_mod,                             only: i_def, r_def
-  use sci_fem_constants_mod,                     only: get_rmultiplicity
+  use sci_fem_constants_mod,                     only: get_rmultiplicity_fe
   use field_mod,                                 only: field_type
   use fs_continuity_mod,                         only: W2, Wtheta, W2broken
   use function_space_mod,                        only: function_space_type
@@ -68,7 +68,7 @@ module adj_interpolation_alg_mod
     mesh => u_in_w2%get_mesh()
     chi => get_coordinates(mesh%get_id())
     panel_id => get_panel_id(mesh%get_id())
-    w2_rmultiplicity => get_rmultiplicity( W2, mesh%get_id() )
+    w2_rmultiplicity => get_rmultiplicity_fe( W2, mesh%get_id() )
 
     ! Create intermediate fields
     do i = 1,3
@@ -150,7 +150,7 @@ module adj_interpolation_alg_mod
                                                element_order_v, W2broken)
     wtheta_fs => function_space_collection%get_fs(mesh, element_order_h, &
                                                   element_order_v, Wtheta)
-    w2_rmultiplicity => get_rmultiplicity(W2, mesh%get_id())
+    w2_rmultiplicity => get_rmultiplicity_fe(W2, mesh%get_id())
 
     ! Set up intermediate fields
     call u_map%initialise(w2b_fs, w3_fs)

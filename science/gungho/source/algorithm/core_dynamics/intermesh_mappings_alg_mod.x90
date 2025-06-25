@@ -17,7 +17,6 @@ module intermesh_mappings_alg_mod
   use sci_geometric_constants_mod,    only : get_face_selector_ew, &
                                              get_face_selector_ns
   use field_collection_mod,           only : field_collection_type
-  use finite_element_config_mod,      only : element_order_h, element_order_v
   use field_mod,                      only : field_type
   use sci_field_bundle_builtins_mod,  only : clone_bundle, copy_bundle
   use function_space_mod,             only : function_space_type
@@ -72,7 +71,8 @@ contains
 
     use extrusion_mod,                    only: SHIFTED
     use sci_apply_w3_to_sh_w3_kernel_mod, only: apply_w3_to_sh_w3_kernel_type
-    use sci_geometric_constants_mod,      only: get_detj_at_w3
+    use sci_geometric_constants_mod,      only: get_detj_at_w3_fe, &
+                                                get_detj_at_w3_fv
 
     implicit none
 
@@ -84,14 +84,25 @@ contains
     type(field_type), pointer :: detj_shifted
     type(field_type), pointer :: detj_primary
     type(function_space_type), pointer :: sh_w3_fs
+    integer(kind=i_def) :: element_order_h
+    integer(kind=i_def) :: element_order_v
+
+    element_order_h = primary_rho%get_element_order_h()
+    element_order_v = primary_rho%get_element_order_v()
 
     ! Obtain shifted densities
     prime_extrusion_mesh => primary_rho%get_mesh()
     shifted_mesh => mesh_collection%get_mesh(prime_extrusion_mesh, SHIFTED)
-    detj_primary => get_detj_at_w3(prime_extrusion_mesh%get_id())
-    detj_shifted => get_detj_at_w3(shifted_mesh%get_id())
+    if (element_order_h > 0 .or. element_order_v > 0) then
+      detj_primary => get_detj_at_w3_fe(prime_extrusion_mesh%get_id())
+      detj_shifted => get_detj_at_w3_fe(shifted_mesh%get_id())
+    else
+      detj_primary => get_detj_at_w3_fv(prime_extrusion_mesh%get_id())
+      detj_shifted => get_detj_at_w3_fv(shifted_mesh%get_id())
+    end if
 
-    sh_w3_fs => function_space_collection%get_fs(shifted_mesh, element_order_h, &
+    sh_w3_fs => function_space_collection%get_fs(shifted_mesh,    &
+                                                 element_order_h, &
                                                  element_order_v, W3)
 
     call shifted_rho%initialise( sh_w3_fs )
@@ -292,6 +303,8 @@ contains
     integer(kind=i_def)       :: target_ncells
     integer(kind=i_def)       :: recovery_order_arg
     integer(kind=i_def)       :: ndata, nlayers
+    integer(kind=i_def)       :: element_order_h
+    integer(kind=i_def)       :: element_order_v
     type(function_space_type), pointer :: fs_type
     type(function_space_type), pointer :: fs_source_2d
 
@@ -299,6 +312,9 @@ contains
     source_mesh => source_field%get_mesh()
     target_mesh => target_field%get_mesh()
     source_mesh_2d => mesh_collection%get_mesh(source_mesh, TWOD)
+
+    element_order_h = source_field%get_element_order_h()
+    element_order_v = source_field%get_element_order_v()
 
     fs_source_2d => function_space_collection%get_fs(source_mesh_2d,  &
                                                      element_order_h, &

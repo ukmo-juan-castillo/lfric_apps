@@ -26,8 +26,8 @@ module create_gungho_prognostics_mod
                                              make_spec
   use field_mapper_mod,               only : field_mapper_type
   use field_maker_mod,                only : field_maker_type
-  use finite_element_config_mod,      only : ord_h => element_order_h,         &
-                                             ord_v => element_order_v
+  use finite_element_config_mod,      only : element_order_h, &
+                                             element_order_v
   use fs_continuity_mod,              only : W0, W2, W3, Wtheta, W2H, W2V
   use function_space_collection_mod , only : function_space_collection
   use log_mod,                        only : log_event,         &
@@ -65,13 +65,17 @@ contains
 
     class(processor_type) :: proc
     class(clock_type), pointer :: clock
-    integer(i_def) :: imr, reference_reset_freq
+    integer(i_def) :: imr, reference_reset_freq, ord_h, ord_v
     logical(l_def) :: legacy
     logical(l_def) :: checkpoint_flag
     logical(l_def) :: is_empty
     real(r_def)    :: dt
 
     clock => proc%get_clock()
+
+    ! Get the horizontal and vertical order of the function spaces
+    ord_h = element_order_h
+    ord_v = element_order_v
 
     ! enable/disable legacy checkpointing
     legacy = .true.

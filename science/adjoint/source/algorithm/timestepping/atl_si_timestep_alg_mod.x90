@@ -26,7 +26,7 @@ module atl_si_timestep_alg_mod
                                                  max_bl_stabilisation
   use derived_config_mod,                  only: bundle_size
   use boundaries_config_mod,               only: limited_area
-  use sci_fem_constants_mod,               only: get_mass_matrix, get_qr
+  use sci_fem_constants_mod,               only: get_mass_matrix_fe, get_qr_fe
   use sci_field_bundle_builtins_mod,       only: clone_bundle, copy_bundle,     &
                                                  set_bundle_scalar, add_bundle, &
                                                  bundle_axpy, bundle_ax, bundle_is_zero
@@ -309,10 +309,10 @@ contains
 
     cast_dt = real( modeldb%clock%get_seconds_per_step(), r_def )
 
-    qr => get_qr()
+    qr => get_qr_fe()
 
-    mm_wt  => get_mass_matrix( Wtheta, mesh%get_id() )
-    mm_vel => get_mass_matrix( W2,     mesh%get_id() )
+    mm_wt  => get_mass_matrix_fe( Wtheta, mesh%get_id() )
+    mm_vel => get_mass_matrix_fe( W2,     mesh%get_id() )
 
     ! If off-centring is being spun up then modify the alpha value
     if (spinup_alpha .and. modeldb%clock%is_spinning_up()) then

@@ -303,7 +303,6 @@ contains
     use apply_variable_hx_kernel_mod,     only: apply_variable_hx_kernel_type
     use opt_apply_variable_hx_kernel_mod, only: opt_apply_variable_hx_kernel_type
     use operator_mod,                     only: r_solver_operator_type
-    use finite_element_config_mod,        only: element_order_h, element_order_v
     use helmholtz_solver_config_mod,      only: normalise
     use fs_continuity_mod,                only: W2, W2h, W2v
     use combine_w2_field_kernel_mod,      only: combine_w2_field_kernel_type
@@ -327,6 +326,8 @@ contains
     type( r_solver_field_type ),  pointer   :: w2_mask, &
                                                w3_mask
     integer( kind=i_def )                   :: mesh_id
+    integer( kind=i_def )                   :: element_order_h
+    integer( kind=i_def )                   :: element_order_v
     type( r_solver_field_type ),  pointer   :: rhs_uv, &
                                                rhs_p, &
                                                rhs_w, &
@@ -343,6 +344,9 @@ contains
     rhs_p  => rhs0%vector(isol_p)
 
     mesh_id = rhs_uv%get_mesh_id()
+
+    element_order_h = rhs_uv%get_element_order_h()
+    element_order_v = rhs_uv%get_element_order_v()
 
     call rhs_uvw%initialise( vector_space = self%rhs_u%get_function_space() )
     if (split_w) then

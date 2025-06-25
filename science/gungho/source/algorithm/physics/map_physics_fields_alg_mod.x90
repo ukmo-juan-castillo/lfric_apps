@@ -22,7 +22,7 @@ module map_physics_fields_alg_mod
                                           blayer_placement_slow,       &
                                           convection_placement,        &
                                           convection_placement_slow
-  use sci_geometric_constants_mod,  only: get_da_at_w2, get_height,    &
+  use sci_geometric_constants_mod,  only: get_da_at_w2, get_height_fv, &
                                           get_panel_id, get_dx_at_w2
   use fs_continuity_mod,            only: W3, Wtheta
   use mesh_mod,                     only: mesh_type
@@ -151,8 +151,8 @@ contains
       call log_event( 'Calculate 3D shear', LOG_LEVEL_DEBUG )
       ! Calculate 3D shear
       call derived_fields%get_field('shear', shear)
-      height_wth => get_height(Wtheta, mesh%get_id())
-      height_w3 => get_height(W3, mesh%get_id())
+      height_wth => get_height_fv(Wtheta, mesh%get_id())
+      height_w3 => get_height_fv(W3, mesh%get_id())
       dx_at_w2 => get_dx_at_w2(mesh%get_id())
       panel_id => get_panel_id(mesh%get_id())
 

@@ -23,8 +23,8 @@ module tl_rk_alg_timestep_mod
   use runge_kutta_init_mod,               only: get_rk_timestepping_weights
   use timestepping_config_mod,            only: runge_kutta_method
   use derived_config_mod,                 only: bundle_size
-  use sci_fem_constants_mod,              only: get_qr, &
-                                                get_inverse_mass_matrix
+  use sci_fem_constants_mod,              only: get_qr_fe, &
+                                                get_inverse_mass_matrix_fe
   use sci_geometric_constants_mod,        only: get_coordinates, &
                                                 get_panel_id,    &
                                                 get_dx_at_w2
@@ -260,7 +260,7 @@ contains
 
     cast_dt = real(model_clock%get_seconds_per_step(), r_def)
 
-    qr => get_qr()
+    qr => get_qr_fe()
     mesh => theta%get_mesh()
     reference_element => mesh%get_reference_element()
     qrf = quadrature_face_type(element_order_h+2, element_order_v+2, &
@@ -371,7 +371,7 @@ contains
       call invoke( setval_c(inc(igh_p), 0.0_r_def) )
       call bundle_axpy(cast_dt, inc, ls_state_n, ls_state_stage(:,stage + 1), bundle_size)
       ! Recompute exner from eos
-      m3_inv => get_inverse_mass_matrix(W3, mesh_id)
+      m3_inv => get_inverse_mass_matrix_fe(W3, mesh_id)
       call invoke( project_eos_pressure_kernel_type( ls_state_stage(igh_p,stage+1), &
                                                      ls_state_stage(igh_d,stage+1), &
                                                      ls_state_stage(igh_t,stage+1), &
@@ -469,7 +469,7 @@ contains
       call bundle_axpy(cast_dt, inc, state_n, state, bundle_size)
 
      ! Recompute exner from eos
-      m3_inv => get_inverse_mass_matrix(W3, mesh_id)
+      m3_inv => get_inverse_mass_matrix_fe(W3, mesh_id)
       call invoke( tl_project_eos_pressure_kernel_type(              &
                           state(igh_p), state(igh_d), state(igh_t),  &
                           moist_dyn(gas_law),                        &

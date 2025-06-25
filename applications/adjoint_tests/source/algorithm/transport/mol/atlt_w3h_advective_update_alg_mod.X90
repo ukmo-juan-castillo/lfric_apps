@@ -19,7 +19,7 @@ module atlt_w3h_advective_update_alg_mod
                                             LOG_LEVEL_INFO,  &
                                             LOG_LEVEL_DEBUG, &
                                             log_scratch_space
-  use sci_fem_constants_mod,         only : get_inverse_mass_matrix
+  use sci_fem_constants_mod,         only : get_inverse_mass_matrix_fe
 
   implicit none
 
@@ -96,7 +96,7 @@ module atlt_w3h_advective_update_alg_mod
     call wind % initialise( vector_space=vector_space_w2_ptr, name='wind' )
     call advective_increment_input % initialise( vector_space=vector_space_w3_ptr, name='advective_increment_input' )
     call wind_input % initialise( vector_space=vector_space_w2_ptr, name='wind_input' )
-    m3_inv => get_inverse_mass_matrix( W3, mesh % get_id() )
+    m3_inv => get_inverse_mass_matrix_fe( W3, mesh % get_id() )
 
     advective_increment_inner_prod = 0.0_r_def
     wind_inner_prod = 0.0_r_def

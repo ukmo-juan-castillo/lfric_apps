@@ -11,7 +11,6 @@ module init_time_axis_mod
   use field_mod,                  only : field_type
   use field_collection_mod,       only : field_collection_type
   use field_parent_mod,           only : read_interface
-  use finite_element_config_mod,  only : element_order_h, element_order_v
   use function_space_mod,         only : function_space_type
   use function_space_collection_mod, &
                                   only : function_space_collection
@@ -108,8 +107,7 @@ module init_time_axis_mod
     ! Initialise
     if ( present(time_axis) ) then
       field_space => function_space_collection%get_fs( &
-                     mesh, element_order_h, element_order_v, fs,               &
-                     time_axis%get_window_size() )
+                     mesh, 0, 0, fs, time_axis%get_window_size() )
 
       if ( present(imr) ) then
         call mr(imr)%initialise( field_space, name=trim(name) )
@@ -121,7 +119,7 @@ module init_time_axis_mod
 
       ! Now just a single time level
       field_space => function_space_collection%get_fs( &
-                     mesh, element_order_h, element_order_v, fs )
+                     mesh, 0, 0, fs )
 
       if ( present(imr) ) then
         call mr(imr)%initialise( field_space, name=trim(name) )
@@ -133,10 +131,10 @@ module init_time_axis_mod
 
       if ( twod_field ) then
         field_space => function_space_collection%get_fs( &
-                       twod_mesh, element_order_h, element_order_v, fs, ndat )
+                       twod_mesh, 0, 0, fs, ndat )
       else
         field_space => function_space_collection%get_fs( &
-                       mesh, element_order_h, element_order_v, fs )
+                       mesh, 0, 0, fs )
       end if
 
       if ( present(imr) ) then

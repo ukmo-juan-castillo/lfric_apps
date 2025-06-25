@@ -72,7 +72,7 @@ module stph_fp_main_alg_mod
   use psykal_lite_phys_mod, only: invoke_spectral_2_cs_kernel_type
 
   ! Get operators
-  use sci_geometric_constants_mod, only: get_longitude
+  use sci_geometric_constants_mod, only: get_longitude_fv
   use physics_constants_mod,       only: get_Pnm_star
 
   implicit none
@@ -178,7 +178,7 @@ module stph_fp_main_alg_mod
   twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
 
   ! Get longitude
-  longitude => get_longitude(W3, twod_mesh%get_id())
+  longitude => get_longitude_fv(W3, twod_mesh%get_id())
 
   ! Get Matrix of Legendre Polynomials (scaled) Pnm_star
   Pnm_star => get_Pnm_star(twod_mesh%get_id())

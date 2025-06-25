@@ -24,8 +24,10 @@ module init_gungho_lbcs_alg_mod
                                              log_scratch_space, &
                                              LOG_LEVEL_INFO,    &
                                              LOG_LEVEL_DEBUG
-  use limited_area_constants_mod,      only: get_boundary_mask, &
-                                             get_lbc_mask
+  use limited_area_constants_mod,      only: get_boundary_mask_fe, &
+                                             get_boundary_mask_fv, &
+                                             get_lbc_mask_fe,      &
+                                             get_lbc_mask_fv
   use lfric_xios_read_mod,             only: read_state
   use mesh_mod,                        only: mesh_type
   use model_clock_mod,                 only: model_clock_type
@@ -95,10 +97,19 @@ module init_gungho_lbcs_alg_mod
     call prognostic_fields%get_field( 'exner', exner )
 
     mesh => theta%get_mesh()
-    w2_lbc_mask      => get_lbc_mask( W2, mesh%get_id() )
-    w3_lbc_mask      => get_lbc_mask( W3, mesh%get_id() )
-    wtheta_lbc_mask  => get_lbc_mask( wtheta, mesh%get_id() )
-    w2_boundary_mask => get_boundary_mask( W2, mesh%get_id() )
+
+    if (u%get_element_order_h() > 0 .or. &
+        u%get_element_order_v() > 0) then
+      w2_lbc_mask      => get_lbc_mask_fe( W2, mesh%get_id() )
+      w3_lbc_mask      => get_lbc_mask_fe( W3, mesh%get_id() )
+      wtheta_lbc_mask  => get_lbc_mask_fe( wtheta, mesh%get_id() )
+      w2_boundary_mask => get_boundary_mask_fe( W2, mesh%get_id() )
+    else
+      w2_lbc_mask      => get_lbc_mask_fv( W2, mesh%get_id() )
+      w3_lbc_mask      => get_lbc_mask_fv( W3, mesh%get_id() )
+      wtheta_lbc_mask  => get_lbc_mask_fv( wtheta, mesh%get_id() )
+      w2_boundary_mask => get_boundary_mask_fv( W2, mesh%get_id() )
+    end if
 
     call lbc_fields%get_field( 'lbc_theta', lbc_theta )
     call lbc_fields%get_field( 'lbc_u', lbc_u )
@@ -293,8 +304,14 @@ module init_gungho_lbcs_alg_mod
     call lbc_fields%get_field( 'boundary_u_driving', boundary_u )
 
     mesh => lbc_field%get_mesh()
-    w2_boundary_mask => get_boundary_mask( W2, mesh%get_id() )
-    w2_lbc_mask => get_lbc_mask( W2, mesh%get_id() )
+    if (lbc_field%get_element_order_h() > 0 .or.&
+        lbc_field%get_element_order_v() > 0) then
+      w2_boundary_mask => get_boundary_mask_fe( W2, mesh%get_id() )
+      w2_lbc_mask => get_lbc_mask_fe( W2, mesh%get_id() )
+    else
+      w2_boundary_mask => get_boundary_mask_fv( W2, mesh%get_id() )
+      w2_lbc_mask => get_lbc_mask_fv( W2, mesh%get_id() )
+    end if
 
     call invoke( X_times_Y( boundary_u, lbc_field, w2_boundary_mask ) )
 
@@ -386,9 +403,16 @@ module init_gungho_lbcs_alg_mod
     call lbc_fields%get_field( 'lbc_exner', lbc_exner )
     call lbc_fields%get_field( 'lbc_u', lbc_u )
 
-    mesh        => lbc_exner%get_mesh()
-    w3_lbc_mask => get_lbc_mask(W3, mesh%get_id())
-    wtheta_lbc_mask => get_lbc_mask(Wtheta, mesh%get_id())
+    mesh => lbc_exner%get_mesh()
+
+    if (lbc_u%get_element_order_h() > 0 .or. &
+        lbc_u%get_element_order_v() > 0) then
+      w3_lbc_mask => get_lbc_mask_fe(W3, mesh%get_id())
+      wtheta_lbc_mask => get_lbc_mask_fe(Wtheta, mesh%get_id())
+    else
+      w3_lbc_mask => get_lbc_mask_fv(W3, mesh%get_id())
+      wtheta_lbc_mask => get_lbc_mask_fv(Wtheta, mesh%get_id())
+    end if
 
     call log_field_masked_minmax( LOG_LEVEL_DEBUG, 'lbc_theta', &
                                   lbc_theta, wtheta_lbc_mask )

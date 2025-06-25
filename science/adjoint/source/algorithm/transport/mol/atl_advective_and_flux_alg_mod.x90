@@ -36,7 +36,7 @@ module atl_advective_and_flux_alg_mod
   use atl_vertical_mass_flux_kernel_mod,   only: atl_vertical_mass_flux_kernel_type
   use adj_vertical_mass_flux_kernel_mod,   only: adj_vertical_mass_flux_kernel_type
   use mesh_mod,                            only: mesh_type
-  use sci_fem_constants_mod,               only: get_inverse_mass_matrix
+  use sci_fem_constants_mod,               only: get_inverse_mass_matrix_fe
   use function_space_collection_mod,       only: function_space_collection
   use function_space_mod,                  only: function_space_type
   use fs_continuity_mod,                   only: W3, Wtheta
@@ -172,7 +172,7 @@ contains
           call adv_inc_1%initialise( density%get_function_space() )
           call adv_inc_2%initialise( density%get_function_space() )
 
-          m3_inv => get_inverse_mass_matrix( W3, density%get_mesh_id() )
+          m3_inv => get_inverse_mass_matrix_fe( W3, density%get_mesh_id() )
 
           ! Obtain final increment by combining these two:
           ! df' = ls_u.grad(f') + u'.grad(ls_f) )

@@ -13,7 +13,7 @@ module tracer_emission_alg_mod
   use fs_continuity_mod,             only: W3, WTheta
   use mesh_mod,                      only: mesh_type
   use xios,                          only: xios_date, xios_get_current_date
-  use sci_geometric_constants_mod,   only: get_height
+  use sci_geometric_constants_mod,   only: get_height_fv
   use sci_calc_dz_face_kernel_mod,   only: calc_dz_face_kernel_type
   use timestepping_config_mod,       only: dt
 
@@ -69,8 +69,8 @@ contains
 
     call derived_fields%get_field('rho_in_wth',rho_in_wth)
     mesh => rho_in_wth%get_mesh()
-    height_wth => get_height(WTheta, mesh%get_id() )
-    height_w3 => get_height(W3, mesh%get_id() )
+    height_wth => get_height_fv(WTheta, mesh%get_id() )
+    height_w3 => get_height_fv(W3, mesh%get_id() )
     call tracer_emissions%copy_field_properties(scaled_emission)
     call tracer_emissions%copy_field_properties(dz_wth)
 

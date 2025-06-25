@@ -8,26 +8,16 @@
 module theta_transport_alg_mod
 
   use constants_mod,                  only: i_def, r_def
-  use dg_inc_matrix_vector_kernel_mod, &
-                                      only: dg_inc_matrix_vector_kernel_type
-  use sci_enforce_lower_bound_kernel_mod, &
-                                      only: enforce_lower_bound_kernel_type
   use field_mod,                      only: field_type
   use fs_continuity_mod,              only: Wtheta
   use function_space_mod,             only: function_space_type
-  use sci_geometric_constants_mod,    only: get_height
-  use io_config_mod,                  only: subroutine_timers
+  use sci_geometric_constants_mod,    only: get_height_fe, &
+                                            get_height_fv
   use log_mod,                        only: log_event, LOG_LEVEL_ERROR
-  use mesh_mod,                       only: mesh_type
-  use mesh_collection_mod,            only: mesh_collection
   use mr_indices_mod,                 only: nummr, imr_v
-  use operator_mod,                   only: operator_type
   use planet_config_mod,              only: recip_epsilon
   use sci_sort_column_above_kernel_mod, &
                                       only: sort_column_above_kernel_type
-  use timer_mod,                      only: timer
-  use timestepping_config_mod,        only: time_method => method,             &
-                                            method_semi_implicit
   use transport_config_mod,           only: theta_variable,                    &
                                             theta_variable_dry,                &
                                             theta_variable_virtual_dry,        &
@@ -219,7 +209,14 @@ contains
     ! ------------------------------------------------------------------------ !
 
     if ( adjust_theta ) then
-      height_wt => get_height(Wtheta, theta_in_rdef%get_mesh_id())
+      if (theta_in_rdef%get_element_order_h() == 0 .and. &
+          theta_in_rdef%get_element_order_v() == 0) then
+        ! Use the finite volume height function
+        height_wt => get_height_fv(Wtheta, theta_in_rdef%get_mesh_id())
+      else
+        ! Use the finite element height function
+        height_wt => get_height_fe(Wtheta, theta_in_rdef%get_mesh_id())
+      end if
       call invoke( sort_column_above_kernel_type(theta_out_rdef, height_wt,    &
                                                  adjust_theta_above) )
     end if

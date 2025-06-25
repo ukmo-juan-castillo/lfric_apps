@@ -14,7 +14,7 @@ use fs_continuity_mod,       only: W3
 use mesh_mod,                only: mesh_type
 use io_config_mod,           only: write_diag, use_xios_io
 use sci_geometric_constants_mod,   &
-                             only: get_latitude, get_longitude
+                             only: get_latitude_fv, get_longitude_fv
 use illuminate_kernel_mod,   only: illuminate_kernel_type
 use io_config_mod,           only: subroutine_timers
 use timer_mod,               only: timer
@@ -92,8 +92,8 @@ subroutine illuminate_alg(radiation_fields, timestep, dt)
 
     mesh => cos_zenith_angle%get_mesh()
 
-    latitude  => get_latitude( W3, mesh%get_id() )
-    longitude => get_longitude( W3, mesh%get_id() )
+    latitude  => get_latitude_fv( W3, mesh%get_id() )
+    longitude => get_longitude_fv( W3, mesh%get_id() )
 
     call invoke( illuminate_kernel_type( &
                  cos_zenith_angle, lit_fraction, &

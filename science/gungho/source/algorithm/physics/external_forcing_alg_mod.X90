@@ -50,11 +50,11 @@ module external_forcing_alg_mod
   use field_collection_mod,            only: field_collection_type
 
   use fs_continuity_mod,               only: W1, W2, Wtheta
-  use sci_fem_constants_mod,           only: get_rmultiplicity
+  use sci_fem_constants_mod,           only: get_rmultiplicity_fv
   use sci_geometric_constants_mod,     only: get_coordinates, &
                                              get_da_at_w2,    &
                                              get_panel_id,    &
-                                             get_height,      &
+                                             get_height_fv,   &
                                              get_dx_at_w2
   use mesh_mod,                        only: mesh_type
   use mr_indices_mod,                  only: nummr
@@ -154,7 +154,7 @@ contains
     if ( subroutine_timers ) call timer("external_forcing_alg")
 
     mesh => theta%get_mesh()
-    height_wth => get_height( Wtheta, mesh%get_id() )
+    height_wth => get_height_fv( Wtheta, mesh%get_id() )
 
     if ( theta_forcing /= theta_forcing_none .or. theta_relaxation ) then
       call dtheta_forcing%initialise( vector_space = theta%get_function_space() )
@@ -297,7 +297,7 @@ contains
           call log_event( 'slow_physics: Running Held-Suarez wind forcing', &
                           LOG_LEVEL_INFO )
 
-          w2_rmultiplicity => get_rmultiplicity( W2, mesh%get_id() ) ! 1/multiplicity of w2
+          w2_rmultiplicity => get_rmultiplicity_fv( W2, mesh%get_id() ) ! 1/multiplicity of w2
           dA => get_da_at_w2( mesh%get_id() )
 
           call derived_fields%get_field('u_physics', u_physics)
@@ -348,8 +348,8 @@ contains
           ! zero.
           !
           panel_id => get_panel_id(mesh%get_id())
-          height_w1 => get_height(W1, mesh%get_id())
-          height_w2 => get_height(W2, mesh%get_id())
+          height_w1 => get_height_fv(W1, mesh%get_id())
+          height_w2 => get_height_fv(W2, mesh%get_id())
 
           dx_at_w2 => get_dx_at_w2(mesh%get_id())
 

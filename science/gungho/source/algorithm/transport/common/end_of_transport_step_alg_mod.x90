@@ -23,8 +23,9 @@ module end_of_transport_step_alg_mod
   use sci_enforce_lower_bound_kernel_mod, &
                                       only: enforce_lower_bound_kernel_type
   use extrusion_mod,                  only: SHIFTED
-  use sci_fem_constants_mod,          only: get_im3_div, &
-                                            get_rmultiplicity
+  use sci_fem_constants_mod,          only: get_im3_div_fe, &
+                                            get_im3_div_fv, &
+                                            get_rmultiplicity_fv
   use field_mod,                      only: field_type
   use sci_field_minmax_alg_mod,       only: log_field_minmax
   use flux_precomputations_alg_mod,   only: flux_precomputations_type
@@ -36,7 +37,7 @@ module end_of_transport_step_alg_mod
   use fv_divergence_x_kernel_mod,     only: fv_divergence_x_kernel_type
   use fv_divergence_y_kernel_mod,     only: fv_divergence_y_kernel_type
   use fv_divergence_z_kernel_mod,     only: fv_divergence_z_kernel_type
-  use sci_geometric_constants_mod,    only: get_height,           &
+  use sci_geometric_constants_mod,    only: get_height_fv,        &
                                             get_face_selector_ew, &
                                             get_face_selector_ns
   use integer_field_mod,              only: integer_field_type
@@ -277,7 +278,13 @@ contains
 
         div => get_directional_im3_div_r_tran(mesh_id, direction_3d)
         ! TODO #3706: the flux limiter should use r_tran precision
-        div_r_def => get_im3_div(mesh_id)
+        if (k_h == 0 .and. k_v == 0) then
+          ! Use the FV divergence operator
+          div_r_def => get_im3_div_fv(mesh_id)
+        else
+          ! Use the FE divergence operator
+          div_r_def => get_im3_div_fe(mesh_id)
+        end if
 
         min_value = transport_metadata%get_min_value()
         acceptable_min = real(min_val_abs_tol, r_tran)
@@ -533,10 +540,10 @@ contains
 
       shifted_mesh => mesh_collection%get_mesh(prime_extrusion_mesh, SHIFTED)
       sh_w3_fs => function_space_collection%get_fs(shifted_mesh, 0, 0, W3)
-      rmultiplicity_shifted => get_rmultiplicity(flux_function_space, shifted_mesh%get_id())
+      rmultiplicity_shifted => get_rmultiplicity_fv(flux_function_space, shifted_mesh%get_id())
       ref_step = transport_counter%get_split_step_of_whole_step_counter()
       dry_flux => flux_precomputations%get_ref_flux(prime_extrusion_mesh_id, ref_step)
-      height_wt => get_height(Wtheta, prime_extrusion_mesh_id)
+      height_wt => get_height_fv(Wtheta, prime_extrusion_mesh_id)
       logspace = transport_metadata%get_log_space()
       face_selector_ew => get_face_selector_ew(prime_extrusion_mesh_id)
       face_selector_ns => get_face_selector_ns(prime_extrusion_mesh_id)
@@ -646,10 +653,10 @@ contains
         select case( mr_function_space )
         case ( W3 )
           ! TODO #3706: the flux limiter should use r_tran precision
-          div_r_def => get_im3_div(prime_extrusion_mesh_id)
+          div_r_def => get_im3_div_fv(prime_extrusion_mesh_id)
           div => get_directional_im3_div_r_tran(prime_extrusion_mesh_id, direction_3d)
         case ( Wtheta )
-          div_r_def => get_im3_div(shifted_mesh%get_id())
+          div_r_def => get_im3_div_fv(shifted_mesh%get_id())
           div => get_directional_im3_div_r_tran(shifted_mesh%get_id(), direction_3d)
         end select
 

@@ -82,7 +82,7 @@ contains
                                                  b_space_w0, &
                                                  b_space_w3, &
                                                  b_space_wtheta
-    use sci_fem_constants_mod,             only: get_mass_matrix_diagonal
+    use sci_fem_constants_mod,             only: get_mass_matrix_diagonal_fe
     use fs_continuity_mod,                 only: W0, W2, W3, Wtheta
     use field_indices_mod,                 only: igw_u
     use mesh_mod,                          only: mesh_type
@@ -100,23 +100,23 @@ contains
     mesh_id = mesh%get_id()
 
     ! u diagonal
-    diagonal = get_mass_matrix_diagonal(W2, mesh_id)
+    diagonal = get_mass_matrix_diagonal_fe(W2, mesh_id)
     call self%mm_diagonal_u%initialise(diagonal%get_function_space())
     call copy_field(diagonal, self%mm_diagonal_u)
 
     ! p diagonal
-    diagonal = get_mass_matrix_diagonal(W3, mesh_id)
+    diagonal = get_mass_matrix_diagonal_fe(W3, mesh_id)
     call self%mm_diagonal_p%initialise(diagonal%get_function_space())
     call copy_field(diagonal, self%mm_diagonal_p)
 
     ! b diagonal
     select case(b_space)
       case(b_space_w0)
-        diagonal = get_mass_matrix_diagonal(W0, mesh_id)
+        diagonal = get_mass_matrix_diagonal_fe(W0, mesh_id)
       case(b_space_w3)
-        diagonal = get_mass_matrix_diagonal(W3, mesh_id)
+        diagonal = get_mass_matrix_diagonal_fe(W3, mesh_id)
       case(b_space_wtheta)
-        diagonal = get_mass_matrix_diagonal(Wtheta, mesh_id)
+        diagonal = get_mass_matrix_diagonal_fe(Wtheta, mesh_id)
     end select
     call self%mm_diagonal_b%initialise(diagonal%get_function_space())
     call copy_field(diagonal, self%mm_diagonal_b)

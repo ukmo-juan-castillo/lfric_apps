@@ -16,7 +16,8 @@ module interpolation_alg_mod
   use constants_mod,                    only: i_def, r_def
   use dg_inc_matrix_vector_kernel_mod,  only: dg_inc_matrix_vector_kernel_type
   use dg_matrix_vector_kernel_mod,      only: dg_matrix_vector_kernel_type
-  use sci_fem_constants_mod,            only: get_rmultiplicity
+  use sci_fem_constants_mod,            only: get_rmultiplicity_fe, &
+                                              get_rmultiplicity_fv
   use fs_continuity_mod,                only: W2, Wtheta, W2broken
   use field_mod,                        only: field_type
   use function_space_mod,               only: function_space_type
@@ -59,6 +60,8 @@ module interpolation_alg_mod
 
     ! Local
     integer(kind=i_def)       :: i
+    integer(kind=i_def)       :: element_order_h
+    integer(kind=i_def)       :: element_order_v
     type(field_type), pointer :: chi(:)
     type(field_type), pointer :: panel_id
     type(field_type), pointer :: w2_rmultiplicity
@@ -74,7 +77,13 @@ module interpolation_alg_mod
     mesh => u_in_w2%get_mesh()
     chi => get_coordinates(mesh%get_id())
     panel_id => get_panel_id(mesh%get_id())
-    w2_rmultiplicity => get_rmultiplicity(W2, mesh%get_id())
+    element_order_h = u_in_w2%get_element_order_h()
+    element_order_v = u_in_w2%get_element_order_v()
+    if (element_order_h > 0 .or. element_order_v > 0) then
+      w2_rmultiplicity => get_rmultiplicity_fe(W2, mesh%get_id())
+    else
+      w2_rmultiplicity => get_rmultiplicity_fv(W2, mesh%get_id())
+    end if
 
     ! Set up intermediate fields
     do i = 1,3
@@ -152,7 +161,11 @@ module interpolation_alg_mod
                                                element_order_v, W2broken)
     wtheta_fs => function_space_collection%get_fs(mesh, element_order_h, &
                                                   element_order_v, Wtheta)
-    w2_rmultiplicity => get_rmultiplicity(W2, mesh%get_id())
+    if (element_order_h > 0 .or. element_order_v > 0) then
+      w2_rmultiplicity => get_rmultiplicity_fe(W2, mesh%get_id())
+    else
+      w2_rmultiplicity => get_rmultiplicity_fv(W2, mesh%get_id())
+    end if
 
     ! Set up intermediate fields
     call u_map%initialise(w2b_fs, w3_fs)

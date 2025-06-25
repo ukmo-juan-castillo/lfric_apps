@@ -13,8 +13,8 @@ module jules_imp_alg_mod
   use integer_field_mod,             only: integer_field_type
   use field_collection_mod,          only: field_collection_type
   use fs_continuity_mod,             only: W3, Wtheta
-  use sci_geometric_constants_mod,   only: get_height,               &
-                                           get_latitude
+  use sci_geometric_constants_mod,   only: get_height_fv,            &
+                                           get_latitude_fv
   use mr_indices_mod,                only: imr_ci, nummr
   use timestepping_config_mod,       only: outer_iterations
 
@@ -232,10 +232,10 @@ contains
     call snow_fields%get_field('snow_depth', snow_depth)
 
     mesh       => exner_in_wth%get_mesh()
-    height_wth => get_height(Wtheta, mesh%get_id())
+    height_wth => get_height_fv(Wtheta, mesh%get_id())
 
     mesh       => ustar%get_mesh()
-    latitude   => get_latitude(W3, mesh%get_id())
+    latitude   => get_latitude_fv(W3, mesh%get_id())
 
     if ( loop == 1 ) then
 

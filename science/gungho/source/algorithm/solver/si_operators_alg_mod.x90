@@ -381,15 +381,15 @@ contains
     use fs_continuity_mod,                    only: W2
     use sci_geometric_constants_mod,          only: get_coordinates, &
                                                     get_panel_id, &
-                                                    get_height
-    use sci_fem_constants_mod,                only: get_rmultiplicity
+                                                    get_height_fv
+    use sci_fem_constants_mod,                only: get_rmultiplicity_fe
     use dycore_constants_mod,                 only: get_w2_mass_matrix, &
                                                     w2_lagged_damping_layer_matrix
     use solver_constants_mod,                 only: get_detj_at_w3_r_solver,   &
                                                     get_im3_div_r_solver,      &
                                                     get_normalisation_r_solver, &
                                                     get_inverse_mass_matrix_r_solver
-    use limited_area_constants_mod,           only: get_mask
+    use limited_area_constants_mod,           only: get_mask_fv
     use sci_invert_local_operator_kernel_mod, only: invert_local_operator_kernel_type
     use field_indices_mod,                    only: igh_u, igh_t, igh_d, igh_p
     use planet_config_mod,                    only: kappa, cp, rd, p_zero
@@ -477,6 +477,7 @@ contains
     dt = real(model_clock%get_seconds_per_step(), r_def)
 
     mesh  => exner_ref%get_mesh()
+
     w3_fs => exner_ref%get_function_space()
     w2_fs => function_space_collection%get_fs( mesh, element_order_h, &
                                                element_order_v, W2 )
@@ -537,10 +538,9 @@ contains
 
        ! Non-topological operators
        call exner_in_wth%initialise( vector_space = theta%get_function_space() )
-       if ( exner_in_wth%get_element_order_h() == 0 .and. &
-            exner_in_wth%get_element_order_v() == 0) then
-         height_w3 => get_height(W3, mesh%get_id())
-         height_wt => get_height(Wtheta, mesh%get_id())
+       if ( element_order_h == 0 .and. element_order_v == 0) then
+         height_w3 => get_height_fv(W3, mesh%get_id())
+         height_wt => get_height_fv(Wtheta, mesh%get_id())
          call invoke( sample_w3_to_wtheta_kernel_type(exner_in_wth, exner, &
                                                       height_wt, height_w3 ) )
          nullify(height_w3, height_wt)
@@ -581,7 +581,7 @@ contains
        else
           ! for non MG, at higher order, need computed rmultiplicity
           call ones%initialise( vector_space = w2_fs )
-          w2_rmultiplicity => get_rmultiplicity( W2, mesh%get_id() )
+          w2_rmultiplicity => get_rmultiplicity_fe( W2, mesh%get_id() )
           call rsol_w2_rmultiplicity%initialise( w2_fs )
           call copy_field(w2_rmultiplicity, rsol_w2_rmultiplicity)
           call invoke( setval_c(ones,            1.0_r_solver),       &
@@ -706,7 +706,7 @@ contains
        if ( element_order_h == 0 .and. element_order_v == 0 ) then
          call rsol_w2_mask%initialise( vector_space = w2_fs )
          if ( limited_area ) then
-           w2_mask => get_mask(W2, mesh%get_id())
+           w2_mask => get_mask_fv(W2, mesh%get_id())
            call copy_field(w2_mask, rsol_w2_mask)
          else
            ! Create dummy mask arrays with 1 in every entry

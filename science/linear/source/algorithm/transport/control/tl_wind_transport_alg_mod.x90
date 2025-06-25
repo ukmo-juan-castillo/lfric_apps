@@ -11,9 +11,9 @@ module tl_wind_transport_alg_mod
   use sci_dg_convert_hdiv_field_kernel_mod, &
                                       only: dg_convert_hdiv_field_kernel_type
   use sci_enforce_bc_kernel_mod,      only: enforce_bc_kernel_type
-  use sci_fem_constants_mod,          only: get_mass_matrix,         &
-                                            get_rmultiplicity,       &
-                                            get_inverse_mass_matrix
+  use sci_fem_constants_mod,          only: get_mass_matrix_fe,         &
+                                            get_rmultiplicity_fe,       &
+                                            get_inverse_mass_matrix_fe
   use field_mod,                      only: field_type
   use finite_element_config_mod,      only: element_order_h, element_order_v
   use formulation_config_mod,         only: si_momentum_equation
@@ -128,9 +128,9 @@ contains
                                                    element_order_v, W2broken )
         chi => get_coordinates(mesh%get_id())
         panel_id => get_panel_id(mesh%get_id())
-        mm_w2 => get_mass_matrix(W2, mesh%get_id())
-        mm_w2b_inv => get_inverse_mass_matrix(W2broken, mesh%get_id())
-        rmultiplicity_w2 => get_rmultiplicity(W2, mesh%get_id())
+        mm_w2 => get_mass_matrix_fe(W2, mesh%get_id())
+        mm_w2b_inv => get_inverse_mass_matrix_fe(W2broken, mesh%get_id())
+        rmultiplicity_w2 => get_rmultiplicity_fe(W2, mesh%get_id())
         project_xdot_to_w2 => get_project_xdot_to_w2(mesh%get_id())
         project_ydot_to_w2 => get_project_ydot_to_w2(mesh%get_id())
         project_zdot_to_w2 => get_project_zdot_to_w2(mesh%get_id())
