@@ -32,6 +32,7 @@ module transport_controller_mod
   use mesh_collection_mod,            only: mesh_collection
   use model_clock_mod,                only: model_clock_type
   use r_tran_field_mod,               only: r_tran_field_type
+  use timer_mod,                      only: timer
 
   ! Pointers to other objects
   use sci_geometric_constants_mod,    only: get_face_selector_ew,              &
@@ -52,6 +53,11 @@ module transport_controller_mod
   use split_w2_field_kernel_mod,      only: split_w2_field_kernel_type
   use watkins_kernel_mod,             only: watkins_kernel_type
 
+  ! Config
+  use departure_points_config_mod,    only: share_stencil_extent
+  use io_config_mod,                  only: subroutine_timers
+  use transport_config_mod,           only: dep_pt_stencil_extent
+
   implicit none
 
   private
@@ -66,6 +72,8 @@ module transport_controller_mod
     logical(kind=l_def) :: outer_set = .false.
     integer(kind=i_def) :: outer
     logical(kind=l_def) :: cheap_update_step = .false.
+    integer(kind=i_def) :: max_courant_num = 0
+    logical(kind=l_def) :: dep_stencil_extent_computed = .false.
 
     type(transport_counter_type)           :: counter
     type(transport_metadata_type), pointer :: metadata => null()
@@ -95,6 +103,7 @@ module transport_controller_mod
     procedure, public  :: get_wind_precomputations
     procedure, public  :: get_ffsl_precomputations
     procedure, public  :: get_flux_precomputations
+    procedure, public  :: get_dep_stencil_extent
     procedure, public  :: initialise_flux_precomputations
     procedure, public  :: finalise
     final              :: destroy_transport_controller
@@ -178,6 +187,8 @@ contains
     integer(kind=i_def) :: watkins_fail, watkins_min
     logical(kind=l_def) :: perform_watkins
     logical(kind=l_def) :: fixed_multiple_substeps
+
+    if ( subroutine_timers ) call timer('transport.controller_init')
 
     ! Set options, to be passed to objects initialised later
     if (present(outer)) then
@@ -346,6 +357,8 @@ contains
       self%dt_substep = dt_rtran / real(self%num_substeps, r_tran)
     end if
 
+    if ( subroutine_timers ) call timer('transport.controller_init')
+
   end subroutine initialise
 
   !> Public finalise method for the transport controller
@@ -366,6 +379,7 @@ contains
 
     self%outer_set = .false.
     self%cheap_update_step = .false.
+    self%dep_stencil_extent_computed = .false.
     call self%counter%finalise()
     nullify(self%metadata)
 
@@ -557,19 +571,41 @@ contains
     type(flux_precomputations_type), pointer :: flux_precomputations
     type(mesh_type),                 pointer :: mesh
     integer(kind=i_def)                      :: reference_splitting
+    integer(kind=i_def)                      :: max_courant_num
 
     ! If object is not created, then create it here
     if (.not. self%flux_precomputations%is_initialised()) then
       mesh => self%transporting_wind%get_mesh()
       reference_splitting = splitting(get_dry_config())
+
       ! This is used for the consistent transport of tracers, where the fluxes
       ! are the fluxes of the transported reference density. These will be
-      ! passed to the object once they are computed, and so no wind flux is
-      ! specified here.
-      call self%flux_precomputations%initialise(                               &
-              mesh, reference_splitting, self%num_substeps,                    &
-              ref_field=self%ref_field_rtran                                   &
-      )
+      ! passed to the object once they are computed, and so no wind flux
+      ! argument is passed to the initialise method here.
+
+      ! Determine the halo depths to be used in flux computations
+      if (share_stencil_extent .and. self%ffsl_precomputations%is_initialised()) then
+        ! Get the extent that is stored/calculated in this controller object
+        ! This likely comes from the first time horizontal departure distances
+        ! are calculated for density transport
+        max_courant_num = self%get_dep_stencil_extent(                         &
+                mesh%get_id(), 1, outer_step=.false., flux_calc=.false.        &
+        )
+
+        call self%flux_precomputations%initialise(                             &
+                mesh, reference_splitting, self%num_substeps,                  &
+                ref_field=self%ref_field_rtran,                                &
+                max_courant_num=max_courant_num                                &
+        )
+      else
+        ! Either not sharing stencil extent or don't yet know it, so do not
+        ! pass the max_courant_num argument
+        call self%flux_precomputations%initialise(                             &
+                mesh, reference_splitting, self%num_substeps,                  &
+                ref_field=self%ref_field_rtran                                 &
+        )
+      end if
+
     end if
 
     ! Return existing object
@@ -661,6 +697,7 @@ contains
 
     type(mesh_type), pointer :: mesh
     integer(kind=i_def)      :: reference_splitting
+    integer(kind=i_def)      :: max_courant_num
 
     if (self%flux_precomputations%is_initialised()) then
       call log_event(                                                          &
@@ -672,13 +709,30 @@ contains
 
     mesh => self%transporting_wind%get_mesh()
     reference_splitting = splitting(get_dry_config())
+
+    ! Determine the halo depths to be used in flux computations
+    if (share_stencil_extent) then
+      ! Get the extent that is stored/calculated in this controller object
+      ! This likely comes from the first time horizontal departure distances
+      ! are calculated for density transport on this mesh
+      max_courant_num = self%get_dep_stencil_extent(                           &
+              mesh%get_id(), 1, outer_step=.false., flux_calc=.false.          &
+      )
+    else
+      ! Set the stencil extent from the namelist option
+      max_courant_num = dep_pt_stencil_extent
+    end if
+
     ! This is used for the consistent transport of the "last outer" group of
     ! tracers, either with the "cheap update" or if those tracers are on a
     ! coarser mesh. In either case, the fluxes calculated during the transport
     ! of the density are not the same as those that will be used to transport
     ! the tracers. We set the correct flux here.
+    ! Don't provide the max_courant_num argument, as it is more appropriate to
+    ! recalculate it for this object
     call self%flux_precomputations%initialise(                                 &
-            mesh, reference_splitting, self%num_substeps, flux=ref_flux        &
+            mesh, reference_splitting, self%num_substeps, flux=ref_flux,       &
+            max_courant_num=max_courant_num                                    &
     )
 
   end subroutine initialise_flux_precomputations
@@ -695,5 +749,79 @@ contains
     metadata => self%metadata
 
   end function get_transport_metadata
+
+  !> @brief Returns the max stencil extent for horizontal transport calculations
+  !> @details This function acts as an interface to stencil extents for
+  !!          the different sets of departure distances stored in different
+  !!          precomputation objects. These extents may be shared between
+
+  !> @param[in] mesh_id    The ID of the mesh to get the object for
+  !> @return The max stencil extent
+  function get_dep_stencil_extent(self, mesh_id, step, outer_step, flux_calc) result(stencil_extent)
+
+    use split_transport_utils_mod, only: get_first_hori_step, get_dry_config
+    use transport_config_mod,      only: splitting
+
+    implicit none
+
+    class(transport_controller_type), target, intent(inout) :: self
+    integer(kind=i_def), intent(in) :: mesh_id
+    integer(kind=i_def), intent(in) :: step
+    logical(kind=l_def), intent(in) :: outer_step
+    logical(kind=l_def), intent(in) :: flux_calc
+
+    type(flux_precomputations_type), pointer :: flux_precomputations
+    integer(kind=i_def) :: prime_mesh_id
+    integer(kind=i_def) :: reference_splitting
+    integer(kind=i_def) :: first_hori_step
+    integer(kind=i_def) :: stencil_extent
+
+    if (share_stencil_extent .and. self%dep_stencil_extent_computed) then
+      ! We have already computed the extent, so return it
+      stencil_extent = self%max_courant_num
+      return
+    end if
+
+    if (share_stencil_extent) then
+      ! Determine the stencil extent from the departure distances for the first
+      ! horizontal transport step of the reference splitting (i.e. density)
+      flux_precomputations => self%get_ffsl_precomputations()
+      prime_mesh_id = flux_precomputations%get_prime_extrusion_mesh_id()
+      reference_splitting = splitting(get_dry_config())
+      first_hori_step = get_first_hori_step(reference_splitting)
+
+      ! We could conceivably point to the flux precomputations object here,
+      ! which might save a calculation if the last outer tracer group is
+      ! transported separately from other fields. But it feels more robust to
+      ! enforce that we always use the first horizontal transport step of the
+      ! ffsl_precomputations object
+      flux_precomputations => self%get_ffsl_precomputations()
+
+      stencil_extent = flux_precomputations%get_dep_stencil_extent(            &
+              prime_mesh_id, first_hori_step, outer_step=.false.               &
+      )
+      self%max_courant_num = stencil_extent
+      self%dep_stencil_extent_computed = .true.
+
+      ! Now set the stencil extent for the flux_precomputations object
+      if (self%flux_precomputations%is_initialised()) then
+        call self%flux_precomputations%set_max_stencil_extent(stencil_extent)
+      end if
+
+    else
+      ! Just return the stencil extent from a min/max calculation on the
+      ! appropriate departure distances
+      if (flux_calc) then
+        flux_precomputations => self%get_flux_precomputations()
+      else
+        flux_precomputations => self%get_ffsl_precomputations()
+      end if
+
+      stencil_extent = flux_precomputations%get_dep_stencil_extent(            &
+              mesh_id, step, outer_step                                        &
+      )
+    end if
+
+  end function get_dep_stencil_extent
 
 end module transport_controller_mod

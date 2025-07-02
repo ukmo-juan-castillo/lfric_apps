@@ -427,3 +427,24 @@ class vn21_t744(MacroUpgrade):
         self.add_setting(config, [nml, "cloud_horizontal_ice_fsd"], "0.0")
 
         return config, self.reports
+
+
+class vn21_t590(MacroUpgrade):
+    """Upgrade macro for ticket #590 by Thomas Bendall."""
+
+    BEFORE_TAG = "vn2.1_t744"
+    AFTER_TAG = "vn2.1_t590"
+
+    def upgrade(self, config, meta_config=None):
+        # Commands From: rose-meta/lfric-gungho
+        """
+        Add share_stencil_extent to namelist departure_points, and set the
+        default value to be true.
+        """
+        self.add_setting(
+            config,
+            ["namelist:departure_points", "share_stencil_extent"],
+            ".true.",
+        )
+
+        return config, self.reports

@@ -113,6 +113,7 @@ l_cosp=.false.,
 horizontal_limit='none',
 horizontal_method='timeaverage',
 n_dep_pt_iterations=1,
+share_stencil_extent=.true.
 vertical_limit='exponential',
 vertical_method='timeaverage',
 vertical_sorting=.false.

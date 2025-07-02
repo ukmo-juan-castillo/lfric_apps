@@ -48,6 +48,7 @@ module split_transport_utils_mod
   public :: get_splitting_direction
   public :: get_num_split_steps
   public :: get_next_step_hori
+  public :: get_first_hori_step
 
   public :: finalise_split_transport_utils
 
@@ -481,6 +482,37 @@ contains
     end if
 
   end function get_next_step_hori
+
+  !> @brief Returns the index of the first horizontal step in the splitting
+  !> @param[in] splitting        Enumerator for particular splitting
+  !> @result    first_hori_step  The first horizontal step
+  function get_first_hori_step(splitting) result(first_hori_step)
+
+    implicit none
+
+    ! Arguments
+    integer(kind=i_def), intent(in) :: splitting
+
+    ! Internal variables
+    integer(kind=i_def) :: first_hori_step
+    integer(kind=i_def) :: step
+    integer(kind=i_def) :: num_split_steps
+    integer(kind=i_def) :: direction_next_step
+
+    first_hori_step = 0_i_def
+
+    num_split_steps = get_num_split_steps(splitting)
+
+    do step = 1, num_split_steps
+      direction_next_step = get_splitting_direction(splitting, step)
+      if (direction_next_step == direction_h                                   &
+          .or. direction_next_step == direction_3d) then
+        first_hori_step = step
+        EXIT
+      end if
+    end do
+
+  end function get_first_hori_step
 
   !> @brief Private routine to set up the list of splitting indices. This lists
   !!        the unique splitting fractions for vertical/horizontal directions

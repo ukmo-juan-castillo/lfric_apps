@@ -164,6 +164,7 @@ use_multires_coupling=.false.
 &departure_points
 horizontal_limit='cap',
 horizontal_method='euler',
+share_stencil_extent=.true.
 vertical_method='trapezoidal',
 vertical_limit='exponential',
 vertical_sorting=.false.

@@ -36,6 +36,7 @@ module flux_precomputations_alg_mod
                                             transport_overwrite_freq_split_step
   use constants_mod,                  only: i_def, l_def, str_def, imdi,       &
                                             r_tran, EPS_R_TRAN
+  use departure_points_config_mod,    only: share_stencil_extent
   use extrusion_mod,                  only: PRIME_EXTRUSION, SHIFTED, TWOD
   use field_mod,                      only: field_type
   use sci_field_minmax_alg_mod,       only: get_field_minmax,                  &
@@ -74,7 +75,12 @@ module flux_precomputations_alg_mod
                                             get_fraction_idx,                  &
                                             get_num_split_steps
   use timer_mod,                      only: timer
-  use transport_config_mod,           only: extended_mesh
+  use transport_config_mod,           only: extended_mesh,                     &
+                                            special_edges_treatment,           &
+                                            special_edges_high_order,          &
+                                            ffsl_inner_order,                  &
+                                            ffsl_outer_order,                  &
+                                            dep_pt_stencil_extent
   use transport_constants_mod,        only: get_detj_at_w3_r_tran
   use transport_enumerated_types_mod, only: direction_h,                       &
                                             direction_v,                       &
@@ -98,6 +104,8 @@ module flux_precomputations_alg_mod
     integer(kind=i_def)                   :: splitting
     integer(kind=i_def)                   :: num_steps
     integer(kind=i_def)                   :: num_substeps
+    integer(kind=i_def)                   :: max_stencil_extent
+    logical(kind=l_def)                   :: max_stencil_extent_computed = .false.
 
     ! Total reference flux (over whole transport step), needed for cheap update
     type(r_tran_field_type)               :: total_ref_flux
@@ -124,6 +132,8 @@ module flux_precomputations_alg_mod
     type(integer_field_type), allocatable :: dep_highest_k_outer(:,:)
     integer(kind=i_def),      allocatable :: dep_stencil_extent(:,:)
     integer(kind=i_def),      allocatable :: dep_stencil_extent_outer(:,:)
+    logical(kind=l_def),      allocatable :: is_computed_stencil_extent(:,:)
+    logical(kind=l_def),      allocatable :: is_computed_stencil_extent_outer(:,:)
 
     ! Settings for extended mesh remapping
     logical(kind=l_def)                   :: ref_monotone
@@ -153,6 +163,8 @@ module flux_precomputations_alg_mod
     procedure, public  :: get_dep_highest_k
     procedure, public  :: get_total_ref_flux
     procedure, public  :: set_total_ref_flux
+    procedure, private :: get_max_stencil_extent
+    procedure, public  :: set_max_stencil_extent
     procedure, public  :: log_courant
     procedure, private :: compute_ref_mass_x_and_y
     procedure, private :: compute_dep_dist_outer
@@ -190,16 +202,25 @@ contains
   !!                          the product of wind and dt (for the whole step))
   !> @param[in] reset_unity   Optional, whether to reset the reference unity
   !!                          field for each split step
+  !> @param[in] max_courant_num
+  !!                          Optional, maximum Courant number that can be
+  !!                          calculated from departure distance calculations.
+  !!                          If specified, this will be used to set the depth
+  !!                          of halos and the maximum stencil extents that can
+  !!                          be used in horizontal calculations.
   subroutine flux_precomputations_initialiser(self, prime_mesh,                &
                                               splitting, num_substeps,         &
-                                              ref_field, flux, reset_unity)
+                                              ref_field, flux, reset_unity,    &
+                                              max_courant_num)
 
     use sci_mapping_constants_mod,  only: get_intermesh_weights_w3_rtran
     use sci_restrict_scalar_weighted_kernel_mod,                               &
                                     only: restrict_scalar_weighted_kernel_type
     use sci_restrict_w2_kernel_mod, only: restrict_w2_kernel_type
     use split_w2_field_kernel_mod,  only: split_w2_field_kernel_type
-    use split_transport_utils_mod,  only: use_shifted_mesh, get_splitting_factor
+    use split_transport_utils_mod,  only: use_shifted_mesh,                    &
+                                          get_splitting_factor,                &
+                                          get_first_hori_step
     use transport_config_mod,       only: horizontal_monotone,                 &
                                           enforce_min_value,                   &
                                           min_value
@@ -217,6 +238,7 @@ contains
     type(r_tran_field_type), optional,          intent(in)    :: ref_field
     type(r_tran_field_type), optional, target,  intent(in)    :: flux
     logical(kind=l_def),     optional,          intent(in)    :: reset_unity
+    integer(kind=i_def),     optional,          intent(in)    :: max_courant_num
 
     ! Local variables
     integer(kind=i_def) :: i, j, fs_id, step_idx
@@ -224,6 +246,7 @@ contains
     integer(kind=i_def) :: num_substeps_tmp
     integer(kind=i_def) :: num_meshes
     integer(kind=i_def) :: halo_depth
+    integer(kind=i_def) :: first_hori_step
     integer(kind=i_def) :: direction
     integer(kind=i_def) :: ref_config
     real(kind=r_tran)   :: factor
@@ -259,6 +282,30 @@ contains
       self%ref_monotone = (horizontal_monotone(ref_config) /= monotone_none)
       self%ref_enforce_min_value = enforce_min_value(ref_config)
       self%ref_min_value = real(min_value(ref_config), r_tran)
+    end if
+
+    ! Determine the stencil extent to be used by departure distance calculations
+    ! in this object. This is used to set the halo depths of mass fields.
+    if (.not. share_stencil_extent) then
+      ! Each departure distance calculation will be done with an extent of
+      ! dep_pt_stencil_extent, so set mass fields to have max possible depth
+      self%max_stencil_extent = MIN(                                           &
+          prime_mesh%get_halo_depth(), dep_pt_stencil_extent                   &
+      )
+      self%max_stencil_extent_computed = .true.
+
+    else if (present(max_courant_num)) then
+      ! An argument specifying the depth has been passed in, so it will not need
+      ! an extra calculation
+      self%max_stencil_extent = MIN(                                           &
+          prime_mesh%get_halo_depth(), dep_pt_stencil_extent, max_courant_num  &
+      )
+      self%max_stencil_extent_computed = .true.
+
+    else
+      ! The maximum extent will be determined once the first departure distances
+      ! have been calculated
+      self%max_stencil_extent_computed = .false.
     end if
 
     ! ------------------------------------------------------------------------ !
@@ -321,6 +368,8 @@ contains
     allocate( self%dep_highest_k_outer( num_meshes, num_steps ) )
     allocate( self%dep_stencil_extent( num_meshes, num_steps ) )
     allocate( self%dep_stencil_extent_outer( num_meshes, num_steps ) )
+    allocate( self%is_computed_stencil_extent( num_meshes, num_steps ) )
+    allocate( self%is_computed_stencil_extent_outer( num_meshes, num_steps ) )
 
     ! Set name used for logging properties, based on arguments
     if (present(ref_field)) then
@@ -331,13 +380,33 @@ contains
       self%name = 'reset_unity'
     end if
 
+    ! We may here be able to set all of the stencil extents
+    if (share_stencil_extent .and. self%max_stencil_extent_computed) then
+      self%dep_stencil_extent(:,:) = self%max_stencil_extent
+      self%dep_stencil_extent_outer(:,:) = self%max_stencil_extent
+      self%is_computed_stencil_extent(:,:) = .true.
+      self%is_computed_stencil_extent_outer(:,:) = .true.
+    end if
+
     ! ------------------------------------------------------------------------ !
     ! Set first reference field and mass
     ! ------------------------------------------------------------------------ !
     w3_fs => function_space_collection%get_fs(prime_mesh, 0, 0, W3)
-    halo_depth = prime_mesh%get_halo_depth()
-    call self%ref_field(1,1)%initialise(w3_fs, halo_depth=halo_depth)
-    call self%ref_mass(1,1)%initialise(w3_fs, halo_depth=halo_depth)
+
+    first_hori_step = get_first_hori_step(splitting)
+
+    if (first_hori_step == 1) then
+      halo_depth = prime_mesh%get_halo_depth()
+      call self%ref_field(1,1)%initialise(w3_fs, halo_depth=halo_depth)
+      call self%ref_mass(1,1)%initialise(w3_fs, halo_depth=halo_depth)
+
+    else
+      ! First step is vertical, so there won't need to be any halo exchanges
+      ! on these fields, and we can set halo depth to 1
+      halo_depth = 1
+      call self%ref_field(1,1)%initialise(w3_fs)
+      call self%ref_mass(1,1)%initialise(w3_fs)
+    end if
 
     if (present(ref_field)) then
       ! Checks -----------------------------------------------------------------
@@ -476,6 +545,8 @@ contains
     end if
 
     self%is_initialised_flag = .true.
+    self%is_computed_stencil_extent(:,:) = .false.
+    self%is_computed_stencil_extent_outer(:,:) = .false.
 
     if ( subroutine_timers ) call timer('transport.flux_precomp_init')
 
@@ -500,6 +571,7 @@ contains
     class(flux_precomputations_type), intent(inout) :: self
 
     self%is_initialised_flag = .false.
+    self%max_stencil_extent_computed = .false.
     if ( allocated( self%mesh_ids ) )        deallocate( self%mesh_ids )
     if ( allocated( self%ref_field ) )       deallocate( self%ref_field )
     if ( allocated( self%ref_mass ) )        deallocate( self%ref_mass )
@@ -522,6 +594,10 @@ contains
                                              deallocate( self%dep_stencil_extent )
     if ( allocated( self%dep_stencil_extent_outer ) )                          &
                                              deallocate( self%dep_stencil_extent_outer )
+    if ( allocated( self%is_computed_stencil_extent ) )                        &
+                                             deallocate( self%is_computed_stencil_extent )
+    if ( allocated( self%is_computed_stencil_extent_outer ) )                  &
+                                             deallocate( self%is_computed_stencil_extent_outer )
 
   end subroutine finalise
 
@@ -1488,9 +1564,12 @@ contains
     logical(kind=l_def),            optional, intent(in)    :: outer_step
 
     ! Internal variables
-    integer(kind=i_def) :: mesh_idx, step_idx
-    logical(kind=l_def) :: outer_step_local
-    integer(kind=i_def) :: stencil_extent
+    integer(kind=i_def)              :: mesh_idx, step_idx
+    logical(kind=l_def)              :: outer_step_local
+    integer(kind=i_def)              :: stencil_extent
+    real(kind=r_tran)                :: dep_min, dep_max
+    type(mesh_type),         pointer :: mesh
+    type(r_tran_field_type), pointer :: dep_dist
 
     ! If substepping, step can exceed num_steps, so take that into account here
     step_idx = MOD(step - 1, self%num_steps) + 1
@@ -1498,21 +1577,76 @@ contains
     outer_step_local = .false.
     if (present(outer_step)) outer_step_local = outer_step
 
-    ! Use departure distance field to determine whether the stencil extents have
-    ! been computed already
-    if (outer_step_local .and.                                                 &
-        .not. self%dep_dist_outer(mesh_idx, step_idx)%is_initialised()) then
-      call self%compute_dep_dist_outer(mesh_id, step)
-
-    else if (.not. outer_step_local .and.                                      &
-             .not. self%dep_dist(mesh_idx, step_idx)%is_initialised()) then
-      call self%compute_dep_dist_inner(mesh_id, step)
-    end if
-
+    ! OUTER STEP EXTENTS -------------------------------------------------------
     if (outer_step_local) then
-      stencil_extent = self%dep_stencil_extent_outer(mesh_idx, step_idx)
-    else
+      if (self%is_computed_stencil_extent_outer(mesh_idx, step_idx)) then
+        stencil_extent = self%dep_stencil_extent_outer(mesh_idx, step_idx)
+
+      else if (self%max_stencil_extent_computed .and. share_stencil_extent) then
+        ! We have computed the max_stencil_extent, but not the stencil extent
+        ! for this set of departure distances
+        stencil_extent = self%max_stencil_extent
+        self%is_computed_stencil_extent_outer(mesh_idx, step_idx) = .true.
+        self%dep_stencil_extent_outer(mesh_idx, step_idx) = stencil_extent
+
+      else
+        ! Extent not yet computed, so compute it here
+        mesh => mesh_collection%get_mesh(mesh_id)
+        dep_dist => self%get_dep_dist(mesh_id, step, outer_step_local)
+
+        if ( subroutine_timers ) call timer('transport.get_dep_stencil_extent')
+
+        call get_field_minmax(dep_dist, dep_min, dep_max)
+
+        stencil_extent = MIN(                                                  &
+            mesh%get_halo_depth(),                                             &
+            INT(MAX(ABS(dep_max), ABS(dep_min)), i_def) + 1                    &
+        )
+
+        self%dep_stencil_extent_outer(mesh_idx, step_idx) = stencil_extent
+        self%is_computed_stencil_extent_outer(mesh_idx, step_idx) = .true.
+
+        if (.not. self%max_stencil_extent_computed .and. share_stencil_extent) then
+          self%max_stencil_extent = stencil_extent
+          self%max_stencil_extent_computed = .true.
+        end if
+
+        if ( subroutine_timers ) call timer('transport.get_dep_stencil_extent')
+      end if
+
+    ! INNER STEP EXTENTS -------------------------------------------------------
+    else if (self%is_computed_stencil_extent(mesh_idx, step_idx)) then
       stencil_extent = self%dep_stencil_extent(mesh_idx, step_idx)
+
+    else if (self%max_stencil_extent_computed .and. share_stencil_extent) then
+      ! We have computed the max_stencil_extent, but not the stencil extent
+      ! for this set of departure distances
+      stencil_extent = self%max_stencil_extent
+      self%is_computed_stencil_extent(mesh_idx, step_idx) = .true.
+      self%dep_stencil_extent(mesh_idx, step_idx) = stencil_extent
+
+    else
+      ! Not yet computed, so compute it here
+      mesh => mesh_collection%get_mesh(mesh_id)
+      dep_dist => self%get_dep_dist(mesh_id, step, outer_step_local)
+
+      if ( subroutine_timers ) call timer('transport.get_dep_stencil_extent')
+
+      call get_field_minmax(dep_dist, dep_min, dep_max)
+      stencil_extent = MIN(                                                    &
+          mesh%get_halo_depth(),                                               &
+          INT(MAX(ABS(dep_max), ABS(dep_min)), i_def) + 1                      &
+      )
+
+      self%dep_stencil_extent(mesh_idx, step_idx) = stencil_extent
+      self%is_computed_stencil_extent(mesh_idx, step_idx) = .true.
+
+      if (.not. self%max_stencil_extent_computed .and. share_stencil_extent) then
+        self%max_stencil_extent = stencil_extent
+        self%max_stencil_extent_computed = .true.
+      end if
+
+      if ( subroutine_timers ) call timer('transport.get_dep_stencil_extent')
     end if
 
   end function get_dep_stencil_extent
@@ -1703,7 +1837,6 @@ contains
   subroutine compute_dep_dist_inner(self, mesh_id, step)
 
     use calc_dep_pts_alg_mod,          only: calc_ffsl_hori_dep_pts
-    use transport_config_mod,          only: dep_pt_stencil_extent
     use vert_dep_dist_ffsl_kernel_mod, only: vert_dep_dist_ffsl_kernel_type
 
     implicit none
@@ -1716,6 +1849,7 @@ contains
     integer(kind=i_def)                :: mesh_idx, step_idx
     integer(kind=i_def)                :: step_of_substep
     integer(kind=i_def)                :: direction
+    integer(kind=i_def)                :: dep_stencil_extent
     integer(kind=i_def)                :: ndata
     type(mesh_type),           pointer :: twod_mesh
     type(function_space_type), pointer :: w2_fs
@@ -1750,7 +1884,8 @@ contains
                                 self%frac_flux(mesh_idx, step_idx),            &
                                 ref_flux, ref_mass) )
     case (direction_h)
-      ndata = 2*dep_pt_stencil_extent + 1
+      dep_stencil_extent = self%get_max_stencil_extent()
+      ndata = 2*dep_stencil_extent + 1
       twod_mesh => mesh_collection%get_mesh(ref_flux%get_mesh(), TWOD)
       depk_fs => function_space_collection%get_fs(twod_mesh, 0, 0, W2H, ndata)
       call self%dep_lowest_k(mesh_idx, step_idx)%initialise(depk_fs)
@@ -1759,10 +1894,9 @@ contains
       call calc_ffsl_hori_dep_pts(                                             &
               self%dep_dist(mesh_idx, step_idx),                               &
               self%frac_flux(mesh_idx, step_idx),                              &
-              self%dep_stencil_extent(mesh_idx, step_idx),                     &
               self%dep_lowest_k(mesh_idx, step_idx),                           &
               self%dep_highest_k(mesh_idx, step_idx),                          &
-              ref_flux, ref_mass, ref_mass                                     &
+              ref_flux, ref_mass, ref_mass, dep_stencil_extent                 &
       )
     end select
 
@@ -1791,7 +1925,6 @@ contains
   subroutine compute_dep_dist_outer(self, mesh_id, step)
 
     use calc_dep_pts_alg_mod, only: calc_ffsl_hori_dep_pts
-    use transport_config_mod, only: dep_pt_stencil_extent
 
     implicit none
 
@@ -1804,6 +1937,7 @@ contains
     integer(kind=i_def)                :: step_of_substep
     integer(kind=i_def)                :: direction
     integer(kind=i_def)                :: ndata
+    integer(kind=i_def)                :: dep_stencil_extent
     type(mesh_type),           pointer :: twod_mesh
     type(function_space_type), pointer :: w2_fs
     type(function_space_type), pointer :: depk_fs
@@ -1835,7 +1969,8 @@ contains
     call self%dep_dist_outer(mesh_idx, step_idx)%initialise(w2_fs)
     call self%frac_flux_outer(mesh_idx, step_idx)%initialise(w2_fs)
 
-    ndata = 2*dep_pt_stencil_extent + 1
+    dep_stencil_extent = self%get_max_stencil_extent()
+    ndata = 2*dep_stencil_extent + 1
     twod_mesh => mesh_collection%get_mesh(ref_flux%get_mesh(), TWOD)
     depk_fs => function_space_collection%get_fs(twod_mesh, 0, 0, W2H, ndata)
     call self%dep_lowest_k_outer(mesh_idx, step_idx)%initialise(depk_fs)
@@ -1844,10 +1979,9 @@ contains
     call calc_ffsl_hori_dep_pts(                                               &
             self%dep_dist_outer(mesh_idx, step_idx),                           &
             self%frac_flux_outer(mesh_idx, step_idx),                          &
-            self%dep_stencil_extent_outer(mesh_idx, step_idx),                 &
             self%dep_lowest_k_outer(mesh_idx, step_idx),                       &
             self%dep_highest_k_outer(mesh_idx, step_idx),                      &
-            ref_flux, ref_mass_y, ref_mass_x                                   &
+            ref_flux, ref_mass_y, ref_mass_x, dep_stencil_extent               &
     )
 
     if (log_level() <= LOG_LEVEL_DEBUG) then
@@ -1929,6 +2063,41 @@ contains
     end if
 
   end subroutine check_negative_field
+
+  !> @brief Determines the maximum depth to initialise fields to, based on the
+  !!        stencil extent of the departure points.
+  !> @return The maximum depth to initialise fields to
+  function get_max_stencil_extent(self) result(max_depth)
+
+    implicit none
+
+    class(flux_precomputations_type), target, intent(in) :: self
+
+    integer(kind=i_def)      :: max_depth
+    type(mesh_type), pointer :: mesh
+
+    if (self%max_stencil_extent_computed) then
+      max_depth = self%max_stencil_extent
+    else
+      mesh => mesh_collection%get_mesh(self%get_prime_extrusion_mesh_id())
+      max_depth = MIN(mesh%get_halo_depth(), dep_pt_stencil_extent)
+    end if
+
+  end function get_max_stencil_extent
+
+  !> @brief Sets the maximum depth to use in horizontal calculations
+  !> @param[in] max_depth The maximum depth to set
+  subroutine set_max_stencil_extent(self, max_depth)
+
+    implicit none
+
+    class(flux_precomputations_type), target, intent(inout) :: self
+    integer(kind=i_def),                      intent(in)    :: max_depth
+
+    self%max_stencil_extent = max_depth
+    self%max_stencil_extent_computed = .true.
+
+  end subroutine set_max_stencil_extent
 
   !> @brief Logs the Courant numbers from the departure points. These correspond
   !!        to the effective Courant number of the flow, not the Courant numbers

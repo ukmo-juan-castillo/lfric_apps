@@ -20,6 +20,7 @@ external_forcing=.false.,
 horizontal_limit='none',
 horizontal_method='euler',
 n_dep_pt_iterations=1,
+share_stencil_extent=.true.
 vertical_limit='exponential',
 vertical_method='trapezoidal',
 vertical_sorting=.false.

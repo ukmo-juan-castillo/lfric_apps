@@ -238,6 +238,7 @@ limit_cfl=.false.
   horizontal_limit    = 'none'
   horizontal_method   = 'euler'
   n_dep_pt_iterations = 1
+  share_stencil_extent=.true.
   vertical_limit      = 'boundary'
   vertical_method     = 'euler'
   vertical_sorting    = .false.

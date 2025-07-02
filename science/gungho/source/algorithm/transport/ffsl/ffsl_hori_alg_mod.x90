@@ -77,8 +77,7 @@ module ffsl_hori_alg_mod
                                               special_edges_high_order,        &
                                               ffsl_inner_order,                &
                                               ffsl_outer_order,                &
-                                              ffsl_unity_3d,                   &
-                                              dep_pt_stencil_extent
+                                              ffsl_unity_3d
 
   implicit none
 
@@ -311,6 +310,7 @@ contains
     type(function_space_type), pointer :: field_fs
     type(function_space_type), pointer :: w2h_fs
     type(function_space_type), pointer :: w2b_fs
+    type(function_space_type), pointer :: ndepk_fs
 
     ! Transport options
     integer(kind=i_def) :: monotone
@@ -338,7 +338,6 @@ contains
 
     ! Get options
     step = transport_counter%get_split_step_of_substep_counter()
-    ndep = 2*dep_pt_stencil_extent + 1
     monotone = transport_metadata%get_horizontal_monotone()
     special_edges_monotone = transport_metadata%get_special_edges_monotone()
     call monotone_option_special_edges(special_edges_monotone, monotone)
@@ -384,9 +383,15 @@ contains
     face_selector_ew => get_face_selector_ew(mesh_id)
     face_selector_ns => get_face_selector_ns(mesh_id)
 
+    if (is_cubed_sphere) then
+      panel_id => get_panel_id(mesh_id)
+      panel_edge_dist => get_panel_edge_dist(mesh_id)
+    end if
+
     ! Function spaces
     w2h_fs => dep_dist%get_function_space()
     field_fs => field_n%get_function_space()
+    ndepk_fs => dep_lowest_k%get_function_space()
 
     ! Initialise fields
     call increment_x%initialise( vector_space = field_fs )
@@ -395,7 +400,8 @@ contains
 
     ! Set constant values
     extra_points = ffsl_extra_points(special_edges_treatment, special_edges_high_order)
-    stencil_extent = dep_stencil_extent + extra_points + ffsl_inner_order
+    stencil_extent = MIN(dep_stencil_extent + extra_points + order, mesh%get_halo_depth())
+    ndep = ndepk_fs%get_ndata()
 
     ! The minimum value is required for the quasi-monotone limiter for PPM,
     ! if it is not set we assume positivity.
@@ -417,7 +423,7 @@ contains
                                   remap_depth)
     else
       call field_big_halo%initialise( field_n%get_function_space(), &
-                                      halo_depth = get_required_stencil_depth() )
+                                      halo_depth=get_required_stencil_depth() )
       call invoke( setval_x(field_big_halo, field_n) )
     end if
     ! Copy required as PSyclone doesn't allow the same field to be
@@ -430,50 +436,50 @@ contains
       ! Special edge treatment ------------------------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_special_edge_kernel_type(                      &
-                                        flux,                                  &
-                                        field_big_halo, stencil_extent,        &
-                                        detj_at_w3, stencil_extent,            &
-                                        field_ptr_copy, stencil_extent,        &
-                                        detj_at_w3_copy, stencil_extent,       &
-                                        dep_dist, frac_wind,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        panel_id,                              &
-                                        panel_edge_dist(1:2), stencil_extent,  &
-                                        panel_edge_dist(3:4), stencil_extent,  &
-                                        face_selector_ew, face_selector_ns,    &
-                                        special_edges_high_order,              &
-                                        ffsl_inner_order, monotone,            &
-                                        special_edges_monotone, min_val,       &
-                                        ndep, dt ) )
+                                    flux,                                      &
+                                    field_big_halo, stencil_extent,            &
+                                    detj_at_w3, dep_stencil_extent,            &
+                                    field_ptr_copy, stencil_extent,            &
+                                    detj_at_w3_copy, dep_stencil_extent,       &
+                                    dep_dist, frac_wind,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    panel_id,                                  &
+                                    panel_edge_dist(1:2), stencil_extent,      &
+                                    panel_edge_dist(3:4), stencil_extent,      &
+                                    face_selector_ew, face_selector_ns,        &
+                                    special_edges_high_order,                  &
+                                    ffsl_inner_order, monotone,                &
+                                    special_edges_monotone, min_val,           &
+                                    ndep, dt ) )
     else if (is_cubed_sphere) then
       ! Sphere requires handling of panel edges --------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_sphere_kernel_type(                            &
-                                        flux,                                  &
-                                        field_big_halo, stencil_extent,        &
-                                        detj_at_w3, stencil_extent,            &
-                                        field_ptr_copy, stencil_extent,        &
-                                        detj_at_w3_copy, stencil_extent,       &
-                                        dep_dist, frac_wind,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        panel_id, panel_edge_dist,             &
-                                        face_selector_ew, face_selector_ns,    &
-                                        ffsl_inner_order, monotone, min_val,   &
-                                        ndep, dt ) )
+                                    flux,                                      &
+                                    field_big_halo, stencil_extent,            &
+                                    detj_at_w3, dep_stencil_extent,            &
+                                    field_ptr_copy, stencil_extent,            &
+                                    detj_at_w3_copy, dep_stencil_extent,       &
+                                    dep_dist, frac_wind,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    panel_id, panel_edge_dist,                 &
+                                    face_selector_ew, face_selector_ns,        &
+                                    ffsl_inner_order, monotone, min_val,       &
+                                    ndep, dt ) )
     else
       ! Not on the sphere ------------------------------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_kernel_type(                                   &
-                                        flux,                                  &
-                                        field_big_halo, stencil_extent,        &
-                                        detj_at_w3, stencil_extent,            &
-                                        field_ptr_copy, stencil_extent,        &
-                                        detj_at_w3_copy, stencil_extent,       &
-                                        dep_dist, frac_wind,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        face_selector_ew, face_selector_ns,    &
-                                        ffsl_inner_order, monotone,            &
-                                        min_val, ndep, dt ) )
+                                    flux,                                      &
+                                    field_big_halo, stencil_extent,            &
+                                    detj_at_w3, dep_stencil_extent,            &
+                                    field_ptr_copy, stencil_extent,            &
+                                    detj_at_w3_copy, dep_stencil_extent,       &
+                                    dep_dist, frac_wind,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    face_selector_ew, face_selector_ns,        &
+                                    ffsl_inner_order, monotone,                &
+                                    min_val, ndep, dt ) )
     end if
 
     if ( subroutine_timers ) call timer('transport.ffsl_hori_sweeps')
@@ -561,6 +567,7 @@ contains
     type(function_space_type), pointer :: field_fs
     type(function_space_type), pointer :: w2h_fs
     type(function_space_type), pointer :: w2b_fs
+    type(function_space_type), pointer :: ndepk_fs
 
     ! Transport options
     integer(kind=i_def) :: monotone
@@ -587,7 +594,6 @@ contains
     transport_metadata => transport_controller%get_transport_metadata()
 
     ! Get options
-    ndep = 2*dep_pt_stencil_extent + 1
     monotone = transport_metadata%get_horizontal_monotone()
     special_edges_monotone = transport_metadata%get_special_edges_monotone()
     call monotone_option_special_edges(special_edges_monotone, monotone)
@@ -617,9 +623,15 @@ contains
     if (equation_form == equation_form_consistent) then
       ffsl_precomputations => transport_controller%get_flux_precomputations()
       step = transport_counter%get_split_step_of_whole_step_counter()
+      dep_stencil_extent = transport_controller%get_dep_stencil_extent(        &
+          mesh_id, step, outer_step=.false., flux_calc=.true.                  &
+      )
     else if (ffsl_unity_3d) then
       ffsl_precomputations => transport_controller%get_ffsl_precomputations()
       step = transport_counter%get_split_step_of_substep_counter()
+      dep_stencil_extent = transport_controller%get_dep_stencil_extent(        &
+          mesh_id, step, outer_step=.false., flux_calc=.false.                 &
+      )
     else
       wind_precomputations => transport_controller%get_wind_precomputations()
       step = transport_counter%get_split_step_of_substep_counter()
@@ -632,9 +644,6 @@ contains
       dry_mass_x => ffsl_precomputations%get_ref_mass_x(mesh_id, step)
       dry_mass_y => ffsl_precomputations%get_ref_mass_y(mesh_id, step)
       dep_dist => ffsl_precomputations%get_dep_dist(                           &
-          mesh_id, step, outer_step=.false.                                    &
-      )
-      dep_stencil_extent = ffsl_precomputations%get_dep_stencil_extent(        &
           mesh_id, step, outer_step=.false.                                    &
       )
       frac_flux => ffsl_precomputations%get_frac_flux(                         &
@@ -676,14 +685,16 @@ contains
     ! Function spaces
     w2h_fs => dep_dist%get_function_space()
     field_fs => field_x%get_function_space()
+    ndepk_fs => dep_lowest_k%get_function_space()
 
     ! Initialise fields --------------------------------------------------------
     call increment_x%initialise( vector_space = field_fs )
     call increment_y%initialise( vector_space = field_fs )
 
     ! Set constant values
-    extra_points = ffsl_extra_points(special_edges_treatment,special_edges_high_order)
-    stencil_extent = dep_stencil_extent + extra_points + order
+    extra_points = ffsl_extra_points(special_edges_treatment, special_edges_high_order)
+    stencil_extent = MIN(dep_stencil_extent + extra_points + order, mesh%get_halo_depth())
+    ndep = ndepk_fs%get_ndata()
 
     ! The minimum value is required for the quasi-monotone limiter for PPM,
     ! if it is not set we assume positivity.
@@ -705,7 +716,7 @@ contains
                                   remap_depth)
     else
       call field_big_halo%initialise( field_n%get_function_space(), &
-                                      halo_depth = get_required_stencil_depth() )
+                                      halo_depth=get_required_stencil_depth() )
       call invoke( setval_x(field_big_halo, field_n) )
     end if
     field_ptr_copy => field_big_halo
@@ -716,49 +727,49 @@ contains
       ! Special edges ----------------------------------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_special_edge_kernel_type(                      &
-                                        flux,                                  &
-                                        field_big_halo, stencil_extent,        &
-                                        dry_mass_n, stencil_extent,            &
-                                        field_ptr_copy, stencil_extent,        &
-                                        dry_mass_n_copy, stencil_extent,       &
-                                        dep_dist, frac_flux,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        panel_id,                              &
-                                        panel_edge_dist(1:2), stencil_extent,  &
-                                        panel_edge_dist(3:4), stencil_extent,  &
-                                        face_selector_ew, face_selector_ns,    &
-                                        special_edges_high_order, order,       &
-                                        monotone, special_edges_monotone,      &
-                                        min_val, ndep, step_dt ) )
+                                    flux,                                      &
+                                    field_big_halo, stencil_extent,            &
+                                    dry_mass_n, dep_stencil_extent,            &
+                                    field_ptr_copy, stencil_extent,            &
+                                    dry_mass_n_copy, dep_stencil_extent,       &
+                                    dep_dist, frac_flux,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    panel_id,                                  &
+                                    panel_edge_dist(1:2), stencil_extent,      &
+                                    panel_edge_dist(3:4), stencil_extent,      &
+                                    face_selector_ew, face_selector_ns,        &
+                                    special_edges_high_order, order,           &
+                                    monotone, special_edges_monotone,          &
+                                    min_val, ndep, step_dt ) )
     else if (is_cubed_sphere) then
       ! Sphere requires handling of panel edges --------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_sphere_kernel_type(                            &
-                                        flux,                                  &
-                                        field_big_halo, stencil_extent,        &
-                                        dry_mass_n, stencil_extent,            &
-                                        field_ptr_copy, stencil_extent,        &
-                                        dry_mass_n_copy, stencil_extent,       &
-                                        dep_dist, frac_flux,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        panel_id, panel_edge_dist,             &
-                                        face_selector_ew, face_selector_ns,    &
-                                        order, monotone, min_val,              &
-                                        ndep, step_dt ) )
+                                    flux,                                      &
+                                    field_big_halo, stencil_extent,            &
+                                    dry_mass_n, dep_stencil_extent,            &
+                                    field_ptr_copy, stencil_extent,            &
+                                    dry_mass_n_copy, dep_stencil_extent,       &
+                                    dep_dist, frac_flux,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    panel_id, panel_edge_dist,                 &
+                                    face_selector_ew, face_selector_ns,        &
+                                    order, monotone, min_val,                  &
+                                    ndep, step_dt ) )
     else
       ! Not special edges ------------------------------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_kernel_type(                                   &
-                                        flux,                                  &
-                                        field_big_halo, stencil_extent,        &
-                                        dry_mass_n, stencil_extent,            &
-                                        field_ptr_copy, stencil_extent,        &
-                                        dry_mass_n_copy, stencil_extent,       &
-                                        dep_dist, frac_flux,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        face_selector_ew, face_selector_ns,    &
-                                        order, monotone, min_val,              &
-                                        ndep, step_dt ) )
+                                    flux,                                      &
+                                    field_big_halo, stencil_extent,            &
+                                    dry_mass_n, dep_stencil_extent,            &
+                                    field_ptr_copy, stencil_extent,            &
+                                    dry_mass_n_copy, dep_stencil_extent,       &
+                                    dep_dist, frac_flux,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    face_selector_ew, face_selector_ns,        &
+                                    order, monotone, min_val,                  &
+                                    ndep, step_dt ) )
 
     end if
 
@@ -870,6 +881,7 @@ contains
     type(function_space_type), pointer :: field_fs
     type(function_space_type), pointer :: w2h_fs
     type(function_space_type), pointer :: w2b_fs
+    type(function_space_type), pointer :: ndepk_fs
 
     ! Transport options
     integer(kind=i_def) :: monotone
@@ -901,7 +913,6 @@ contains
     transport_metadata => transport_controller%get_transport_metadata()
 
     ! Get options
-    ndep = 2*dep_pt_stencil_extent + 1
     monotone = transport_metadata%get_horizontal_monotone()
     special_edges_monotone = transport_metadata%get_special_edges_monotone()
     call monotone_option_special_edges(special_edges_monotone, monotone)
@@ -936,9 +947,15 @@ contains
     if (equation_form == equation_form_consistent) then
       ffsl_precomputations => transport_controller%get_flux_precomputations()
       step = transport_counter%get_split_step_of_whole_step_counter()
+      dep_stencil_extent = transport_controller%get_dep_stencil_extent(        &
+          mesh_id, step, outer, flux_calc=.true.                               &
+      )
     else if (ffsl_unity_3d) then
       ffsl_precomputations => transport_controller%get_ffsl_precomputations()
       step = transport_counter%get_split_step_of_substep_counter()
+      dep_stencil_extent = transport_controller%get_dep_stencil_extent(        &
+          mesh_id, step, outer, flux_calc=.false.                              &
+      )
     else
       wind_precomputations => transport_controller%get_wind_precomputations()
       step = transport_counter%get_split_step_of_substep_counter()
@@ -958,9 +975,6 @@ contains
       frac_flux => ffsl_precomputations%get_frac_flux(mesh_id, step, outer)
       dep_lowest_k => ffsl_precomputations%get_dep_lowest_k(mesh_id, step, outer)
       dep_highest_k => ffsl_precomputations%get_dep_highest_k(mesh_id, step, outer)
-      dep_stencil_extent = ffsl_precomputations%get_dep_stencil_extent(        &
-          mesh_id, step, outer                                                 &
-      )
     else
       ! Advective/conservative forms of equation use volume ("detj") of cells
       wind_precomputations => transport_controller%get_wind_precomputations()
@@ -996,6 +1010,7 @@ contains
     ! Function spaces
     w2h_fs => dep_dist%get_function_space()
     field_fs => field_x%get_function_space()
+    ndepk_fs => dep_lowest_k%get_function_space()
 
     if (present(compute_adv_inc)) then
       to_compute_adv_inc = compute_adv_inc
@@ -1010,9 +1025,9 @@ contains
     end if
 
     ! Set constant values
-    extra_points = ffsl_extra_points(special_edges_treatment,special_edges_high_order)
-    stencil_extent = dep_stencil_extent + extra_points + order
-
+    extra_points = ffsl_extra_points(special_edges_treatment, special_edges_high_order)
+    stencil_extent = MIN(dep_stencil_extent + extra_points + order, mesh%get_halo_depth())
+    ndep = ndepk_fs%get_ndata()
 
     ! The minimum value is required for the quasi-monotone limiter for PPM,
     ! if it is not set we assume positivity.
@@ -1038,7 +1053,7 @@ contains
                                   remap_depth)
     else
       call field_x_big_halo%initialise(field_fs, halo_depth=get_required_stencil_depth())
-      call field_y_big_halo%initialise(field_fs, halo_depth = get_required_stencil_depth())
+      call field_y_big_halo%initialise(field_fs, halo_depth=get_required_stencil_depth())
       call invoke( setval_x(field_x_big_halo, field_x),                        &
                    setval_x(field_y_big_halo, field_y) )
     end if
@@ -1050,50 +1065,50 @@ contains
       ! Special edge treatment ------------------------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_special_edge_kernel_type(                      &
-                                        flux,                                  &
-                                        field_y_big_halo, stencil_extent,      &
-                                        dry_mass_y, stencil_extent,            &
-                                        field_x_big_halo, stencil_extent,      &
-                                        dry_mass_x, stencil_extent,            &
-                                        dep_dist, frac_flux,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        panel_id,                              &
-                                        panel_edge_dist(1:2), stencil_extent,  &
-                                        panel_edge_dist(3:4), stencil_extent,  &
-                                        face_selector_ew, face_selector_ns,    &
-                                        special_edges_high_order, order,       &
-                                        monotone, special_edges_monotone,      &
-                                        min_val, ndep, dt ) )
+                                    flux,                                      &
+                                    field_y_big_halo, stencil_extent,          &
+                                    dry_mass_y, dep_stencil_extent,            &
+                                    field_x_big_halo, stencil_extent,          &
+                                    dry_mass_x, dep_stencil_extent,            &
+                                    dep_dist, frac_flux,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    panel_id,                                  &
+                                    panel_edge_dist(1:2), stencil_extent,      &
+                                    panel_edge_dist(3:4), stencil_extent,      &
+                                    face_selector_ew, face_selector_ns,        &
+                                    special_edges_high_order, order,           &
+                                    monotone, special_edges_monotone,          &
+                                    min_val, ndep, dt ) )
     else if (is_cubed_sphere) then
       ! Sphere requires handling of panel edges --------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_sphere_kernel_type(                            &
-                                        flux,                                  &
-                                        field_y_big_halo, stencil_extent,      &
-                                        dry_mass_y, stencil_extent,            &
-                                        field_x_big_halo, stencil_extent,      &
-                                        dry_mass_x, stencil_extent,            &
-                                        dep_dist, frac_flux,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        panel_id, panel_edge_dist,             &
-                                        face_selector_ew, face_selector_ns,    &
-                                        order, monotone, min_val,              &
-                                        ndep, dt ) )
+                                    flux,                                      &
+                                    field_y_big_halo, stencil_extent,          &
+                                    dry_mass_y, dep_stencil_extent,            &
+                                    field_x_big_halo, stencil_extent,          &
+                                    dry_mass_x, dep_stencil_extent,            &
+                                    dep_dist, frac_flux,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    panel_id, panel_edge_dist,                 &
+                                    face_selector_ew, face_selector_ns,        &
+                                    order, monotone, min_val,                  &
+                                    ndep, dt ) )
     else
       ! Not on the sphere ------------------------------------------------------
       call invoke( setval_c(flux, 0.0_r_tran),                                 &
                    ffsl_flux_xy_kernel_type(                                   &
-                                        flux,                                  &
-                                        field_y_big_halo, stencil_extent,      &
-                                        dry_mass_y, stencil_extent,            &
-                                        field_x_big_halo, stencil_extent,      &
-                                        dry_mass_x, stencil_extent,            &
-                                        dep_dist, frac_flux,                   &
-                                        dep_lowest_k, dep_highest_k,           &
-                                        face_selector_ew,                      &
-                                        face_selector_ns, order,               &
-                                        monotone, min_val,                     &
-                                        ndep, dt ) )
+                                    flux,                                      &
+                                    field_y_big_halo, stencil_extent,          &
+                                    dry_mass_y, dep_stencil_extent,            &
+                                    field_x_big_halo, stencil_extent,          &
+                                    dry_mass_x, dep_stencil_extent,            &
+                                    dep_dist, frac_flux,                       &
+                                    dep_lowest_k, dep_highest_k,               &
+                                    face_selector_ew,                          &
+                                    face_selector_ns, order,                   &
+                                    monotone, min_val,                         &
+                                    ndep, dt ) )
 
     end if
 
@@ -1201,9 +1216,9 @@ contains
     integer(kind=i_def)             :: extra_points
 
     if ( special_edges_treatment .AND. special_edges_high_order ) then
-        extra_points = 2_i_def
-     else
-        extra_points = 1_i_def
+      extra_points = 1_i_def
+    else
+      extra_points = 0_i_def
     end if
   end function ffsl_extra_points
 

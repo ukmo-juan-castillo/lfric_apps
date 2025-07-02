@@ -57,8 +57,7 @@ module calc_dep_pts_alg_mod
 
   ! Other algorithms
   use sci_field_minmax_alg_mod,          only: log_field_minmax,               &
-                                               get_field_minmax,               &
-                                               get_local_field_minmax
+                                               get_field_minmax
   use copy_field_alg_mod,                only: copy_field
 
   ! Kernels
@@ -122,15 +121,11 @@ contains
   !> @param[in,out] frac_wind    The part of the horizontal wind corresponding
   !!                             to the fractional part of the Courant number.
   !!                             It is a W2h field
-  !> @param[in,out] max_stencil_extent
-  !!                             The maximum stencil extent associated with this
-  !!                             set of departure points
   !> @param[in]     wind_n       Wind field at timestep n
   !> @param[in]     wind_np1     Wind field at timestep n+1
   !> @param[in]     dt           The model timestep length
   subroutine calc_hori_dep_pts( dep_dist,           &
                                 frac_wind,          &
-                                max_stencil_extent, &
                                 dep_lowest_k,       &
                                 dep_highest_k,      &
                                 wind_n,             &
@@ -142,7 +137,6 @@ contains
     ! Arguments
     type(r_tran_field_type),  intent(inout) :: dep_dist
     type(r_tran_field_type),  intent(inout) :: frac_wind
-    integer(kind=i_def),      intent(inout) :: max_stencil_extent
     type(integer_field_type), intent(inout) :: dep_lowest_k
     type(integer_field_type), intent(inout) :: dep_highest_k
     type(r_tran_field_type),  intent(in)    :: wind_n
@@ -272,28 +266,15 @@ contains
                                             face_selector_ns),                 &
                      inc_a_times_X(dt, dep_wind) )
 
-        call calc_ffsl_hori_dep_pts(dep_dist, frac_wind, max_stencil_extent,   &
+        call calc_ffsl_hori_dep_pts(dep_dist, frac_wind,                       &
                                     dep_lowest_k, dep_highest_k,               &
-                                    dep_wind, detj_at_w3, detj_at_w3_copy)
+                                    dep_wind, detj_at_w3, detj_at_w3_copy,     &
+                                    dep_pt_stencil_extent)
 
       case default
         call log_event( "Gungho: Invalid departure point method", LOG_LEVEL_ERROR )
 
     end select
-
-    ! Compute reconstruction stencil extent based on departure distance
-    ! Already computed for FFSL method, so don't need to in that case
-    ! @TODO #416: Here we could instead take *local* min/max values.
-    ! This would mean that each rank would perform the halo exchange to the
-    ! depth that it needs. However this currently causes the model to hang.
-    ! Instead, we still use the global min/max as this still generally appears
-    ! to save time in later halo exchanges, rather than using the global
-    ! dep_pt_stencil_extent variable, although this trade-off may change at
-    ! very high resolutions.
-    if (horizontal_method /= horizontal_method_ffsl) then
-      call get_field_minmax(dep_dist, min_hori_dep, max_hori_dep)
-      max_stencil_extent = int( max( abs(min_hori_dep), abs(max_hori_dep) ) )
-    end if
 
     call log_field_minmax( LOG_LEVEL_DEBUG, "dep_dist", dep_dist )
 
@@ -327,9 +308,12 @@ contains
   !!                                   computing the x-part of the dep points
   !> @param[in]     detj_for_y         The volume or mass of cells used for
   !!                                   computing the y-part of the dep points
-  subroutine calc_ffsl_hori_dep_pts(dep_dist, frac_wind, max_stencil_extent,   &
+  !> @param[in]     stencil_extent     The stencil extent to use for the
+  !!                                   departure point calculation
+  subroutine calc_ffsl_hori_dep_pts(dep_dist, frac_wind,                       &
                                     dep_lowest_k, dep_highest_k,               &
-                                    wind, detj_for_x, detj_for_y)
+                                    wind, detj_for_x, detj_for_y,              &
+                                    stencil_extent)
 
     use base_mesh_config_mod, only: geometry, geometry_spherical,              &
                                     topology, topology_fully_periodic
@@ -340,12 +324,12 @@ contains
     ! Arguments
     type(r_tran_field_type),  intent(inout) :: dep_dist
     type(r_tran_field_type),  intent(inout) :: frac_wind
-    integer(kind=i_def),      intent(inout) :: max_stencil_extent
     type(integer_field_type), intent(inout) :: dep_lowest_k
     type(integer_field_type), intent(inout) :: dep_highest_k
     type(r_tran_field_type),     intent(in) :: wind
     type(r_tran_field_type),     intent(in) :: detj_for_x
     type(r_tran_field_type),     intent(in) :: detj_for_y
+    integer(kind=i_def),         intent(in) :: stencil_extent
 
     ! Internal variables
     type(mesh_type),           pointer :: mesh
@@ -354,20 +338,19 @@ contains
     type(integer_field_type),  pointer :: face_selector_ew
     type(integer_field_type),  pointer :: face_selector_ns
     type(integer_field_type)           :: error_flag_field
+    type(function_space_type), pointer :: ndepk_fs
     integer(kind=i_def)                :: error_flag_min, error_flag_max
-    integer(kind=i_def)                :: stencil_extent
     integer(kind=i_def)                :: ndep
     logical(kind=l_def)                :: cap_dep_points
     logical(kind=l_def)                :: is_cubed_sphere
-    real(kind=r_tran)                  :: dep_min, dep_max
 
     mesh => wind%get_mesh()
     face_selector_ew => get_face_selector_ew(mesh%get_id())
     face_selector_ns => get_face_selector_ns(mesh%get_id())
     call error_flag_field%initialise( face_selector_ew%get_function_space() )
 
-    stencil_extent = dep_pt_stencil_extent
-    ndep = 2*dep_pt_stencil_extent + 1
+    ndepk_fs => dep_lowest_k%get_function_space()
+    ndep = ndepk_fs%get_ndata()
     cap_dep_points = (horizontal_limit == horizontal_limit_cap)
 
     is_cubed_sphere = (                                                        &
@@ -420,16 +403,6 @@ contains
                                                   ndep,                        &
                                                   cap_dep_points) )
     end if
-
-    ! @TODO #416: Here we could instead take *local* min/max values.
-    ! This would mean that each rank would perform the halo exchange to the
-    ! depth that it needs. However this currently causes the model to hang.
-    ! Instead, we still use the global min/max as this still generally appears
-    ! to save time in later halo exchanges, rather than using the global
-    ! dep_pt_stencil_extent variable, although this trade-off may change at
-    ! very high resolutions.
-    call get_field_minmax(dep_dist, dep_min, dep_max)
-    max_stencil_extent = int( max( abs(dep_max), abs(dep_min) ) )
 
     ! Check error flag field, if departure points aren't capped
     if (.not. cap_dep_points) then

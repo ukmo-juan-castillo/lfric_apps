@@ -807,7 +807,9 @@ contains
     type(integer_field_type)                                :: dummy_highest_k
     integer(kind=i_def)                                     :: frac
     integer(kind=i_def)                                     :: ndata
+    integer(kind=i_def)                                     :: stencil_extent
     real(kind=r_tran)                                       :: dt_split_step
+    real(kind=r_tran)                                       :: dep_min, dep_max
 
     ! If departure points calculated using "FFSL" method, get these from the
     ! flux precomputations object
@@ -844,10 +846,14 @@ contains
 
         call calc_hori_dep_pts(                                                &
                 self%dep_dist_xy(mesh_idx, frac_idx), dummy_frac_wind,         &
-                self%dep_stencil_extent(mesh_idx, frac_idx),                   &
                 dummy_lowest_k, dummy_highest_k,                               &
                 self%wind_n(mesh_idx), self%wind_np1(mesh_idx), dt_split_step  &
         )
+
+        ! Compute stencil extent for departure points
+        call get_field_minmax(self%dep_dist_xy(mesh_idx, frac_idx), dep_min, dep_max)
+        stencil_extent = INT(MAX(ABS(dep_max), ABS(dep_min)), i_def) + 1
+        self%dep_stencil_extent(mesh_idx, frac_idx) = stencil_extent
       end if
 
       dep_dist_xy => self%dep_dist_xy(mesh_idx, frac_idx)
@@ -1288,6 +1294,7 @@ contains
   !> @param[in] step      The step of the splitting to get the object for
   function get_split_ffsl_precomputations(self, splitting, step) result(split_ffsl_precomp)
 
+    use transport_config_mod,           only: dep_pt_stencil_extent
     use transport_enumerated_types_mod, only: splitting_hv
 
     implicit none
@@ -1318,7 +1325,8 @@ contains
       ! Initialise with HV splitting, so time step is dt for each direction
       call self%split_ffsl_precomputations(frac_idx)%initialise(               &
               mesh, splitting=splitting_hv, num_substeps=1,                    &
-              flux=wind_flux, reset_unity=.true.                               &
+              flux=wind_flux, reset_unity=.true.,                              &
+              max_courant_num=dep_pt_stencil_extent                            &
       )
     end if
 
