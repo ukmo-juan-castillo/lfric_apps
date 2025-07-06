@@ -433,3 +433,95 @@ class vn21_t590(MacroUpgrade):
         )
 
         return config, self.reports
+
+
+class vn21_t207(MacroUpgrade):
+    """Upgrade macro for ticket #207 by Samantha Pullen."""
+
+    BEFORE_TAG = "vn2.1_t590"
+    AFTER_TAG = "vn2.1_t207"
+
+    def upgrade(self, config, meta_config=None):
+        # Commands From: rose-meta/um-iau
+        """Add new variables and default data to iau namelist"""
+        self.add_setting(
+            config, ["namelist:iau", "iau_ainc_multifile"], ".false."
+        )
+        self.add_setting(
+            config, ["namelist:iau", "iau_tendency_addinf"], ".true."
+        )
+        self.add_setting(
+            config, ["namelist:iau", "iau_tendency_ainc"], ".false."
+        )
+        self.add_setting(
+            config, ["namelist:iau", "iau_tendency_bcorr"], ".true."
+        )
+        self.add_setting(
+            config, ["namelist:iau", "iau_tendency_pertinc"], ".false."
+        )
+        self.add_setting(config, ["namelist:iau", "iau_use_addinf"], ".false.")
+        self.add_setting(config, ["namelist:iau", "iau_use_bcorr"], ".false.")
+        self.add_setting(config, ["namelist:iau", "iau_use_pertinc"], ".false.")
+
+        # Commands From: rose-meta/lfric-gungho
+        """Add new iau_addinf_io, iau_ainc_io, and iau_bcorr_io namelists"""
+        source = self.get_setting_value(
+            config, ["file:configuration.nml", "source"]
+        )
+        source = re.sub(
+            r"namelist:helmholtz_solver",
+            r"namelist:helmholtz_solver"
+            + "\n"
+            + " (namelist:iau_addinf_io(:))"
+            + "\n"
+            + " (namelist:iau_ainc_io(:))"
+            + "\n"
+            + " (namelist:iau_bcorr_io(:))",
+            source,
+        )
+        self.change_setting_value(
+            config, ["file:configuration.nml", "source"], source
+        )
+        """Add iau_addinf_path setting to files namelist"""
+        self.add_setting(config, ["namelist:files", "iau_addinf_path"], "''")
+        """Add iau_bcorr_path setting to files namelist"""
+        self.add_setting(config, ["namelist:files", "iau_bcorr_path"], "''")
+        """Add iau_pert_path setting to files namelist"""
+        self.add_setting(config, ["namelist:files", "iau_pert_path"], "''")
+        """Add default data for iau_addinf_io namelist"""
+        self.add_setting(
+            config, ["namelist:iau_addinf_io(addinf1)", "filename"], "''"
+        )
+        self.add_setting(
+            config, ["namelist:iau_addinf_io(addinf1)", "start_time"], "0"
+        )
+        self.add_setting(
+            config, ["namelist:iau_addinf_io(addinf2)", "filename"], "''"
+        )
+        self.add_setting(
+            config, ["namelist:iau_addinf_io(addinf2)", "start_time"], "0"
+        )
+        """Add default data for iau_ainc_io namelist"""
+        self.add_setting(
+            config, ["namelist:iau_ainc_io(ainc1)", "filename"], "''"
+        )
+        self.add_setting(
+            config, ["namelist:iau_ainc_io(ainc1)", "start_time"], "0"
+        )
+        self.add_setting(
+            config, ["namelist:iau_ainc_io(ainc2)", "filename"], "''"
+        )
+        self.add_setting(
+            config, ["namelist:iau_ainc_io(ainc2)", "start_time"], "0"
+        )
+        """Add default data for iau_bcorr_io namelist"""
+        self.add_setting(
+            config, ["namelist:iau_bcorr_io(bcorr1)", "filename"], "''"
+        )
+        self.add_setting(
+            config, ["namelist:iau_bcorr_io(bcorr1)", "start_time"], "0"
+        )
+        """Add multifile_io setting to io namelist"""
+        self.add_setting(config, ["namelist:io", "multifile_io"], ".false.")
+
+        return config, self.reports

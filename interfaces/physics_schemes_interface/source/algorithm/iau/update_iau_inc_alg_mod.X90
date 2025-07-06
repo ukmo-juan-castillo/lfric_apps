@@ -8,22 +8,29 @@
 
 module update_iau_inc_alg_mod
 
-  use constants_mod,                    only : r_def, i_def, r_second
+  use constants_mod,                    only : r_def, i_def, r_second, l_def
   use dry_rho_alg_mod,                  only : dry_rho
   use field_array_mod,                  only : field_array_type
   use field_mod,                        only : field_type
   use field_collection_mod,             only : field_collection_type
   use driver_modeldb_mod,               only : modeldb_type
   use fs_continuity_mod,                only : W2, W3, Wtheta
-  use iau_config_mod,                   only : iau_pc2,               &
-                                               iau_wet_density,       &
-                                               iau_use_level_one_temp
+  use iau_config_mod,                   only : iau_pc2,                &
+                                               iau_tendency_addinf,    &
+                                               iau_tendency_ainc,      &
+                                               iau_tendency_bcorr,     &
+                                               iau_tendency_pertinc,   &
+                                               iau_wet_density,        &
+                                               iau_use_addinf,         &
+                                               iau_use_bcorr,          &
+                                               iau_use_level_one_temp, &
+                                               iau_use_pertinc
   use iau_humidity_inc_alg_mod,         only : iau_humidity_inc,  &
                                                iau_humidity_checks
   use iau_pc2_assimilation_alg_mod,     only : iau_pc2_assimilation
   use iau_time_control_mod,             only : calc_iau_weight
   use integer_field_mod,                only : integer_field_type
-  use level_one_temp_alg_mod,           only: level_one_temp_alg
+  use level_one_temp_alg_mod,           only : level_one_temp_alg
   use lfric_xios_read_mod,              only : read_state
   use log_mod,                          only : log_event,         &
                                                log_scratch_space, &
@@ -52,17 +59,20 @@ module update_iau_inc_alg_mod
   implicit none
 
   private
-  public :: add_iau_inc,   &
-            update_iau_alg
+  public  :: add_iau_inc,        &
+             update_iau_alg
+  private :: calc_total_inc_alg, &
+             update_total_inc
 
   contains
 
-  !> @brief   Read the iau_inc field from file and add them to the prognostic field .
+  !> @brief   Read the aggregated weighted increments valid at this time
+  !>          and add them to the prognostic field.
   !> @details After reading the iau increments from a file, in the case the increments
   !> @ are valid for the time zero only, the 4DVar case, we proceed by adding
   !> @ these increments to the appropriate prognostic_fields.
   !> @ Transformations from mixing ratios to specific humidity and inversely are used
-  !> @param[in,out]  iau_fields         The collection of iau fields
+  !> @param[in,out]  iau_tot_inc        The collection of aggregated iau fields
   !> @param[in]      moist_dyn          Moist_dynamics factors (for 1+sum(m_x))
   !> @param[in]      twod_mesh          Two dimensional mesh, used to calculate tropopause level
   !> @param[in,out]  prognostic_fields  The collection of prognostic fields
@@ -72,14 +82,14 @@ module update_iau_inc_alg_mod
   !> @param[in,out]  soil_fields        The collection of soil fields
   !> @param[in,out]  snow_fields        The collection of snow fields
   !> @param[in]      model_clock        The model clock, used to determine the IAU weight
-  subroutine add_iau_inc( iau_fields, moist_dyn, twod_mesh, prognostic_fields, &
-                          derived_fields, cloud_fields, surface_fields,        &
+  subroutine add_iau_inc( iau_tot_inc, moist_dyn, twod_mesh, prognostic_fields, &
+                          derived_fields, cloud_fields, surface_fields,         &
                           soil_fields, snow_fields, model_clock )
 
     implicit none
 
 
-    type( field_collection_type ), intent(inout)       :: iau_fields
+    type( field_collection_type ), intent(inout)       :: iau_tot_inc
     type( mesh_type ),             intent(in), pointer :: twod_mesh
     type( field_collection_type ), intent(inout)       :: prognostic_fields
     type( field_collection_type ), intent(in)          :: derived_fields
@@ -101,16 +111,16 @@ module update_iau_inc_alg_mod
     type( field_type ), pointer :: m_s
     type( field_type ), pointer :: m_g
 
-    ! Increments coming from the read file
-    type( field_type ), pointer :: u_in_w3_inc
-    type( field_type ), pointer :: v_in_w3_inc
-    type( field_type ), pointer :: q_inc
-    type( field_type ), pointer :: qcl_inc
-    type( field_type ), pointer :: qcf_inc
-    type( field_type ), pointer :: theta_inc
-    type( field_type ), pointer :: rho_r2_inc
-    type( field_type ), pointer :: rho_inc
-    type( field_type ), pointer :: exner_inc
+    ! Total increments for updating prognostic state
+    type( field_type ), pointer :: u_in_w3_tot_inc
+    type( field_type ), pointer :: v_in_w3_tot_inc
+    type( field_type ), pointer :: q_tot_inc
+    type( field_type ), pointer :: qcl_tot_inc
+    type( field_type ), pointer :: qcf_tot_inc
+    type( field_type ), pointer :: theta_tot_inc
+    type( field_type ), pointer :: rho_r2_tot_inc
+    type( field_type ), pointer :: rho_tot_inc
+    type( field_type ), pointer :: exner_tot_inc
 
     ! Cloud field pointers
     type( field_type ), pointer :: bcf
@@ -138,14 +148,9 @@ module update_iau_inc_alg_mod
 
     ! Others
     type( integer_field_type )  :: trop_level
-    real(kind=r_def)            :: iau_weight
-    real(kind=r_second)         :: dt
+    real( kind=r_second )       :: dt
 
-    iau_weight = calc_iau_weight( model_clock )
     dt = model_clock%get_seconds_per_step()
-
-    write(log_scratch_space,'(A,F16.8)') 'IAU: weight used = ', iau_weight
-    call log_event( log_scratch_space, log_level_info )
 
     ! Prognostic fields
     call prognostic_fields % get_field( 'u', u )
@@ -160,21 +165,21 @@ module update_iau_inc_alg_mod
     call prognostic_fields % get_field( 'm_g', m_g )
 
     ! IAU fields
-    call iau_fields % get_field( 'u_in_w3_inc', u_in_w3_inc )
-    call iau_fields % get_field( 'v_in_w3_inc', v_in_w3_inc )
-    call iau_fields % get_field( 'q_inc', q_inc )
-    call iau_fields % get_field( 'qcl_inc', qcl_inc )
-    call iau_fields % get_field( 'qcf_inc', qcf_inc )
-    call iau_fields % get_field( 'theta_inc', theta_inc )
+    call iau_tot_inc % get_field( 'u_in_w3_tot_inc', u_in_w3_tot_inc )
+    call iau_tot_inc % get_field( 'v_in_w3_tot_inc', v_in_w3_tot_inc )
+    call iau_tot_inc % get_field( 'q_tot_inc', q_tot_inc )
+    call iau_tot_inc % get_field( 'qcl_tot_inc', qcl_tot_inc )
+    call iau_tot_inc % get_field( 'qcf_tot_inc', qcf_tot_inc )
+    call iau_tot_inc % get_field( 'theta_tot_inc', theta_tot_inc )
 
     ! Density increments may be in the form of wet density*r^2 (if
     ! produced by VAR), or dry density (if produced by JADA)
     if ( iau_wet_density ) then
-      call iau_fields % get_field( 'rho_r2_inc', rho_r2_inc )
+      call iau_tot_inc % get_field( 'rho_r2_tot_inc', rho_r2_tot_inc )
     else
-      call iau_fields % get_field( 'rho_inc', rho_inc )
+      call iau_tot_inc % get_field( 'rho_tot_inc', rho_tot_inc )
     end if
-    call iau_fields % get_field( 'exner_inc', exner_inc )
+    call iau_tot_inc % get_field( 'exner_tot_inc', exner_tot_inc )
 
     ! Cloud fields
     call cloud_fields % get_field( 'bulk_fraction', bcf )
@@ -211,13 +216,13 @@ module update_iau_inc_alg_mod
     ! Add IAU increments to:
 
     ! Theta
-    call invoke( inc_X_plus_bY( theta, iau_weight, theta_inc ) )
+    call invoke( inc_X_plus_Y( theta, theta_tot_inc ) )
 
     call log_event( '- After theta -', log_level_debug )
     call print_meanrms_field( theta, log_level_debug )
 
     ! Exner
-    call invoke( inc_X_plus_bY( exner, iau_weight, exner_inc ) )
+    call invoke( inc_X_plus_Y( exner,  exner_tot_inc ) )
     call map_physics_scalars( exner_wth, exner )
 
     call log_event( '- After exner -', log_level_debug )
@@ -225,23 +230,23 @@ module update_iau_inc_alg_mod
 
     ! Wind after transformation from W3 space
     call u % copy_field_properties( u_inc )
-    call theta_inc % copy_field_properties( upward_wind_tmp )
+    call theta_tot_inc % copy_field_properties( upward_wind_tmp )
     call invoke( setval_c( upward_wind_tmp, 0.0_r_def ) )
-    call set_wind( u_inc, u_in_w3_inc, v_in_w3_inc, upward_wind_tmp )
+    call set_wind( u_inc, u_in_w3_tot_inc, v_in_w3_tot_inc, upward_wind_tmp )
     ! Set wind assumes input winds are truly horizontal and truly vertical.
     ! Over sloping surfaces, this creates unphysical flow into the surface
     ! and large divergences which can cause model failures.
     ! We set the vertical dofs of the w2 wind to zero to enforce the near
     ! surface wind to be terrain-following.
     call invoke( set_any_dof_kernel_type(u_inc, T, 0.0_r_def), &
-                 inc_X_plus_bY( u, iau_weight, u_inc ) )
+                 inc_X_plus_Y( u, u_inc ) )
 
     call log_event( '- After wind -', log_level_debug )
     call log_field_minmax( log_level_debug, 'wind', u )
     call print_meanrms_field( u, log_level_debug, 'wind' )
 
     ! Humidity mixing ratios
-    call iau_humidity_inc( q_inc, qcl_inc, qcf_inc, moist_dyn, iau_weight, &
+    call iau_humidity_inc( q_tot_inc, qcl_tot_inc, qcf_tot_inc, moist_dyn, &
                            m_v, m_cl, m_ci, m_r, m_s, m_g,                 &
                            one_minus_qs, cloud_fields )
 
@@ -316,9 +321,9 @@ module update_iau_inc_alg_mod
 
     ! Air density
     if ( iau_wet_density ) then
-      call dry_rho( rho, rho_r2_inc, one_minus_qs, iau_weight )
+      call dry_rho( rho, rho_r2_tot_inc, one_minus_qs)
     else
-      call invoke( inc_X_plus_bY( rho, iau_weight, rho_inc ) )
+      call invoke( inc_X_plus_Y( rho, rho_tot_inc ) )
     end if
 
     call log_event( '- After dry_rho -', log_level_debug )
@@ -327,20 +332,289 @@ module update_iau_inc_alg_mod
 
   end subroutine add_iau_inc
 
+  !> @brief   Calculate the total IAU increment to be applied.
+  !> @details Calculate aggregate weighted increment to be applied at any given timestep
+  !> @param[in,out] modeldb            The structure that holds model state
+  !> @param[in]     iau_ainc_active    Switch to include analysis increments in this update
+  !> @param[in]     iau_addinf_active  Switch to include additive inflation in this update
+  !> @param[in]     iau_bcorr_active   Switch to include bias correction in this update
+  !> @param[in]     iau_pertinc_active Switch to include pert increments in this update
+  subroutine calc_total_inc_alg( modeldb, iau_ainc_active,            &
+                                 iau_addinf_active, iau_bcorr_active, &
+                                 iau_pertinc_active )
+
+    implicit none
+
+    ! Arguments
+    type( modeldb_type ), intent(inout), target  :: modeldb
+    logical( l_def ), intent(in)                 :: iau_ainc_active
+    logical( l_def ), intent(in)                 :: iau_addinf_active
+    logical( l_def ), intent(in)                 :: iau_bcorr_active
+    logical( l_def ), intent(in)                 :: iau_pertinc_active
+
+    ! Internal variables
+    type( field_collection_type ), pointer :: iau_tot_inc
+    type( field_collection_type ), pointer :: iau_inc_fields
+    type( field_collection_type ), pointer :: iau_pert_fields
+    class( model_clock_type ),     pointer :: model_clock
+    real( kind=r_def )                     :: iau_weight
+
+    ! Increments coming from the read file
+    type( field_type ), pointer :: u_in_w3_inc
+    type( field_type ), pointer :: v_in_w3_inc
+    type( field_type ), pointer :: q_inc
+    type( field_type ), pointer :: qcl_inc
+    type( field_type ), pointer :: qcf_inc
+    type( field_type ), pointer :: theta_inc
+    type( field_type ), pointer :: rho_r2_inc
+    type( field_type ), pointer :: rho_inc
+    type( field_type ), pointer :: exner_inc
+
+    ! Aggregrated weighted increments to update prognostic state
+    type( field_type ), pointer :: u_in_w3_tot_inc
+    type( field_type ), pointer :: v_in_w3_tot_inc
+    type( field_type ), pointer :: q_tot_inc
+    type( field_type ), pointer :: qcl_tot_inc
+    type( field_type ), pointer :: qcf_tot_inc
+    type( field_type ), pointer :: theta_tot_inc
+    type( field_type ), pointer :: rho_tot_inc
+    type( field_type ), pointer :: exner_tot_inc
+
+    model_clock => modeldb % clock
+
+    ! Get aggregated weighted increments and initialise them to zero
+    iau_tot_inc => modeldb % fields % get_field_collection("iau_tot_inc")
+    call iau_tot_inc % get_field( 'u_in_w3_tot_inc', u_in_w3_tot_inc )
+    call iau_tot_inc % get_field( 'v_in_w3_tot_inc', v_in_w3_tot_inc )
+    call iau_tot_inc % get_field( 'q_tot_inc', q_tot_inc )
+    call iau_tot_inc % get_field( 'qcl_tot_inc', qcl_tot_inc )
+    call iau_tot_inc % get_field( 'qcf_tot_inc', qcf_tot_inc )
+    call iau_tot_inc % get_field( 'theta_tot_inc', theta_tot_inc )
+    call iau_tot_inc % get_field( 'exner_tot_inc', exner_tot_inc )
+
+    call invoke ( setval_c( u_in_w3_tot_inc, 0.0_r_def ), &
+                  setval_c( v_in_w3_tot_inc, 0.0_r_def ), &
+                  setval_c( q_tot_inc, 0.0_r_def ),       &
+                  setval_c( qcl_tot_inc, 0.0_r_def ),     &
+                  setval_c( qcf_tot_inc, 0.0_r_def ),     &
+                  setval_c( theta_tot_inc, 0.0_r_def ),   &
+                  setval_c( exner_tot_inc, 0.0_r_def ) )
+
+   ! Density increments may be in the form of wet density*r^2 (if
+   ! produced by VAR), or dry density (if produced by JADA)
+   if ( iau_wet_density ) then
+     call iau_tot_inc % get_field( 'rho_r2_tot_inc', rho_tot_inc )
+     call invoke ( setval_c( rho_tot_inc, 0.0_r_def ) )
+   else
+     call iau_tot_inc % get_field( 'rho_tot_inc', rho_tot_inc )
+     call invoke ( setval_c( rho_tot_inc, 0.0_r_def ) )
+   end if
+
+   ! Calculate appropriate weights and aggregate different types of
+   ! increment valid for use on this timestep
+
+   ! Analysis increments
+   if ( iau_ainc_active ) then
+
+     ! Calculate weights to use
+     iau_weight = calc_iau_weight( model_clock, iau_tendency_ainc )
+
+     write(log_scratch_space,'(A,F16.8)') &
+                       'IAU: weight used for analysis increments = ', iau_weight
+     call log_event( log_scratch_space, log_level_info )
+
+     iau_inc_fields => modeldb % fields % get_field_collection("iau_fields")
+
+     call update_total_inc( iau_weight, iau_inc_fields, &
+                            u_in_w3_tot_inc, v_in_w3_tot_inc, &
+                            q_tot_inc, qcl_tot_inc, qcf_tot_inc, &
+                            theta_tot_inc, exner_tot_inc, rho_tot_inc )
+
+   end if
+
+   ! Additive inflation
+   if ( iau_addinf_active ) then
+
+     ! Calculate weights to use
+     iau_weight = calc_iau_weight( model_clock, iau_tendency_addinf )
+
+     write(log_scratch_space,'(A,F16.8)') &
+                       'IAU: weight used for additive inflation = ', iau_weight
+     call log_event( log_scratch_space, log_level_info )
+
+     iau_inc_fields => modeldb % fields % get_field_collection("iau_addinf_fields")
+
+     call update_total_inc( iau_weight, iau_inc_fields, &
+                            u_in_w3_tot_inc, v_in_w3_tot_inc, &
+                            q_tot_inc, qcl_tot_inc, qcf_tot_inc, &
+                            theta_tot_inc, exner_tot_inc, rho_tot_inc )
+
+   end if
+
+   ! Bias correction
+
+   if ( iau_bcorr_active ) then
+
+     ! Calculate weights to use
+     iau_weight = calc_iau_weight( model_clock, iau_tendency_bcorr )
+
+     write(log_scratch_space,'(A,F16.8)') &
+                       'IAU: weight used for bias correction = ', iau_weight
+     call log_event( log_scratch_space, log_level_info )
+
+     iau_inc_fields => modeldb % fields % get_field_collection("iau_bcorr_fields")
+
+     call update_total_inc( iau_weight, iau_inc_fields, &
+                            u_in_w3_tot_inc, v_in_w3_tot_inc, &
+                            q_tot_inc, qcl_tot_inc, qcf_tot_inc, &
+                            theta_tot_inc, exner_tot_inc, rho_tot_inc )
+
+   end if
+
+   ! Perturbation increments
+   ! These have differently named fields so need to be added to the total
+   ! separately
+
+   if ( iau_pertinc_active ) then
+
+     ! Calculate weights to use
+     iau_weight = calc_iau_weight( model_clock, iau_tendency_pertinc )
+
+     write(log_scratch_space,'(A,F16.8)') 'IAU: weight used for pert inc = ', &
+                                           iau_weight
+     call log_event( log_scratch_space, log_level_info )
+
+     ! Get pert inc fields
+     iau_pert_fields => modeldb % fields % get_field_collection("iau_pert_fields")
+     call iau_pert_fields % get_field( 'u_in_w3_pert_inc', u_in_w3_inc )
+     call iau_pert_fields % get_field( 'v_in_w3_pert_inc', v_in_w3_inc )
+     call iau_pert_fields % get_field( 'q_pert_inc', q_inc )
+     call iau_pert_fields % get_field( 'qcl_pert_inc', qcl_inc )
+     call iau_pert_fields % get_field( 'qcf_pert_inc', qcf_inc )
+     call iau_pert_fields % get_field( 'theta_pert_inc', theta_inc )
+     call iau_pert_fields % get_field( 'exner_pert_inc', exner_inc )
+
+     ! Add weighted incs to total for each field
+     call invoke ( inc_X_plus_bY( u_in_w3_tot_inc, iau_weight, u_in_w3_inc ), &
+                   inc_X_plus_bY( v_in_w3_tot_inc, iau_weight, v_in_w3_inc ), &
+                   inc_X_plus_bY( q_tot_inc, iau_weight, q_inc ),             &
+                   inc_X_plus_bY( qcl_tot_inc, iau_weight, qcl_inc ),         &
+                   inc_X_plus_bY( qcf_tot_inc, iau_weight, qcf_inc ),         &
+                   inc_X_plus_bY( theta_tot_inc, iau_weight, theta_inc ),     &
+                   inc_X_plus_bY( exner_tot_inc, iau_weight, exner_inc ) )
+
+     ! Density increments may be in the form of wet density*r^2 (if
+     ! produced by VAR), or dry density (if produced by JADA)
+     if ( iau_wet_density ) then
+       call iau_pert_fields % get_field( 'rho_r2_pert_inc', rho_r2_inc )
+       call invoke ( inc_X_plus_bY( rho_tot_inc, iau_weight, rho_r2_inc ) )
+     else
+       call iau_pert_fields % get_field( 'rho_pert_inc', rho_inc )
+       call invoke ( inc_X_plus_bY( rho_tot_inc, iau_weight, rho_inc ) )
+     end if
+
+   end if
+
+  end subroutine calc_total_inc_alg
+
+  !> @brief   Update total IAU weighted increment.
+  !> @details Updates the aggregated weighted increment to be applied
+  !>          with a set of increments of a particular type
+  !> @param[in]     iau_weight      Weight to be applied to the increments
+  !> @param[in]     iau_inc_fields  Set of increments to be added to total
+  !> @param[in,out] u_in_w3_tot_inc Total weighted u increment
+  !> @param[in,out] v_in_w3_tot_inc Total weighted v increment
+  !> @param[in,out] q_tot_inc       Total weighted q increment
+  !> @param[in,out] qcl_tot_inc     Total weighted qcl increment
+  !> @param[in,out] qcf_tot_inc     Total weighted qcl increment
+  !> @param[in,out] theta_tot_inc   Total weighted theta increment
+  !> @param[in,out] exner_tot_inc   Total weighted exner increment
+  !> @param[in,out] rho_tot_inc     Total weighted rho increment
+  subroutine update_total_inc( iau_weight, iau_inc_fields, &
+                               u_in_w3_tot_inc, v_in_w3_tot_inc, &
+                               q_tot_inc, qcl_tot_inc, qcf_tot_inc, &
+                               theta_tot_inc, exner_tot_inc, rho_tot_inc )
+
+    implicit none
+
+    ! Arguments
+    real( kind=r_def ),    intent(in) :: iau_weight
+    type( field_type ), intent(inout) :: u_in_w3_tot_inc
+    type( field_type ), intent(inout) :: v_in_w3_tot_inc
+    type( field_type ), intent(inout) :: q_tot_inc
+    type( field_type ), intent(inout) :: qcl_tot_inc
+    type( field_type ), intent(inout) :: qcf_tot_inc
+    type( field_type ), intent(inout) :: theta_tot_inc
+    type( field_type ), intent(inout) :: rho_tot_inc
+    type( field_type ), intent(inout) :: exner_tot_inc
+    type( field_collection_type ), intent(in) :: iau_inc_fields
+
+    ! Increments to be added to the total
+    type( field_type ), pointer :: u_in_w3_inc
+    type( field_type ), pointer :: v_in_w3_inc
+    type( field_type ), pointer :: q_inc
+    type( field_type ), pointer :: qcl_inc
+    type( field_type ), pointer :: qcf_inc
+    type( field_type ), pointer :: theta_inc
+    type( field_type ), pointer :: rho_inc
+    type( field_type ), pointer :: rho_r2_inc
+    type( field_type ), pointer :: exner_inc
+
+    ! Get increment fields
+    call iau_inc_fields % get_field( 'u_in_w3_inc', u_in_w3_inc )
+    call iau_inc_fields % get_field( 'v_in_w3_inc', v_in_w3_inc )
+    call iau_inc_fields % get_field( 'q_inc', q_inc )
+    call iau_inc_fields % get_field( 'qcl_inc', qcl_inc )
+    call iau_inc_fields % get_field( 'qcf_inc', qcf_inc )
+    call iau_inc_fields % get_field( 'theta_inc', theta_inc )
+    call iau_inc_fields % get_field( 'exner_inc', exner_inc )
+
+    ! Add weighted incs to total for each field
+    call invoke (inc_X_plus_bY( u_in_w3_tot_inc, iau_weight, u_in_w3_inc ), &
+                 inc_X_plus_bY( v_in_w3_tot_inc, iau_weight, v_in_w3_inc ), &
+                 inc_X_plus_bY( q_tot_inc, iau_weight, q_inc ),             &
+                 inc_X_plus_bY( qcl_tot_inc, iau_weight, qcl_inc ),         &
+                 inc_X_plus_bY( qcf_tot_inc, iau_weight, qcf_inc ),         &
+                 inc_X_plus_bY( theta_tot_inc, iau_weight, theta_inc ),     &
+                 inc_X_plus_bY( exner_tot_inc, iau_weight, exner_inc ) )
+
+    ! Density increments may be in the form of wet density*r^2 (if
+    ! produced by VAR), or dry density (if produced by JADA)
+    if ( iau_wet_density ) then
+      call iau_inc_fields % get_field( 'rho_r2_inc', rho_r2_inc )
+      call invoke (inc_X_plus_bY( rho_tot_inc, iau_weight, rho_r2_inc ) )
+    else
+      call iau_inc_fields % get_field( 'rho_inc', rho_inc )
+      call invoke (inc_X_plus_bY( rho_tot_inc, iau_weight, rho_inc ) )
+    end if
+
+  end subroutine update_total_inc
+
   !> @brief   Update the iau from a file.
   !> @details Update the iau, that are read in and updated it
   !> @param[in,out] modeldb            The model database
   !> @param[in]     twod_mesh          Two dimensional mesh, used to calculate tropopause level
-  subroutine update_iau_alg( modeldb, twod_mesh )
+  !> @param[in]     iau_ainc_active    Switch to include analysis increments in this update
+  !> @param[in]     iau_addinf_active  Switch to include additive inflation in this update
+  !> @param[in]     iau_bcorr_active   Switch to include bias correction in this update
+  !> @param[in]     iau_pertinc_active Switch to include pert increments in this update
+  subroutine update_iau_alg( modeldb, twod_mesh, iau_ainc_active, &
+                             iau_addinf_active, iau_bcorr_active, &
+                             iau_pertinc_active )
 
     implicit none
 
     ! Arguments
     type( modeldb_type ), intent(inout), target  :: modeldb
     type( mesh_type ),       intent(in), pointer :: twod_mesh
+    logical( l_def ), intent(in)                 :: iau_ainc_active
+    logical( l_def ), intent(in)                 :: iau_addinf_active
+    logical( l_def ), intent(in)                 :: iau_bcorr_active
+    logical( l_def ), intent(in)                 :: iau_pertinc_active
 
     ! Internal variables
     type( field_collection_type ), pointer :: iau_fields
+    type( field_collection_type ), pointer :: iau_tot_inc
     type( field_collection_type ), pointer :: prognostic_fields
     type( field_collection_type ), pointer :: cloud_fields
     type( field_collection_type ), pointer :: derived_fields
@@ -358,13 +632,13 @@ module update_iau_inc_alg_mod
     type( field_type ),            pointer :: rho
     type( field_type ),            pointer :: exner
 
-
-
     model_clock => modeldb % clock
-    write(log_scratch_space,'(A,I10)') 'IAU: calling iau on timestep ', model_clock % get_step()
+    write(log_scratch_space,'(A,I10)') 'IAU: calling iau on timestep ', &
+                                        model_clock % get_step()
     call log_event( log_scratch_space, log_level_info )
 
     iau_fields => modeldb % fields % get_field_collection("iau_fields")
+    iau_tot_inc => modeldb % fields % get_field_collection("iau_tot_inc")
     prognostic_fields => modeldb%fields%get_field_collection("prognostic_fields")
     cloud_fields => modeldb%fields%get_field_collection("cloud_fields")
     derived_fields => modeldb%fields%get_field_collection("derived_fields")
@@ -388,11 +662,23 @@ module update_iau_inc_alg_mod
     call print_minmax_prog( prognostic_fields, log_level_debug )
     call print_meanrms_prog( prognostic_fields, log_level_debug )
     call log_event( '- Minmax and mean/rms IAU increment fields -', log_level_info )
-    call print_minmax_iau( iau_fields, log_level_info )
-    call print_meanrms_iau( iau_fields, log_level_info )
 
-    call add_iau_inc( iau_fields, moist_dyn, twod_mesh, prognostic_fields, &
-                      derived_fields, cloud_fields,                        &
+    if ( iau_ainc_active ) then
+      call log_event( '- Minmax and mean/rms IAU increment fields -', log_level_info )
+      call print_minmax_iau( iau_fields, log_level_info )
+      call print_meanrms_iau( iau_fields, log_level_info )
+    end if
+
+    ! Calculate total weighted increment to be added this timestep then use it
+    ! to update prognostic state
+    call calc_total_inc_alg( modeldb,           &
+                             iau_ainc_active,   &
+                             iau_addinf_active, &
+                             iau_bcorr_active,  &
+                             iau_pertinc_active )
+
+    call add_iau_inc( iau_tot_inc, moist_dyn, twod_mesh, prognostic_fields, &
+                      derived_fields, cloud_fields,                         &
                       surface_fields, soil_fields, snow_fields, model_clock )
 
     ! Ensures that all prognostic fields are consistent

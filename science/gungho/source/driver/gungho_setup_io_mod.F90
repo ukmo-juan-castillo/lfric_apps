@@ -85,6 +85,9 @@ module gungho_setup_io_mod
                                        start_dump_filename,       &
                                        start_dump_directory,      &
                                        iau_path,                  &
+#ifdef UM_PHYSICS
+                                       iau_pert_path,             &
+#endif
                                        iau_surf_path,             &
                                        lbc_filename,              &
                                        lbc_directory,             &
@@ -148,6 +151,7 @@ module gungho_setup_io_mod
                                        chem_scheme_strattrop,     &
                                        chem_scheme_strat_test,    &
                                        chem_scheme_offline_ox
+  use iau_config_mod,            only: iau_use_pertinc
 #endif
 
   implicit none
@@ -754,6 +758,14 @@ module gungho_setup_io_mod
       call files_list%insert_item( lfric_xios_file_type( iau_fname,     &
                                                          xios_id="iau", &
                                                          io_mode=FILE_MODE_READ ))
+#ifdef UM_PHYSICS
+      ! Setup the IAU pert increments file
+      if ( iau_use_pertinc ) then
+        call files_list%insert_item( lfric_xios_file_type( trim(iau_pert_path), &
+                                                           xios_id="iau_pert",  &
+                                                           io_mode=FILE_MODE_READ ))
+      end if
+#endif
     end if
 
     ! Setup the IAU surface inc file

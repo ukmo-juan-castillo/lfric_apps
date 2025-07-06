@@ -26,17 +26,17 @@ module iau_humidity_inc_alg_mod
 
 contains
 
-  !> @brief   Apply specific humidity increments to update the moisture fields.
-  !> @details Inputs are specific humidity increments and the full prognostic
-  !>          mixing ratio fields. The following steps are used to increment
+  !> @brief   Apply specific humidity increments to update the moisture fields
+  !> @details Inputs are aggregated specific humidity increments and the full
+  !>          prognostic mixing ratio fields. The following steps are used to
+  !>          increment:
   !>          Step 1: Calculate time level n specific quantities
   !>          Step 2: Increment to get the time level n+1 quantities
   !>          Step 3: Convert back to time level n+1 mixing ratios
-  !> @param[in]     q_inc         Vapour specific humidity increment
-  !> @param[in]     qcl_inc       Liquid specific humidity increment
-  !> @param[in]     qcf_inc       Frozen specific humidity increment
+  !> @param[in]     q_tot_inc     Vapour specific humidity total increment
+  !> @param[in]     qcl_tot_inc   Liquid specific humidity total increment
+  !> @param[in]     qcf_tot_inc   Frozen specific humidity total increment
   !> @param[in]     moist_dyn     Moist_dynamics factors (for 1+sum(m_x))
-  !> @param[in]     iau_weight    Weighting to apply to iau increment
   !> @param[in,out] m_v           Vapour mixing ratio
   !> @param[in,out] m_cl          Liquid mixing ratio
   !> @param[in,out] m_ci          Frozen mixing ratio
@@ -45,7 +45,7 @@ contains
   !> @param[in,out] m_g           Graupel mixing ratio
   !> @param[in,out] cloud_fields  The cloud scheme
   !> @param[out]    one_minus_qs  One minus total water content
-  subroutine iau_humidity_inc( q_inc, qcl_inc, qcf_inc, moist_dyn, iau_weight, &
+  subroutine iau_humidity_inc( q_tot_inc, qcl_tot_inc, qcf_tot_inc, moist_dyn, &
                                m_v, m_cl, m_ci, m_r, m_s, m_g, one_minus_qs,   &
                                cloud_fields )
 
@@ -53,11 +53,10 @@ contains
 
     ! Arguments
     type( field_collection_type ), intent(inout)   :: cloud_fields
-    type( field_type ), intent(in)    :: q_inc, qcl_inc, qcf_inc
+    type( field_type ), intent(in)    :: q_tot_inc, qcl_tot_inc, qcf_tot_inc
     type( field_type ), intent(in)    :: moist_dyn(num_moist_factors)
     type( field_type ), intent(inout) :: m_v, m_cl, m_ci, m_r, m_s, m_g
     type( field_type ), intent(out)   :: one_minus_qs
-    real( kind=r_def ), intent(in)    :: iau_weight
 
     ! Internal fields
     type( field_type )                :: q_v
@@ -99,9 +98,9 @@ contains
                  X_divideby_Y( q_g, m_g, moist_dyn(total_mass) ),    &
     ! Step 2: Increment to get the time level n+1 quantities
     ! q_x^n+1 = q_x^n + q_x_inc
-                 inc_X_plus_bY( q_v, iau_weight, q_inc ),       &
-                 inc_X_plus_bY( q_cl, iau_weight, qcl_inc ),    &
-                 inc_X_plus_bY( q_s, iau_weight, qcf_inc ),     &
+                 inc_X_plus_Y( q_v, q_tot_inc ),    &
+                 inc_X_plus_Y( q_cl, qcl_tot_inc ), &
+                 inc_X_plus_Y( q_s, qcf_tot_inc ),  &
     ! Step 3: Apply the lower limits to the updated qv, qcl and qci
                  q_limit_test_kernel_type( q_v, q_cl, q_s,         &
                                            area_fraction,          &
@@ -138,7 +137,6 @@ contains
   !>          Step 3: Apply limits depending on whether in or above troposphere
   !>          Step 4a: Calculate sum of updated specfic quantities (1-Sum q_x)
   !>          Step 4b: Convert back to time level n+1 mixing ratios
-  !> @param[in]     iau_weight    Weighting to apply to iau increment
   !> @param[in,out] m_v           Vapour mixing ratio
   !> @param[in,out] m_cl          Liquid mixing ratio
   !> @param[in,out] m_ci          Frozen mixing ratio

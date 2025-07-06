@@ -67,7 +67,7 @@ module gungho_init_fields_mod
                                                  checkpoint_write_value, &
                                                  write_state
   use boundaries_config_mod,              only : limited_area
-  use create_iau_mod,                     only : create_iau_fields
+  use create_iau_fields_mod,              only : create_iau_fields
   use create_lbcs_mod,                    only : create_lbc_fields
   use create_gungho_prognostics_mod,      only : create_gungho_prognostics
   use create_physics_prognostics_mod,     only : create_physics_prognostics
@@ -99,6 +99,7 @@ module gungho_init_fields_mod
   use variable_fields_mod,                only : init_variable_fields
   use lfric_xios_time_axis_mod,           only : regridder
   use intermesh_mappings_alg_mod,         only : map_scalar_intermesh
+  use iau_config_mod,                     only : iau_use_pertinc
   use casim_activate_alg_mod,             only : casim_activate_alg
   use microphysics_config_mod,            only : microphysics_casim
 #endif
@@ -961,6 +962,13 @@ subroutine create_model_data( modeldb,      &
       call log_event( 'IAU: read file in initialise', LOG_LEVEL_INFO )
       field_collection_ptr => modeldb%fields%get_field_collection("iau_fields")
       call read_state( field_collection_ptr )
+#ifdef UM_PHYSICS
+      if ( iau_use_pertinc ) then
+        call log_event( 'IAU: read pertinc file in initialise', LOG_LEVEL_INFO )
+        field_collection_ptr => modeldb%fields%get_field_collection("iau_pert_fields")
+        call read_state( field_collection_ptr )
+      end if
+#endif
     end if
 
     if ( iau_surf ) then
@@ -1124,6 +1132,12 @@ subroutine create_model_data( modeldb,      &
       if ( iau_surf ) then
         field_collection_ptr => modeldb%fields%get_field_collection("iau_surf_fields")
         call field_collection_ptr%clear()
+#ifdef UM_PHYSICS
+        if ( iau_use_pertinc ) then
+          field_collection_ptr => modeldb%fields%get_field_collection("iau_pert_fields")
+          call field_collection_ptr%clear()
+        end if
+#endif
       end if
 
       lbc_fields => modeldb%fields%get_field_collection("lbc_fields")

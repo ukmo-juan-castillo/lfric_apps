@@ -98,6 +98,7 @@ contains
                           diag_always_on_sampling=.false., &
                           diagnostic_frequency=1, &
                           file_convention=400256111, &
+                          multifile_io=.false., &
                           nodal_output_on_w3=.false., &
                           subroutine_counters=.false., &
                           subroutine_timers=.false., &
