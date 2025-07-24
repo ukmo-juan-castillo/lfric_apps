@@ -410,6 +410,7 @@ contains
                                           si_outer_transport_none,             &
                                           si_outer_transport_no_mono,          &
                                           si_outer_transport_advective,        &
+                                          si_outer_transport_horizontal_sl,    &
                                           dry_field_name
     use transport_enumerated_types_mod,                                        &
                                     only: equation_form_advective,             &
@@ -428,7 +429,8 @@ contains
         .and. outer < outer_iterations                                         &
         .and. self%fname /= dry_field_name) then
 
-      if (si_outer_transport == si_outer_transport_advective) then
+      if (si_outer_transport == si_outer_transport_advective                   &
+          .or. si_outer_transport == si_outer_transport_horizontal_sl) then
         ! Set equation form to be advective
         self%equation_form = equation_form_advective
 
@@ -440,7 +442,9 @@ contains
             self%horizontal_monotone = monotone_strict
           end if
         end if
-        if (self%vertical_method == split_method_ffsl) then
+
+        if (si_outer_transport == si_outer_transport_advective                 &
+            .and. self%vertical_method == split_method_ffsl) then
           self%vertical_method = split_method_sl
           ! Ensure correct monotone options
           if (self%vertical_monotone == monotone_qm_pos ) then
