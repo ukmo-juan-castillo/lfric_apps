@@ -18,8 +18,11 @@
         "jedi_lfric_tests_forecast_pseudo_pseudomodel-C12_azspice_gnu_full-debug-64bit",
         "jedi_lfric_tests_tlm_forecast_tl_default-C12_azspice_gnu_fast-debug-64bit",
         "jedi_lfric_tests_id_tlm_tests_default-C12_azspice_gnu_fast-debug-64bit",
+        "jedi_lfric_tests_id_tlm_tests_default-1PE-C12_azspice_gnu_fast-debug-64bit",
         "jedi_lfric_tests_tlm_tests_default-C12_azspice_gnu_fast-debug-64bit",
+        "jedi_lfric_tests_tlm_tests_default-1PE-C12_azspice_gnu_fast-debug-64bit",
         "jedi_lfric_tests_tlm_tests_default-dry-C12_azspice_gnu_fast-debug-64bit",
+        "jedi_lfric_tests_tlm_tests_default-dry-1PE-C12_azspice_gnu_fast-debug-64bit",
         "jedi_lfric_tests_azspice_integration_tests",
     ],
     "jedi_lfric_tests_azspice": [
@@ -45,8 +48,11 @@
         "jedi_lfric_tests_forecast_pseudo_pseudomodel-C12_ex1a_cce_fast-debug-64bit",
         "jedi_lfric_tests_tlm_forecast_tl_default-C12_ex1a_cce_fast-debug-64bit",
         "jedi_lfric_tests_id_tlm_tests_default-C12_ex1a_cce_fast-debug-64bit",
+        "jedi_lfric_tests_id_tlm_tests_default-1PE-C12_ex1a_cce_fast-debug-64bit",
         "jedi_lfric_tests_tlm_tests_default-C12_ex1a_cce_fast-debug-64bit",
+        "jedi_lfric_tests_tlm_tests_default-1PE-C12_ex1a_cce_fast-debug-64bit",
         "jedi_lfric_tests_tlm_tests_default-dry-C12_ex1a_cce_fast-debug-64bit",
+        "jedi_lfric_tests_tlm_tests_default-dry-1PE-C12_ex1a_cce_fast-debug-64bit",
         "jedi_lfric_tests_ex1a_integration_tests",
     ],
     "jedi_lfric_tests_ex1a": [

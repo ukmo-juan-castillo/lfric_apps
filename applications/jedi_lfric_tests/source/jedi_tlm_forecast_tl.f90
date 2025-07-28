@@ -78,6 +78,8 @@ program jedi_tlm_forecast_tl
 
   ! Initialize LFRic infrastructure
   call jedi_run%initialise_infrastructure( filename, model_communicator )
+
+  ! Get the configuration
   configuration => jedi_run%get_configuration()
 
   ! Get the forecast length
@@ -109,9 +111,15 @@ program jedi_tlm_forecast_tl
   ! Run the linear model TL forecast
   call jedi_linear_model%forecastTL( jedi_increment, forecast_length )
 
-  call log_event( 'Finalising ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+  ! Print the final state and increment diagnostics
+  call jedi_state%print()
+  call jedi_increment%print()
 
   ! To provide KGO
   call output_linear_checksum( program_name, jedi_linear_model%modeldb )
+
+  call log_event( 'Finalising ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+
+  call jedi_run%finalise()
 
 end program jedi_tlm_forecast_tl

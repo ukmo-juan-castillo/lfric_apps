@@ -51,6 +51,9 @@ type, public :: jedi_state_type
   !> modeldb (to do field copies)
   type( atlas_field_interface_type ), allocatable :: fields_to_modeldb(:)
 
+  !> Logical that indicates the state has an instance of a modeldb that has been created
+  logical                                         :: has_a_modeldb = .false.
+
   !> Modeldb that stores the fields to propagate
   type( modeldb_type ),  public                   :: modeldb
 
@@ -100,8 +103,8 @@ contains
   !> Update the curent time
   procedure, public :: update_time
 
-  !> Print field
-  procedure, public :: print_field
+  !> Print the field statistics to log out
+  procedure, public :: print
 
   !> Copy the data in the LFRic fields stored in the modeldb to the internal
   !> Atlas field emulators
@@ -171,6 +174,7 @@ subroutine state_initialiser_read( self, &
     endif
     call initialise_modeldb( "non-linear modeldb", modeldb_filename, &
                              geometry%get_mpi_comm(), self%modeldb )
+    self%has_a_modeldb = .true.
     call self%setup_interface_to_modeldb()
     call self%from_modeldb()
   end if
@@ -240,9 +244,10 @@ subroutine state_initialiser( self, geometry, config )
 
     end select
 
-    call self%fields(ivar)%initialise(        &
-                                n_levels,     &
+    call self%fields(ivar)%initialise( &
+                                n_levels, &
                                 n_horizontal, &
+                                self%geometry%get_mpi_comm(), &
                                 self%field_meta_data%get_variable_name(ivar) )
   end do
 
@@ -671,38 +676,42 @@ subroutine jedi_state_destructor( self )
 
   self%geometry => null()
   if ( allocated(self%fields ) ) deallocate(self%fields )
-
-  call finalise_modeldb( self%modeldb )
+  if ( allocated( self%fields_to_modeldb ) ) deallocate( self%fields_to_modeldb )
+  if (self%has_a_modeldb) then
+    call finalise_modeldb( self%modeldb )
+    self%has_a_modeldb = .false.
+  endif
+  call self%io_collection%clear()
 
 end subroutine jedi_state_destructor
 
-!! For testing
-
-!> Print the 1st point in each field
-subroutine print_field( self )
+!> Print the field statistics to log out
+!>
+subroutine print( self )
 
   implicit none
 
-  class( jedi_state_type ), intent(inout) :: self
+  class( jedi_state_type ), target, intent(inout) :: self
 
   ! Local
-  real(real64), pointer :: atlas_data_ptr(:,:)
-  integer(i_def)        :: ivar
-  character(str_def)    :: iso_datetime
+  integer(i_def)                            :: ivar
+  type (atlas_field_emulator_type), pointer :: atlas_field_ptr
 
   ! Printing data
   call log_event( "State print ----", LOG_LEVEL_INFO )
-  call self%state_time%to_string( iso_datetime )
-  write ( log_scratch_space, '(2A)' ) 'Time: ', iso_datetime
-  call log_event( log_scratch_space, LOG_LEVEL_INFO )
+  call self%state_time%print()
   do ivar = 1, self%field_meta_data%get_n_variables()
-    atlas_data_ptr => self%fields(ivar)%get_data()
-    write ( log_scratch_space, '(2A,F20.10)' ) &
+    ! Get Atlas field pointer
+    atlas_field_ptr => self%fields(ivar)
+    ! Print current field rms, max and min
+    write ( log_scratch_space, '(A,3(A,E22.15))' ) &
       trim(self%field_meta_data%get_variable_name(ivar)), &
-      ", atlas_data_ptr(1,1) = ", atlas_data_ptr(1,1)
+      ", RMS: ", atlas_field_ptr%root_mean_square(), &
+      ", Max: ", atlas_field_ptr%maximum(), &
+      ", Min: ", atlas_field_ptr%minimum()
     call log_event( log_scratch_space, LOG_LEVEL_INFO )
   end do
 
-end subroutine print_field
+end subroutine print
 
 end module jedi_state_mod

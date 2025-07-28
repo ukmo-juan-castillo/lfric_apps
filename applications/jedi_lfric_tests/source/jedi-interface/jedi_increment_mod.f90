@@ -109,8 +109,8 @@ contains
   !> Update the curent time
   procedure, public :: update_time
 
-  !> Print field
-  procedure, public :: print_field
+  !> Print the field statistics to log out
+  procedure, public :: print
 
   !> Finalizer
   final             :: jedi_increment_destructor
@@ -257,9 +257,10 @@ subroutine construct_increment( self )
 
     end select
 
-    call self%fields(ivar)%initialise(        &
-                                n_levels,     &
+    call self%fields(ivar)%initialise( &
+                                n_levels, &
                                 n_horizontal, &
+                                self%geometry%get_mpi_comm(), &
                                 self%field_meta_data%get_variable_name(ivar) )
   end do
 
@@ -385,7 +386,7 @@ function norm( self ) result(rms)
   n_values = 0_i_def
   do ivar=1,n_variables
     rms = rms + self%fields(ivar)%sum_of_squares()
-    n_values = n_values + self%fields(ivar)%get_number_of_points()
+    n_values = n_values + self%fields(ivar)%number_of_points()
   enddo
   rms = sqrt( rms / real(n_values, kind=real64) )
 
@@ -767,30 +768,33 @@ subroutine jedi_increment_destructor( self )
 
 end subroutine jedi_increment_destructor
 
-!! For testing
-
-!> Print the 1st point in each field
-subroutine print_field( self )
+!> Print the field statistics to log out
+!>
+subroutine print( self )
 
   implicit none
 
-  class( jedi_increment_type ), intent(inout) :: self
+  class( jedi_increment_type ), target, intent(inout) :: self
 
   ! Local
-  real( kind=real64 ), pointer :: atlas_data_ptr(:,:)
-  integer( kind=i_def )        :: ivar
+  integer(i_def)                            :: ivar
+  type (atlas_field_emulator_type), pointer :: atlas_field_ptr
 
   ! Printing data
   call log_event( "Increment print ----", LOG_LEVEL_INFO )
   call self%inc_time%print()
   do ivar = 1, self%field_meta_data%get_n_variables()
-    atlas_data_ptr => self%fields(ivar)%get_data()
-    write ( log_scratch_space, '(2A,F20.10)' ) &
+    ! Get Atlas field pointer
+    atlas_field_ptr => self%fields(ivar)
+    ! Print current field rms, max and min
+    write ( log_scratch_space, '(A,3(A,E22.15))' ) &
       trim(self%field_meta_data%get_variable_name(ivar)), &
-      ", atlas_data_ptr(1,1) = ", atlas_data_ptr(1,1)
+      ", RMS: ", atlas_field_ptr%root_mean_square(), &
+      ", Max: ", atlas_field_ptr%maximum(), &
+      ", Min: ", atlas_field_ptr%minimum()
     call log_event( log_scratch_space, LOG_LEVEL_INFO )
   end do
 
-end subroutine print_field
+end subroutine print
 
 end module jedi_increment_mod

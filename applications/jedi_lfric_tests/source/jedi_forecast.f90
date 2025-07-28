@@ -56,12 +56,6 @@ program jedi_forecast
 
   character(*), parameter :: program_name = "jedi_forecast"
 
-  call log_event( 'Running ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
-  write(log_scratch_space,'(A)')                        &
-        'Application built with '//trim(PRECISION_REAL)// &
-        '-bit real numbers'
-  call log_event( log_scratch_space, LOG_LEVEL_ALWAYS )
-
   ! Infrastructure config
   call get_initial_filename( filename )
 
@@ -73,6 +67,14 @@ program jedi_forecast
 
   ! Initialize LFRic infrastructure
   call jedi_run%initialise_infrastructure( filename, model_communicator )
+
+  call log_event( 'Running ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+  write(log_scratch_space,'(A)')                        &
+        'Application built with '//trim(PRECISION_REAL)// &
+        '-bit real numbers'
+  call log_event( log_scratch_space, LOG_LEVEL_ALWAYS )
+
+  ! Get the configuration
   configuration => jedi_run%get_configuration()
 
   ! Get the forecast length
@@ -92,9 +94,15 @@ program jedi_forecast
   ! Run non-linear model forecast
   call jedi_model%forecast( jedi_state, forecast_length, jedi_pp_empty )
 
-  call log_event( 'Finalising ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+  ! Print the final state diagnostics
+  call jedi_state%print()
+
   ! To provide KGO
   depository => jedi_state%modeldb%fields%get_field_collection("depository")
   call output_checksum( program_name, depository )
+
+  call log_event( 'Finalising ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+
+  call jedi_run%finalise()
 
 end program jedi_forecast

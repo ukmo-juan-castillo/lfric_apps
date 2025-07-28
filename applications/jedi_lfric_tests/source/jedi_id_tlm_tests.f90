@@ -76,7 +76,7 @@ program jedi_id_tlm_tests
   type( jedi_increment_type )           :: increment_22
   type( jedi_pseudo_model_type )        :: nonlinear_model
   type( jedi_id_linear_model_type )     :: linear_model
-  type( jedi_run_type )                 :: identity_tlm_run
+  type( jedi_run_type )                 :: run
   type( jedi_post_processor_traj_type ) :: pp_traj
 
   ! Local
@@ -93,6 +93,17 @@ program jedi_id_tlm_tests
 
   character(*), parameter :: program_name = "jedi_id_tlm_tests"
 
+  ! Infrastructure configuration
+  call get_initial_filename( filename )
+
+  ! Run object - handles initialization and finalization of required
+  ! infrastructure. Initialize external libraries such as XIOS
+  call run%initialise( program_name, model_communicator )
+
+  ! Ensemble applications would split the communicator here
+
+  ! Initialize LFRic infrastructure
+  call run%initialise_infrastructure( filename, model_communicator )
 
   call log_event( 'Running ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
   write(log_scratch_space,'(A)')                          &
@@ -100,18 +111,8 @@ program jedi_id_tlm_tests
         '-bit real numbers'
   call log_event( log_scratch_space, LOG_LEVEL_ALWAYS )
 
-  ! Infrastructure configuration
-  call get_initial_filename( filename )
-
-  ! Run object - handles initialization and finalization of required
-  ! infrastructure. Initialize external libraries such as XIOS
-  call identity_tlm_run%initialise( program_name, model_communicator )
-
-  ! Ensemble applications would split the communicator here
-
-  ! Initialize LFRic infrastructure
-  call identity_tlm_run%initialise_infrastructure( filename, model_communicator )
-  configuration => identity_tlm_run%get_configuration()
+  ! Get the configuration
+  configuration => run%get_configuration()
 
   ! Get the forecast length
   jedi_lfric_settings_config => configuration%get_namelist('jedi_lfric_settings')
@@ -208,5 +209,7 @@ program jedi_id_tlm_tests
   end if
 
   call log_event( 'Finalising ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+
+  call run%finalise()
 
 end program jedi_id_tlm_tests

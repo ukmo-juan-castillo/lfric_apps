@@ -34,7 +34,7 @@ contains
   procedure, public ::  get_configuration
 
   !> Finalizer
-  final             :: jedi_run_destructor
+  procedure, public :: finalise
 
 end type jedi_run_type
 
@@ -130,7 +130,7 @@ end function get_configuration
 
 !> @brief    Finalizer for jedi_run_type
 !>
-subroutine jedi_run_destructor(self)
+subroutine finalise(self)
 
   use driver_collections_mod,        only: final_collections
   use driver_config_mod,             only: final_config
@@ -141,7 +141,7 @@ subroutine jedi_run_destructor(self)
 
   implicit none
 
-  type(jedi_run_type), intent(inout) :: self
+  class(jedi_run_type), intent(inout) :: self
 
   ! Finalise collections
   call final_collections()
@@ -161,6 +161,6 @@ subroutine jedi_run_destructor(self)
   ! Finalise the communicator
   call destroy_comm()
 
-end subroutine jedi_run_destructor
+end subroutine finalise
 
 end module jedi_run_mod

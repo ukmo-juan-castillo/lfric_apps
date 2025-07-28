@@ -81,13 +81,6 @@ program jedi_tlm_tests
 
   character(*), parameter :: program_name = "jedi_tlm_tests"
 
-
-  call log_event( 'Running ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
-  write(log_scratch_space,'(A)')                        &
-        'Application built with '//trim(PRECISION_REAL)// &
-        '-bit real numbers'
-  call log_event( log_scratch_space, LOG_LEVEL_ALWAYS )
-
   ! Infrastructure config
   call get_initial_filename( filename )
 
@@ -99,6 +92,14 @@ program jedi_tlm_tests
 
   ! Initialize LFRic infrastructure
   call run%initialise_infrastructure( filename, model_communicator )
+
+  call log_event( 'Running ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+  write(log_scratch_space,'(A)')                        &
+        'Application built with '//trim(PRECISION_REAL)// &
+        '-bit real numbers'
+  call log_event( log_scratch_space, LOG_LEVEL_ALWAYS )
+
+  ! Get the configuration
   configuration => run%get_configuration()
 
   ! Get the forecast length
@@ -175,5 +176,7 @@ program jedi_tlm_tests
   endif
 
   call log_event( 'Finalising ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+
+  call run%finalise()
 
 end program jedi_tlm_tests

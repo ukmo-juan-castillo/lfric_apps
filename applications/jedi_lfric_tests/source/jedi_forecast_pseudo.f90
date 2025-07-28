@@ -55,13 +55,7 @@ program jedi_forecast_pseudo
 
   character(*), parameter :: program_name = "jedi_forecast_pseudo"
 
-  call log_event( 'Running ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
-  write(log_scratch_space,'(A)')                        &
-        'Application built with '//trim(PRECISION_REAL)// &
-        '-bit real numbers'
-  call log_event( log_scratch_space, LOG_LEVEL_ALWAYS )
-
-  ! Infrastructure config
+  ! Infrastructure configuration
   call get_initial_filename( filename )
 
   ! Run object - handles initialization and finalization of required
@@ -72,6 +66,14 @@ program jedi_forecast_pseudo
 
   ! Initialize LFRic infrastructure
   call jedi_run%initialise_infrastructure( filename, model_communicator )
+
+  call log_event( 'Running ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+  write(log_scratch_space,'(A)')                        &
+        'Application built with '//trim(PRECISION_REAL)// &
+        '-bit real numbers'
+  call log_event( log_scratch_space, LOG_LEVEL_ALWAYS )
+
+  ! Get the configuration
   configuration => jedi_run%get_configuration()
 
   ! Get the forecast length
@@ -96,8 +98,14 @@ program jedi_forecast_pseudo
   ! in JEDI.
   call jedi_state%write_file( jedi_state%valid_time() )
 
-  call log_event( 'Finalising ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+  ! Print the final state diagnostics
+  call jedi_state%print()
+
   ! To provide KGO
   call output_checksum( program_name, jedi_state%io_collection )
+
+  call log_event( 'Finalising ' // program_name // ' ...', LOG_LEVEL_ALWAYS )
+
+  call jedi_run%finalise()
 
 end program jedi_forecast_pseudo
