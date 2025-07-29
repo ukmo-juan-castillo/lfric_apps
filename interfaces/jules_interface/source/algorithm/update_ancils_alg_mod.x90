@@ -23,7 +23,7 @@ module update_ancils_alg_mod
                                          linked_list_item_type
   use sci_geometric_constants_mod, only: get_latitude_fv
   use jules_sea_seaice_config_mod, only: amip_ice_thick
-  use derived_config_mod,          only: l_esm_couple
+  use derived_config_mod,          only: l_couple_sea_ice, l_couple_ocean
 
   implicit none
 
@@ -64,12 +64,17 @@ contains
     character(str_def)                   :: axis_name
 
     if (surface == surface_jules) then
-      call ancil_fields%get_field('sea_ice_fraction', sea_ice_fraction)
       call surface_fields%get_field('sea_ice_thickness', sea_ice_thickness)
-      call surface_fields%get_field('tile_fraction', tile_fraction)
-
-      call ancil_fields%get_field('tstar_sea', tstar_sea)
+      call surface_fields%get_field('tile_fraction', tile_fraction)     
       call surface_fields%get_field('tile_temperature', tile_temperature)
+
+      ! Get the data from ancil_fields (if applicable for your model)
+      if (.not. l_couple_sea_ice) then
+        call ancil_fields%get_field('sea_ice_fraction', sea_ice_fraction)
+      end if
+      if (.not. l_couple_ocean) then
+        call ancil_fields%get_field('tstar_sea', tstar_sea)
+      end if
 
       twod_mesh => sea_ice_thickness%get_mesh()
       latitude => get_latitude_fv( W3, twod_mesh%get_id() )
@@ -92,13 +97,13 @@ contains
 
             axis_name = trim(time_axis%get_name())
 
-            if (axis_name == 'sea_ice_time') then
+            if (axis_name == 'sea_ice_time' .and. .not. l_couple_sea_ice) then
               call invoke(process_ssi_kernel_type( sea_ice_fraction,        &
                                                    sea_ice_thickness,       &
                                                    tile_fraction, latitude, &
                                                    amip_ice_thick,          &
-                                                   l_esm_couple))
-            else if (axis_name == 'sst_time') then
+                                                   l_couple_sea_ice))
+            else if (axis_name == 'sst_time' .and. .not. l_couple_ocean) then
               call invoke(multi_insert_kernel_type(tile_temperature,         &
                                                    tstar_sea, first_sea_tile,&
                                                    n_sea_tile ) )

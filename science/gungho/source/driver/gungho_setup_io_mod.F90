@@ -129,7 +129,7 @@ module gungho_setup_io_mod
                                        iau_surf
   use time_config_mod,           only: timestep_start,            &
                                        timestep_end
-  use derived_config_mod,        only: l_esm_couple
+  use derived_config_mod,        only: l_couple_sea_ice
 #ifdef UM_PHYSICS
   use jules_surface_config_mod,  only: l_vary_z0m_soil, l_urban2t
   use specified_surface_config_mod, only: internal_flux_method, &
@@ -357,7 +357,7 @@ module gungho_setup_io_mod
         end if
 
         ! Set sea ice ancil filename from namelist
-        if (.not. l_esm_couple) then
+        if (.not. l_couple_sea_ice) then
           if (sea_ice_ancil_path(1:1) == '/') then
             write(ancil_fname,'(A)') trim(sea_ice_ancil_path)
           else

@@ -73,8 +73,7 @@ module create_physics_prognostics_mod
                                              surf_temp_forcing_int_flux
   use spectral_gwd_config_mod,        only : add_cgw
   use microphysics_config_mod,        only : turb_gen_mixph
-  use derived_config_mod,             only : l_esm_couple
-  use esm_couple_config_mod,          only : l_esm_couple_test
+  use derived_config_mod,             only : l_couple_ocean, l_couple_sea_ice
   use chemistry_config_mod,           only : chem_scheme, chem_scheme_none,    &
                                              chem_scheme_strattrop,            &
                                              chem_scheme_strat_test,           &
@@ -782,7 +781,8 @@ contains
     end if
 
     ! Coupling fields might need checkpointing
-    if (surface == surface_jules .and. (l_esm_couple .OR. l_esm_couple_test)) then
+    if (surface == surface_jules .and.                                          &
+       (l_couple_sea_ice .or. l_couple_ocean)) then
       checkpoint_couple = .true.
     else
       checkpoint_couple = .false.

@@ -18,6 +18,7 @@ use argument_mod,            only : arg_type,              &
                                     CELL_COLUMN
 use constants_mod,           only : r_def, i_def
 use sci_constants_mod,       only : zero_C_in_K
+use derived_config_mod,      only : l_couple_ocean, l_couple_sea_ice
 
 implicit none
 
@@ -130,93 +131,100 @@ subroutine process_o2a_code(nlayers, sea_surf_temp,                  &
   real(kind=r_def)    :: total_sea_ice_fraction
   real(kind=r_def)    :: recip_sea_ice_fraction
 
-  if (sea_surf_temp(map_ocn(1))>1.0_r_def) then
-    ocn_cpl_point(map_ocn(1))=1_i_def
-  else
-    ocn_cpl_point(map_ocn(1))=0_i_def
+  if (l_couple_ocean) then
+    if (sea_surf_temp(map_ocn(1))>1.0_r_def) then
+      ocn_cpl_point(map_ocn(1))=1_i_def
+    else
+      ocn_cpl_point(map_ocn(1))=0_i_def
+    end if
   end if
-
 
   total_sea_ice_fraction = 0.0_r_def
 
-  do i = 0, n_sea_ice_tile - 1
+  if (l_couple_sea_ice) then
+    do i = 0, n_sea_ice_tile - 1
 
-      ! Make sure sea ice is thicker than hi_min
-      if ( sea_ice_fraction(map_ice(1) + i) > 0.0_r_def ) then
-        if ( sea_ice_thickness(map_ice(1) + i)/sea_ice_fraction(map_ice(1)+i)  &
-                                                                < hi_min ) then
-          sea_ice_fraction(map_ice(1) + i) = 0.0_r_def
+        ! Make sure sea ice is thicker than hi_min
+        if ( sea_ice_fraction(map_ice(1) + i) > 0.0_r_def ) then
+          if ( sea_ice_thickness(map_ice(1) + i)/sea_ice_fraction(map_ice(1)+i)  &
+                                                                  < hi_min ) then
+            sea_ice_fraction(map_ice(1) + i) = 0.0_r_def
+          end if
         end if
-      end if
 
-      if ( sea_ice_fraction(map_ice(1) + i)  < aicenmin ) then
-        sea_ice_fraction(map_ice(1) + i) = 0.0_r_def
-        sea_ice_thickness(map_ice(1) + i) = 0.0_r_def
-        sea_ice_snow_depth(map_ice(1) + i) = 0.0_r_def
-        sea_ice_layer_t(map_ice(1) + i) = 0.0_r_def
-        sea_ice_conductivity(map_ice(1) + i) = 0.0_r_def
-        melt_pond_fraction(map_ice(1) + i) = 0.0_r_def
-        melt_pond_depth(map_ice(1) + i) = 0.0_r_def
-      end if
+        if ( sea_ice_fraction(map_ice(1) + i)  < aicenmin ) then
+          sea_ice_fraction(map_ice(1) + i) = 0.0_r_def
+          sea_ice_thickness(map_ice(1) + i) = 0.0_r_def
+          sea_ice_snow_depth(map_ice(1) + i) = 0.0_r_def
+          sea_ice_layer_t(map_ice(1) + i) = 0.0_r_def
+          sea_ice_conductivity(map_ice(1) + i) = 0.0_r_def
+          melt_pond_fraction(map_ice(1) + i) = 0.0_r_def
+          melt_pond_depth(map_ice(1) + i) = 0.0_r_def
+        end if
 
-      total_sea_ice_fraction = total_sea_ice_fraction                          &
-                                            + sea_ice_fraction(map_ice(1) + i)
+        total_sea_ice_fraction = total_sea_ice_fraction                          &
+                                              + sea_ice_fraction(map_ice(1) + i)
 
-  end do
+    end do
+  end if
 
   ! Set the sea surface temperature to be at the freezing point of water
   ! when there is sea ice.
-  if ( total_sea_ice_fraction > 0.0_r_def ) then
-    sea_surf_temp(map_ocn(1)) = T_freeze_h2o_sea
+  if (l_couple_ocean) then
+    if ( total_sea_ice_fraction > 0.0_r_def ) then
+      sea_surf_temp(map_ocn(1)) = T_freeze_h2o_sea
+    end if
   end if
 
-  do i = 0, n_sea_ice_tile - 1
+  if (l_couple_sea_ice) then
+    do i = 0, n_sea_ice_tile - 1
 
-      ! Reduce category ice fractions if aggregate > 1
-      if (total_sea_ice_fraction > 1.0_r_def) then
-        sea_ice_fraction(map_ice(1) + i) = sea_ice_fraction(map_ice(1) + i)    &
-                                                      / total_sea_ice_fraction
-      end if
+        ! Reduce category ice fractions if aggregate > 1
+        if (total_sea_ice_fraction > 1.0_r_def) then
+          sea_ice_fraction(map_ice(1) + i) = sea_ice_fraction(map_ice(1) + i)    &
+                                                        / total_sea_ice_fraction
+        end if
 
-      ! Increase sea ice thickness due to overlying snow
-      sea_ice_thickness(map_ice(1) + i) = sea_ice_thickness(map_ice(1) + i) +  &
-                                      sea_ice_snow_depth(map_ice(1) + i)*      &
-                                      (therm_cond_sice/therm_cond_sice_snow)
+        ! Increase sea ice thickness due to overlying snow
+        sea_ice_thickness(map_ice(1) + i) = sea_ice_thickness(map_ice(1) + i) +  &
+                                        sea_ice_snow_depth(map_ice(1) + i)*      &
+                                        (therm_cond_sice/therm_cond_sice_snow)
 
-      ! Undo sea ice fraction scaling done on ocean side of coupler
-      if ( sea_ice_fraction(map_ice(1) + i) > 0.0_r_def ) then
-        recip_sea_ice_fraction = 1.0_r_def / sea_ice_fraction(map_ice(1) + i)
-        sea_ice_thickness(map_ice(1) + i) = sea_ice_thickness(map_ice(1) + i)  &
-                                            * recip_sea_ice_fraction
-        sea_ice_snow_depth(map_ice(1)+i) = sea_ice_snow_depth(map_ice(1) + i)  &
-                                            * recip_sea_ice_fraction
-        sea_ice_layer_t(map_ice(1) + i) = sea_ice_layer_t(map_ice(1) + i)      &
-                                            * recip_sea_ice_fraction
-        sea_ice_conductivity(map_ice(1)+i) = sea_ice_conductivity(map_ice(1)+i)&
-                                            * recip_sea_ice_fraction
-      end if
+        ! Undo sea ice fraction scaling done on ocean side of coupler
+        if ( sea_ice_fraction(map_ice(1) + i) > 0.0_r_def ) then
+          recip_sea_ice_fraction = 1.0_r_def / sea_ice_fraction(map_ice(1) + i)
+          sea_ice_thickness(map_ice(1) + i) = sea_ice_thickness(map_ice(1) + i)  &
+                                              * recip_sea_ice_fraction
+          sea_ice_snow_depth(map_ice(1)+i) = sea_ice_snow_depth(map_ice(1) + i)  &
+                                              * recip_sea_ice_fraction
+          sea_ice_layer_t(map_ice(1) + i) = sea_ice_layer_t(map_ice(1) + i)      &
+                                              * recip_sea_ice_fraction
+          sea_ice_conductivity(map_ice(1)+i) = sea_ice_conductivity(map_ice(1)+i)&
+                                              * recip_sea_ice_fraction
+        end if
 
-      ! Apply bounds to sea ice layer temperatures
-      if ( sea_ice_layer_t(map_ice(1) + i) > ti_max ) then
-        sea_ice_layer_t(map_ice(1) + i) = ti_max
-      end if
-      if ( sea_ice_layer_t(map_ice(1) + i) < ti_min .and.                      &
-                           sea_ice_layer_t(map_ice(1) + i) /= 0.0_r_def ) then
-        sea_ice_layer_t(map_ice(1) + i) = ti_min
-      end if
+        ! Apply bounds to sea ice layer temperatures
+        if ( sea_ice_layer_t(map_ice(1) + i) > ti_max ) then
+          sea_ice_layer_t(map_ice(1) + i) = ti_max
+        end if
+        if ( sea_ice_layer_t(map_ice(1) + i) < ti_min .and.                      &
+                             sea_ice_layer_t(map_ice(1) + i) /= 0.0_r_def ) then
+          sea_ice_layer_t(map_ice(1) + i) = ti_min
+        end if
 
-      ! Apply bounds to melt ponds
-      if ( melt_pond_fraction(map_ice(1) + i) <= 0.0_r_def ) then
-        melt_pond_fraction(map_ice(1) + i) = 0.0_r_def
-        melt_pond_depth(map_ice(1) + i) = 0.0_r_def
-      end if
-      if ( melt_pond_fraction(map_ice(1) + i) > 1.0_r_def ) then
-        melt_pond_fraction(map_ice(1) + i) = 1.0_r_def
-      end if
-      if ( melt_pond_depth(map_ice(1) + i) < 0.0_r_def ) then
-        melt_pond_depth(map_ice(1) + i) = 0.0_r_def
-      end if
-  end do
+        ! Apply bounds to melt ponds
+        if ( melt_pond_fraction(map_ice(1) + i) <= 0.0_r_def ) then
+          melt_pond_fraction(map_ice(1) + i) = 0.0_r_def
+          melt_pond_depth(map_ice(1) + i) = 0.0_r_def
+        end if
+        if ( melt_pond_fraction(map_ice(1) + i) > 1.0_r_def ) then
+          melt_pond_fraction(map_ice(1) + i) = 1.0_r_def
+        end if
+        if ( melt_pond_depth(map_ice(1) + i) < 0.0_r_def ) then
+          melt_pond_depth(map_ice(1) + i) = 0.0_r_def
+        end if
+    end do
+  end if
 
 end subroutine process_o2a_code
 

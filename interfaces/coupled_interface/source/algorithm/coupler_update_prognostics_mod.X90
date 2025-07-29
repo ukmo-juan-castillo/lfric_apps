@@ -32,7 +32,7 @@ module coupler_update_prognostics_mod
   use process_ssi_kernel_mod,        only: process_ssi_kernel_type
   use masked_process_ssi_kernel_mod, only: masked_process_ssi_kernel_type
   use jules_sea_seaice_config_mod,   only: amip_ice_thick
-  use derived_config_mod,            only: l_esm_couple
+  use derived_config_mod,            only: l_couple_sea_ice
 #endif
   use sci_field_minmax_alg_mod,      only: log_field_minmax
 
@@ -92,7 +92,7 @@ module coupler_update_prognostics_mod
         ! Update tile_fractions with new sea ice fractions
         call invoke( masked_process_ssi_kernel_type(fld,fld_ptr2,fld_ptr1,lat, &
                                               ocn_cpl_point_ptr,                &
-                                              amip_ice_thick, l_esm_couple))
+                                              amip_ice_thick, l_couple_sea_ice))
 #endif
       case ("lf_icetck")
         call log_field_minmax( LOG_LEVEL_DEBUG, &

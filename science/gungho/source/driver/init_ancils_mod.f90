@@ -63,7 +63,7 @@ module init_ancils_mod
                                              internal_flux_method_non_uniform, &
                                              surf_temp_forcing, &
                                              surf_temp_forcing_int_flux
-  use derived_config_mod,             only : l_esm_couple
+  use derived_config_mod,             only : l_couple_sea_ice
   use chemistry_config_mod,           only : chem_scheme,                      &
                                              chem_scheme_strattrop,            &
                                              chem_scheme_strat_test,           &
@@ -239,7 +239,7 @@ contains
     end if
 
     !=====  SEA ICE ANCILS  =====
-    if (.not. l_esm_couple) then
+    if (.not. l_couple_sea_ice) then
       if (sea_ice_source == sea_ice_source_surf) then
         call sea_ice_time_axis%initialise("sea_ice_time", file_id="sea_ice_ancil", &
                                         interp_flag=.false., pop_freq="daily", &

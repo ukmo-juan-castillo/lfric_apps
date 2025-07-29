@@ -126,7 +126,7 @@ module jules_physics_init_mod
   use veg3_parm_mod,            only: veg3_parm_allocate
   use veg3_field_mod,           only: veg3_field_allocate
 
-  use derived_config_mod,      only: l_esm_couple
+  use derived_config_mod,       only: l_couple_sea_ice
 
   use log_mod,                 only : log_event, log_scratch_space,        &
                                       LOG_LEVEL_INFO, LOG_LEVEL_ERROR
@@ -342,7 +342,7 @@ contains
 
     ! Setup switches that vary depending if the model is
     ! coupled to an ocean/sea-ice model or not.
-    if (l_esm_couple) then
+    if (l_couple_sea_ice) then
       l_sice_meltponds      = .true.
       l_sice_meltponds_cice = .true.
       l_tstar_sice_new      = .false.
@@ -503,7 +503,7 @@ contains
 
     ! The minimum sea ice fraction
     ! This is 0.0 for coupled models and 0.1 for atmosphere only models
-    if( l_esm_couple ) then
+    if( l_couple_sea_ice ) then
        min_sea_ice_frac = 0.0_r_def
     else
        min_sea_ice_frac = 0.1_r_def

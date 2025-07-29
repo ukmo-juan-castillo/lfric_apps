@@ -29,7 +29,8 @@ module gungho_model_mod
   use create_mesh_mod,            only : create_mesh
   use create_physics_prognostics_mod, only : &
                                             process_physics_prognostics
-  use derived_config_mod,         only : set_derived_config, l_esm_couple
+  use derived_config_mod,         only : set_derived_config, l_esm_couple, &
+                                         l_couple_sea_ice, l_couple_ocean
   use extrusion_mod,              only : extrusion_type,              &
                                          uniform_extrusion_type,      &
                                          shifted_extrusion_type,      &
@@ -82,7 +83,6 @@ module gungho_model_mod
   use semi_implicit_timestep_alg_mod, &
                                   only : semi_implicit_timestep_type
   use setup_orography_alg_mod,    only : setup_orography_alg
-  use derived_config_mod,         only : l_esm_couple
   use idealised_config_mod,       only : perturb_init, perturb_seed
 #ifdef COUPLED
   use coupler_mod,                only : create_coupling_fields, &
@@ -742,7 +742,19 @@ contains
                                          cpl_rcv_2d, &
                                          cpl_snd_0d )
 
+       ! Set flags for ocean and sea-ice coupling based on whether
+       ! ice fraction and SST are coupled
+       l_couple_sea_ice = cpl_rcv_2d%field_exists("lf_icefrc")
+       l_couple_ocean = cpl_rcv_2d%field_exists("lf_ocn_sst")
+
+       if (l_couple_sea_ice .and. .not. l_couple_ocean) then
+          write(log_scratch_space, '(A)' ) "You are attempting to couple to seaice, without an ocean, this is not possible"
+          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+       endif
     endif
+#else
+  l_couple_sea_ice = .false.
+  l_couple_ocean = .false.
 #endif
 
 

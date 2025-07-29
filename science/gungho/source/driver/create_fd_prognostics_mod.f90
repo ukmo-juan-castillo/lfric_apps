@@ -33,7 +33,7 @@ module create_fd_prognostics_mod
   use nlsizes_namelist_mod,           only : sm_levels
   use jules_control_init_mod,         only : n_land_tile, n_sea_ice_tile
   use jules_physics_init_mod,         only : snow_lev_tile
-  use derived_config_mod,             only : l_esm_couple
+  use derived_config_mod,             only : l_couple_sea_ice
   use chemistry_config_mod,           only : chem_scheme,                 &
                                              chem_scheme_strat_test,      &
                                              chem_scheme_strattrop
@@ -261,7 +261,7 @@ contains
 
       ! For coupled models get the sea ice fraction and thickness from the
       ! dump
-      if (l_esm_couple) then
+      if (l_couple_sea_ice) then
          call setup_ancil_field("sea_ice_fraction", depository, &
                              fd_field_collection, mesh, twod_mesh, &
                              twod=.true., ndata=n_sea_ice_tile)

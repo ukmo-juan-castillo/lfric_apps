@@ -26,7 +26,6 @@ module jules_imp_kernel_mod
   use kernel_mod,                only : kernel_type
   use timestepping_config_mod,   only : outer_iterations
   use water_constants_mod,       only : tfs, lc, lf
-  use derived_config_mod,        only : l_esm_couple
 
   implicit none
 

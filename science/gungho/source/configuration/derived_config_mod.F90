@@ -14,15 +14,19 @@ use constants_mod,     only: i_def, l_def
   private
   integer(i_def), public, protected :: bundle_size
 
-  ! Determine if this model is a coupled ocean-atmosphere model
+  ! Determine if this model is coupled to another component
+  ! (e.g. ocean/ice, waves, rivers)
   ! by using the MCT directive
 #ifdef MCT
   logical(l_def), parameter             :: l_esm_couple = .true.
 #else
   logical(l_def), parameter             :: l_esm_couple = .false.
 #endif
+  logical(l_def)                        :: l_couple_ocean
+  logical(l_def)                        :: l_couple_sea_ice
 
-  public :: set_derived_config, l_esm_couple
+  public :: set_derived_config, l_esm_couple, l_couple_ocean, &
+            l_couple_sea_ice
 
 contains
 

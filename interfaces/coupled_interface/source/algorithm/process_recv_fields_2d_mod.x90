@@ -18,6 +18,7 @@ module process_recv_fields_2d_mod
   use log_mod,                       only: log_event, LOG_LEVEL_INFO
   use mesh_mod,                      only: mesh_type
   use sci_multi_insert_kernel_mod,   only: multi_insert_kernel_type
+  use derived_config_mod,         only: l_couple_ocean, l_couple_sea_ice
 
   implicit none
 
@@ -87,35 +88,39 @@ module process_recv_fields_2d_mod
    call u_w3_ptr%copy_field_properties(sea_v_w3)
    call theta_ptr%copy_field_properties(sea_w_wth)
 
-   ! Prepare to convert W3 ocean velocities to W2 by initialising our
-   ! various work arrays to zero.
-   call invoke(setval_c(sea_u_w3,  0.0_r_def ),        &
-               setval_c(sea_v_w3,  0.0_r_def ),        &
-               setval_c(sea_w_wth, 0.0_r_def ),        &
-               setval_c(sea_current_w2_ptr, 0.0_r_def) &
-              ) ! Close invoke
+   if (l_couple_ocean) then
+     ! Prepare to convert W3 ocean velocities to W2 by initialising our
+     ! various work arrays to zero.
+     call invoke(setval_c(sea_u_w3,  0.0_r_def ),        &
+                 setval_c(sea_v_w3,  0.0_r_def ),        &
+                 setval_c(sea_w_wth, 0.0_r_def ),        &
+                 setval_c(sea_current_w2_ptr, 0.0_r_def) &
+                ) ! Close invoke
 
-   ! Move our incoming U and V components to the bottom
-   ! level of 3d equivalent fields
-   call invoke(multi_insert_kernel_type(sea_u_w3, sea_u_current_ptr, 1, 1), &
-               multi_insert_kernel_type(sea_v_w3, sea_v_current_ptr, 1, 1)  &
-              )
+     ! Move our incoming U and V components to the bottom
+     ! level of 3d equivalent fields
+     call invoke(multi_insert_kernel_type(sea_u_w3, sea_u_current_ptr, 1, 1), &
+                 multi_insert_kernel_type(sea_v_w3, sea_v_current_ptr, 1, 1)  &
+                )
 
-   ! Convert U/V (and W) from W3 to W2
-   call set_wind( sea_current_w2_ptr, sea_u_w3, sea_v_w3, sea_w_wth )
-   call sea_u_w3%field_final()
-   call sea_v_w3%field_final()
-   call sea_w_wth%field_final()
+     ! Convert U/V (and W) from W3 to W2
+     call set_wind( sea_current_w2_ptr, sea_u_w3, sea_v_w3, sea_w_wth )
+     call sea_u_w3%field_final()
+     call sea_v_w3%field_final()
+     call sea_w_wth%field_final()
 
-   ! set_wind produces values in terms of fluxes, which are not appropriate
-   ! for direct use in the things we need (JULES). We must convert the resulting
-   ! values to what LFRic code refers to as "physics values".
-   ! i.e. not fluxes, but simply m/s.
-   call invoke(inc_X_divideby_Y(sea_current_w2_ptr, dA))
+     ! set_wind produces values in terms of fluxes, which are not appropriate
+     ! for direct use in the things we need (JULES). We must convert the resulting
+     ! values to what LFRic code refers to as "physics values".
+     ! i.e. not fluxes, but simply m/s.
+     call invoke(inc_X_divideby_Y(sea_current_w2_ptr, dA))
+   end if
 
    ! Save raw sea ice fractions before any post processing
    ! for use in scaling data going from atmos to ocean
-   call set_r_sea_ice_frac_raw(depository, sea_ice_fraction_ptr)
+   if (l_couple_sea_ice) then
+     call set_r_sea_ice_frac_raw(depository, sea_ice_fraction_ptr)
+   end if
 
    ! Process data that has just come through the coupler
    call invoke(process_o2a_kernel_type( sea_surf_temp_ptr,        &

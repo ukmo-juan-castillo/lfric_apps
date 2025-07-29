@@ -81,9 +81,9 @@ program gungho_model
   call initialise( application_name, modeldb )
 
   if (l_esm_couple) then
-    write(log_scratch_space,'("Configuration is coupled to ocean")')
+    write(log_scratch_space,'(A)') "Configuration is coupled to one or more components"
   else
-    write(log_scratch_space,'("Configuration is not coupled to ocean")')
+    write(log_scratch_space,'("No external coupler is used by this configuration")')
   end if
   call log_event( log_scratch_space, log_level_info )
 

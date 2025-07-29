@@ -59,7 +59,7 @@ contains
   !> @param[in]     latitude           Latitude of the grid-cell
   !> @param[in]     mask_field         Mask field to write from
   !> @param[in]     amip_ice_thick     Use AMIP ice thickness calculation
-  !> @param[in]     l_esm_couple       Use coupled ocean/sea-ice model
+  !> @param[in]     l_couple_sea_ice   Model is coupled to a sea-ice model
   !> @param[in]     ndf_sice           Number of DOFs per cell for sea ice
   !> @param[in]     undf_sice          Number of total DOFs for sea ice
   !> @param[in]     map_sice           Dofmap for cell for surface sea ice
@@ -76,7 +76,7 @@ contains
                               latitude,                      &
                               mask_field,                    &
                               amip_ice_thick,                &
-                              l_esm_couple,                  &
+                              l_couple_sea_ice,              &
                               ndf_sice, undf_sice, map_sice, &
                               ndf_tile, undf_tile, map_tile, &
                               ndf_2d, undf_2d, map_2d)
@@ -98,7 +98,7 @@ contains
     real(kind=r_def), intent(inout)  :: tile_fraction(undf_tile)
     real(kind=r_def), intent(in)     :: latitude(undf_2d)
 
-    logical(kind=l_def), intent(in) :: amip_ice_thick, l_esm_couple
+    logical(kind=l_def), intent(in) :: amip_ice_thick, l_couple_sea_ice
 
     ! Internal variables
     integer(kind=i_def) :: i, i_sice
@@ -141,7 +141,7 @@ contains
                                                   - tot_ice, 0.0_r_def)
 
       ! Calculate sea-ice thickness if required
-      if (amip_ice_thick .and. .not. l_esm_couple) then
+      if (amip_ice_thick .and. .not. l_couple_sea_ice) then
         if (latitude(map_2d(1)) > 0.0_r_def) then
           ice_thick = 2.0_r_def ! Arctic sea-ice
         else
