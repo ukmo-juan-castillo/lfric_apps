@@ -7,7 +7,7 @@
 !>
 module lfric2lfric_driver_mod
 
-  use constants_mod,            only: str_def, i_def, l_def
+  use constants_mod,            only: str_def, i_def, l_def, r_second
   use driver_modeldb_mod,       only: modeldb_type
   use driver_fem_mod,           only: final_fem
   use driver_io_mod,            only: final_io
@@ -31,7 +31,10 @@ module lfric2lfric_driver_mod
   ! lfric2lfric modules
   !------------------------------------
   use lfric2lfric_config_mod,         only: mode_ics, mode_lbc
-  use lfric2lfric_infrastructure_mod, only: initialise_infrastructure
+  use lfric2lfric_infrastructure_mod, only: initialise_infrastructure, &
+                                            context_dst, context_src,  &
+                                            source_collection_name,    &
+                                            target_collection_name
   use lfric2lfric_regrid_mod,         only: lfric2lfric_regrid
 
   implicit none
@@ -94,6 +97,7 @@ contains
     logical(kind=l_def)          :: is_running
     type(xios_date)              :: current_date
     character(len=32)            :: current_date_str
+    real(kind=r_second)          :: checkpoint_times(1)
 
     type(field_collection_type),   pointer :: source_fields
     type(field_collection_type),   pointer :: target_fields
@@ -127,7 +131,9 @@ contains
       call modeldb%io_contexts%get_io_context(context_dst, io_context)
       call io_context%set_current()
 
-      call write_checkpoint(target_fields, modeldb%clock, checkpoint_stem_name)
+      checkpoint_times(1) = modeldb%clock%seconds_from_steps(modeldb%clock%get_step())
+      call write_checkpoint(target_fields, modeldb%values, modeldb%clock, &
+                            checkpoint_stem_name, checkpoint_times)
 
     else if (mode == mode_lbc) then
       time_steps = modeldb%clock%get_last_step() - &
