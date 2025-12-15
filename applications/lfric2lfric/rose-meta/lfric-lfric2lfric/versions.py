@@ -49,5 +49,6 @@ class vn22_t1016(MacroUpgrade):
             config,
             ["namelist:lfric2lfric", "weight_file_lbc"],
             "'weight_file_lbc'",
+        )
 
         return config, self.reports
