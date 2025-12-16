@@ -37,6 +37,7 @@ class vn30_t48(MacroUpgrade):
     AFTER_TAG = "vn3.0_t48"
 
     def upgrade(self, config, meta_config=None):
+        # Commands From: rose-meta/lfric-lfric2lfric
         self.add_setting(config, ["namelist:lfric2lfric", "mode"], "'ics'")
         self.add_setting(
             config,
