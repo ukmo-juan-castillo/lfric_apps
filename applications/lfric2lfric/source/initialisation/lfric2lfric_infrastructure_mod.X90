@@ -203,7 +203,7 @@ contains
     !------------------------
     ! Pointer for subroutines used in init_io
     procedure(filelist_populator), pointer :: files_init_ptr
-    procedure(callback_clock_arg), pointer :: before_close => null()
+    procedure(callback_clock_arg), pointer :: before_close
 
     ! Source context pointer and temporary context for setup
     type(lfric_xios_context_type)          :: tmp_io_context_src
