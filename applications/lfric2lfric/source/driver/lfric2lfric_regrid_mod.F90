@@ -48,12 +48,10 @@ contains
   !> @param [in,out] modeldb                 The structure that holds model
   !!                                         state
   !> @param [in,out] oasis_clock             Clock for OASIS exchanges
-  !> @param [in]     xios_ctx_src            The name of the XIOS context that
-  !!                                         will hold the source file
-  !> @param [in]     xios_ctx_dst            The name of the XIOS context that
-  !!                                         will hold the file to be written
   !> @param [in]     source_fields           Collection of fields to be regridded
   !> @param [in]     target_fields           Collection of regridded fields
+  !> @param [in]     regrid_method           Method for regridding between the
+  !>                                         source and destination meshes
   subroutine lfric2lfric_regrid( modeldb, oasis_clock,            &
                   source_fields, target_fields, regrid_method )
 
