@@ -22,6 +22,7 @@ module lfric2lfric_init_mod
   use netcdf,                     only: nf90_max_name
 
   ! lfric2lfric mods
+  use lfric2lfric_config_mod,     only: mode_ics, mode_lbc
   use lfric2lfric_field_init_mod, only : get_field_list, field_maker
 
   implicit none
