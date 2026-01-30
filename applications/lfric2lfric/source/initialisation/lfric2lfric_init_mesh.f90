@@ -148,8 +148,8 @@ subroutine init_mesh( configuration,           &
                                         generate_inner_halos(src) )
 
   if (.not. configuration%namelist_exists('partitioning', 'destination')) then
-    write( log_scratch_space, '(A)' )                                     &
-         'Partitioning parameters for the source mesh were not found, '// &
+    write( log_scratch_space, '(A)' )                                          &
+         'Partitioning parameters for the destination mesh were not found, '// &
          'please specify a partitioning namelist with mesh_target=destination.'
     call log_event(log_scratch_space, log_level_error)
   end if
