@@ -14,10 +14,10 @@ module lfric2lfric_regrid_mod
   use field_collection_mod,     only: field_collection_type
   use field_collection_iterator_mod, only: &
                                       field_collection_iterator_type
-  use model_clock_mod,          only: model_clock_type
   use log_mod,                  only: log_event, &
                                       log_level_info, &
                                       log_scratch_space
+  use model_clock_mod,          only: model_clock_type
 
   !------------------------------------
   ! lfric2lfric modules
@@ -26,8 +26,8 @@ module lfric2lfric_regrid_mod
                                             regrid_method_lfric2lfric, &
                                             regrid_method_oasis
   use lfric2lfric_map_regrid_mod,     only: lfric2lfric_map_regrid
-  use lfric2lfric_oasis_regrid_mod,   only: lfric2lfric_oasis_regrid
   use lfric2lfric_no_regrid_mod,      only: lfric2lfric_no_regrid
+  use lfric2lfric_oasis_regrid_mod,   only: lfric2lfric_oasis_regrid
 
   implicit none
 

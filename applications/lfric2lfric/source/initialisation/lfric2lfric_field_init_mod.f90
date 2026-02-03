@@ -22,7 +22,6 @@ module lfric2lfric_field_init_mod
   use lfric_xios_diag_mod,                only: field_is_valid
   use lfric_xios_read_mod,                only: read_field_generic, &
                                                 checkpoint_read_xios
-  use space_from_metadata_mod,            only: space_from_metadata
   use lfric_xios_write_mod,               only: write_field_generic, &
                                                 checkpoint_write_xios
   use lfric2lfric_config_mod,             only: mode_ics, mode_lbc
@@ -35,6 +34,7 @@ module lfric2lfric_field_init_mod
   use netcdf,                             only: nf90_inquire_variable, &
                                                 nf90_inquire,          &
                                                 nf90_max_name
+  use space_from_metadata_mod,            only: space_from_metadata
 
   implicit none
 

@@ -93,12 +93,13 @@ module lfric2lfric_infrastructure_mod
                                         method_um_L120_99t_21s_40km,  &
                                         method_um_L140_122t_18s_40km, &
                                         method_um_L70_50t_20s_80km
-  use lfric2lfric_config_mod,     only: regrid_method_oasis,       &
+  use lfric2lfric_config_mod,     only: mode_ics, mode_lbc,        &
                                         regrid_method_lfric2lfric, &
                                         regrid_method_map,         &
-                                        source_geometry_spherical, &
+                                        regrid_method_oasis,       &
                                         source_geometry_planar,    &
-                                        mode_ics, mode_lbc
+                                        source_geometry_spherical
+                                        
 
   implicit none
 
