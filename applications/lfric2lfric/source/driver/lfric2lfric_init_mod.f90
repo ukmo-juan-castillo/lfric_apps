@@ -15,7 +15,6 @@ module lfric2lfric_init_mod
   use driver_modeldb_mod,         only: modeldb_type
   use field_collection_mod,       only: field_collection_type
   use lfric_xios_context_mod,     only: lfric_xios_context_type
-  use lfric2lfric_config_mod,     only: mode_ics, mode_lbc
   use log_mod,                    only: log_event, &
                                         log_level_info
   use mesh_mod,                   only: mesh_type
@@ -23,7 +22,7 @@ module lfric2lfric_init_mod
 
   ! lfric2lfric mods
   use lfric2lfric_config_mod,     only: mode_ics, mode_lbc
-  use lfric2lfric_field_init_mod, only : get_field_list, field_maker
+  use lfric2lfric_field_init_mod, only: get_field_list, field_maker
 
   implicit none
   private

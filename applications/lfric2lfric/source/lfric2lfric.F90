@@ -29,10 +29,9 @@ program lfric2lfric
                                     log_level_trace, &
                                     log_scratch_space
   use lfric_mpi_mod,          only: global_mpi
-  use model_clock_mod,        only: model_clock_type
-
   use lfric2lfric_mod,        only: lfric2lfric_required_namelists
   use lfric2lfric_driver_mod, only: initialise, run, finalise
+  use model_clock_mod,        only: model_clock_type
 
   implicit none
 
