@@ -99,7 +99,7 @@ module lfric2lfric_infrastructure_mod
                                         regrid_method_oasis,       &
                                         source_geometry_planar,    &
                                         source_geometry_spherical
-                                        
+
 
   implicit none
 
