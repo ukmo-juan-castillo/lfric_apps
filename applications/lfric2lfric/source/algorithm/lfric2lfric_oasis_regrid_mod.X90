@@ -39,10 +39,9 @@ module lfric2lfric_oasis_regrid_mod
   use coupler_exchange_2d_mod,  &
                             only: coupler_exchange_2d_type
 #endif
-  use field_mod,            only: field_type !, field_proxy_type
+  use field_mod,            only: field_type
   use field_collection_mod, only: field_collection_type
   use function_space_mod,   only: function_space_type
-  use lfric_xios_diag_mod,  only: get_field_axis_ref
   use log_mod,              only: log_event, log_scratch_space, &
                                   log_level_info, log_level_error
 
@@ -90,9 +89,7 @@ contains
     type(field_collection_type), pointer   :: cpl_rcv_2d => null()
     integer(i_def), pointer                :: local_index(:)
     logical(l_def)                         :: is_running
-    logical(l_def)                         :: has_axis
 #endif
-!    type(field_proxy_type)                 :: field_proxy
 
 
     call invoke(setval_c(field_dst, 0.0_r_def))
@@ -117,46 +114,14 @@ contains
       cpl_rcv_2d => modeldb%fields%get_field_collection("cpl_rcv_2d")
       call cpl_rcv_2d%get_field("dst_face", dst_field)
 
-      if (trim(field_src%get_name()) == "theta" .or. &
-          trim(field_src%get_name()) == "wvar" .or. &
-          trim(field_src%get_name()) == "canopy_height" ) then
-      has_axis = get_field_axis_ref("restart_"//trim(field_src%get_name())) /= ''
-      write(log_scratch_space, *) "JMCS is ndata first:", ndata, &
-                         vector_space%get_ncell(), vector_space%get_ndof_glob(), &
-                         vector_space%get_dim_space(), vector_space%get_ndata(), has_axis
-      call log_event(log_scratch_space, log_level_info)
       ! Extract data layer by layer, regrid it, and place in the destination field
       do l = 0, nlayers - 1
         do k = 0, ndata - 1
           ! Extract one layer and one set of data
           call invoke(name = "extract_layer",                       &
                               level_extract_kernel_type(src_field,  &
-                                          field_src, l, k, nlayers, has_axis))
+                                                 field_src, l, k))
 
-!          if (l ==0 .and. k == 0 .and. (trim(field_src%get_name()) == "theta" .or. &
-!              trim(field_src%get_name()) == "wvar" .or. &
-!              trim(field_src%get_name()) == "canopy_height" ) ) then
-!            field_proxy = src_field%get_proxy()
-!            write(log_scratch_space, *) "JMCS values field 0:", trim(field_src%get_name()), &
-!                           field_proxy%data(1), field_proxy%data(2), field_proxy%data(3)
-!            call log_event(log_scratch_space, log_level_info)
-!          end if
-!          if (l ==1 .and. k == 0 .and. (trim(field_src%get_name()) == "theta" .or. &
-!              trim(field_src%get_name()) == "wvar" .or. &
-!              trim(field_src%get_name()) == "canopy_height" ) ) then
-!            field_proxy = src_field%get_proxy()
-!            write(log_scratch_space, *) "JMCS values field 1:", trim(field_src%get_name()), &
-!                           field_proxy%data(1), field_proxy%data(2), field_proxy%data(3)
-!            call log_event(log_scratch_space, log_level_info)
-!          end if
-!          if (l ==0 .and. k == 1 .and. (trim(field_src%get_name()) == "theta" .or. &
-!              trim(field_src%get_name()) == "wvar" .or. &
-!              trim(field_src%get_name()) == "canopy_height" ) ) then
-!            field_proxy = src_field%get_proxy()
-!            write(log_scratch_space, *) "JMCS values field 2:", trim(field_src%get_name()), &
-!                           field_proxy%data(1), field_proxy%data(2), field_proxy%data(3)
-!            call log_event(log_scratch_space, log_level_info)
-!          end if
           ! send the layer via OASIS
           ! Extract the version that was actually placed in the collection
           coupling_ptr => get_coupling_from_collection(modeldb%values, "coupling" )
@@ -178,14 +143,13 @@ contains
           ! write the received layer information in the destination field
           call invoke(name = "insert_layer",                       &
                               level_insert_kernel_type(field_dst,  &
-                                         dst_field, l, k, nlayers, has_axis))
+                                                dst_field, l, k))
 
           ! Update the coupling time
           is_running = clock%tick()
 
         end do
       end do
-      end if
 
     else
       write(log_scratch_space, '(A)') "Function space can not " //            &
