@@ -18,6 +18,7 @@
         "lfric2lfric_oasis_clim_gal9-C24_C12_1cpu_azspice_gnu_fast-debug-64bit",
         "lfric2lfric_oasis_clim_gal9-C24_C12_6cpu_azspice_gnu_fast-debug-64bit",
         "lfric2lfric_oasis_clim_gal9_C12-ral_seuk_C16_lam_azspice_gnu_fast-debug-64bit",
+        "lfric2lfric_oasis_clim_gal9_C12-ral_seuk_C16_lam-lbc_azspice_gnu_fast-debug-64bit",
         "lfric2lfric_azspice_canned",
     ],
     "lfric2lfric_azspice_extra": [
@@ -49,6 +50,7 @@
         "lfric2lfric_oasis_clim_gal9-C24_C12_1cpu_ex1a_cce_fast-debug-64bit",
         "lfric2lfric_oasis_clim_gal9-C24_C12_6cpu_ex1a_cce_fast-debug-64bit",
         "lfric2lfric_oasis_clim_gal9_C12-ral_seuk_C16_lam_ex1a_cce_fast-debug-64bit",
+        "lfric2lfric_oasis_clim_gal9_C12-ral_seuk_C16_lam-lbc_ex1a_cce_fast-debug-64bit",
         "lfric2lfric_ex1a_canned",
     ],
     "lfric2lfric_ex1a_extra": [
