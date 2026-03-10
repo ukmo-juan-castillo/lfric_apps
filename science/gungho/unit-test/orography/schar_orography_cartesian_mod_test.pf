@@ -48,7 +48,9 @@ module schar_orography_cartesian_mod_test
   integer(i_def),     parameter   :: xproc            = 1_i_def
   integer(i_def),     parameter   :: yproc            = 1_i_def
 
-  logical(l_def),     parameter   :: generate_inner_halos = .true.
+  integer(i_def), parameter :: max_stencil_depth    = 1_i_def
+  logical(l_def), parameter :: generate_inner_halos = .true.
+  logical(l_def), parameter :: enforce_constraints  = .false.
 
 contains
 
@@ -175,8 +177,9 @@ contains
     partition = partition_type( global_mesh_ptr,       &
                                 partitioner_ptr,       &
                                 decomposition,         &
-                                1,                     &
+                                max_stencil_depth,    &
                                 generate_inner_halos, &
+                                enforce_constraints,  &
                                 local_rank,            &
                                 total_ranks )
     call local_mesh%initialise( global_mesh_ptr, partition )
