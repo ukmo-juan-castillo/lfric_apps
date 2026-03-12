@@ -100,7 +100,7 @@ subroutine init_mesh( configuration,           &
 
   integer(kind=i_def),   intent(in) :: local_rank
   integer(kind=i_def),   intent(in) :: total_ranks
-  character(len=*),      intent(in) :: mesh_names(2)
+  character(len=*),      intent(in) :: mesh_names(:)
   class(extrusion_type), intent(in) :: extrusion
   integer(kind=i_def),   intent(in) :: stencil_depths_in(:)
   integer(kind=i_def),   intent(in) :: regrid_method
@@ -108,15 +108,16 @@ subroutine init_mesh( configuration,           &
   ! Parameters
   character(len=9), parameter :: routine_name = 'init_mesh'
 
-  integer(kind=i_def), parameter :: dst = 1
-  integer(kind=i_def), parameter :: src = 2
+  integer(kind=i_def), parameter :: src = 1
+  integer(kind=i_def), parameter :: dst = 2
   integer(kind=i_def), parameter :: lbc = 3
 
   ! Namelist variables
   type(namelist_type), pointer :: lfric2lfric_nml      => null()
   type(namelist_type), pointer :: src_partitioning_nml => null()
   type(namelist_type), pointer :: dst_partitioning_nml => null()
-  type(namelist_type), pointer :: dummy_partitioning_nml => null()
+  type(namelist_type), pointer :: partitioning_nml_ptr => null()
+  type(namelist_type), target  :: dummy_partitioning_nml
   type(namelist_item_type)     :: dummy_members(1)
 
   ! partitioning namelist variables
@@ -128,13 +129,13 @@ subroutine init_mesh( configuration,           &
   character(len=str_max_filename)  :: meshfile_prefix(2)
   integer(kind=i_def)              :: geometry(2)
   integer(kind=i_def)              :: topology(2)
-  integer(kind=i_def)              :: mesh_selection(2)
+  integer(kind=i_def)              :: mesh_selection(3)
   integer(kind=i_def)              :: mode
 
   ! Local variables
   integer(kind=i_def)                 :: i
   character(len=str_max_filename)     :: mesh_file(2)
-  integer(kind=i_def)                 :: stencil_depths(2)
+  integer(kind=i_def)                 :: stencil_depths(size(mesh_names))
 
   procedure(partitioner_interface), pointer :: partitioner_src => null()
   procedure(partitioner_interface), pointer :: partitioner_dst => null()
@@ -188,12 +189,12 @@ subroutine init_mesh( configuration,           &
   end if
 
   ! Set up stencil depths
-  if ( size(stencil_depths) == 1 ) then
+  if ( size(stencil_depths_in) == 1 ) then
     ! Single stencil depth specified, apply to all meshes
     do i = 1, size(mesh_names)
       stencil_depths(i) = stencil_depths_in(1)
     end do
-  else if ( size(stencil_depths) == size(mesh_names) ) then
+  else if ( size(stencil_depths_in) == size(mesh_names) ) then
     ! Stencil depths specified per mesh
     stencil_depths(:) = stencil_depths_in(:)
   else
@@ -248,10 +249,10 @@ subroutine init_mesh( configuration,           &
     if (mesh_file(dst) == mesh_file(src)) then
       call load_local_mesh( mesh_file(dst), mesh_names )
     else
-      call load_local_mesh( mesh_file(dst), mesh_names(dst) )
-
-      if (mode == mode_lbc) then
-        call load_local_mesh( mesh_file(dst), mesh_names(lbc) )
+      if (mode == mode_lbc .and. mesh_names(lbc) /= mesh_names(dst)) then
+        call load_local_mesh( mesh_file(dst), mesh_names(dst:lbc) )
+      else
+        call load_local_mesh( mesh_file(dst), mesh_names(dst) )
       end if
 
       call log_event( 'Using pre-partitioned mesh file:', log_level_info )
@@ -303,12 +304,15 @@ subroutine init_mesh( configuration,           &
       mesh_selection(dst) = mesh_planar
       call log_event( "Setting up planar partition mesh(es)", &
                       log_level_debug )
-
-      if (mode == mode_lbc) then
+    end if
+    if (mode == mode_lbc) then
+      if (mesh_names(lbc) == mesh_names(dst)) then
+        mesh_selection(lbc) = mesh_selection(dst)
+      else
         mesh_selection(lbc) = mesh_lfric2lfric_lbc
-        call log_event( "Setting up planar lbc partition mesh(es)", &
-                        log_level_debug )
       end if
+      call log_event( "Setting up planar lbc partition mesh(es)", &
+                      log_level_debug )
     end if
 
     call log_event( "Setting up partition mesh(es)", log_level_info )
@@ -323,15 +327,16 @@ subroutine init_mesh( configuration,           &
                                    decomposition_src,    &
                                    partitioner_src )
 
-    if (mode == mode_lbc) then
+    if (mode == mode_lbc .and. mesh_names(lbc) /= mesh_names(dst)) then
       ! Create a dummy partition namelist to partition the destination mesh,
       ! which by default will be set to 'auto'
       call dummy_members(1)%initialise('panel_decomposition', &
                                         panel_decomposition_auto)
       call dummy_partitioning_nml%initialise('partitioning', &
-                                 dummy_members, 'boundaries')
+                                        dummy_members)
+      partitioning_nml_ptr => dummy_partitioning_nml
 
-      call get_partition_parameters( dummy_partitioning_nml, &
+      call get_partition_parameters( partitioning_nml_ptr,   &
                                      mesh_selection(dst),    &
                                      total_ranks,            &
                                      decomposition_dst,      &
@@ -355,9 +360,10 @@ subroutine init_mesh( configuration,           &
     if (mesh_file(dst) == mesh_file(src)) then
       call load_global_mesh( mesh_file(dst), mesh_names )
     else
-      call load_global_mesh( mesh_file(dst), mesh_names(dst) )
-      if (mode == mode_lbc) then
-        call load_global_mesh( mesh_file(dst), mesh_names(lbc) )
+      if (mode == mode_lbc .and. mesh_names(lbc) /= mesh_names(dst)) then
+        call load_global_mesh( mesh_file(dst), mesh_names(dst:lbc) )
+      else
+        call load_global_mesh( mesh_file(dst), mesh_names(dst) )
       end if
       call load_global_mesh( mesh_file(src), mesh_names(src) )
     endif
@@ -371,7 +377,7 @@ subroutine init_mesh( configuration,           &
                             generate_inner_halos(dst),     &
                             partitioner_dst )
 
-    if (mode == mode_lbc) then
+    if (mode == mode_lbc .and. mesh_names(lbc) /= mesh_names(dst)) then
       call create_local_mesh( mesh_names(lbc:lbc),         &
                               local_rank, total_ranks,     &
                               decomposition_lbc,           &

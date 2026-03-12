@@ -14,7 +14,6 @@ module lfric2lfric_infrastructure_mod
 
   use add_mesh_map_mod,            only: assign_mesh_maps
   use blend_orography_alg_mod,     only: blend_orography
-  use check_configuration_mod,     only: get_required_stencil_depth
   use constants_mod,               only: str_def, r_def, i_def, l_def, r_second
   use create_mesh_mod,             only: create_extrusion, &
                                          create_mesh
@@ -38,8 +37,6 @@ module lfric2lfric_infrastructure_mod
                                          um_L120_99t_21s_40km_extrusion_type,  &
                                          um_L140_122t_18s_40km_extrusion_type, &
                                          um_L70_50t_20s_80km_extrusion_type
-  use sci_geometric_constants_mod, only: get_chi_inventory,     &
-                                         get_panel_id_inventory
   use init_altitude_mod,           only: init_altitude
   use inventory_by_mesh_mod,       only: inventory_by_mesh_type
   use io_context_mod,              only: callback_clock_arg
@@ -193,8 +190,8 @@ contains
     integer(kind=i_def)            :: i
     integer(kind=i_def), parameter :: one_layer = 1_i_def
 
-    integer(kind=i_def), parameter :: dst = 1
-    integer(kind=i_def), parameter :: src = 2
+    integer(kind=i_def), parameter :: src = 1
+    integer(kind=i_def), parameter :: dst = 2
     integer(kind=i_def), parameter :: lbc = 3
 
     type(coupling_type),         pointer :: coupling_ptr
