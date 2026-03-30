@@ -167,8 +167,6 @@ module adj_interpolation_alg_mod
     call w_map%initialise(w2b_fs, wtheta_fs)
     call u_broken%initialise(w2b_fs)
 
-    write(log_scratch_space, *) 'JMCS adj_interp_w3wth_to_w2_alg:', geometry, topology
-    call log_event( log_scratch_space, log_level_info )
     ! Adjoint of compute wind on W2
     call invoke( setval_c(u_broken, 0.0_r_def), &
                  compute_sample_u_ops_kernel_type(u_map, v_map, w_map, chi, panel_id, &
