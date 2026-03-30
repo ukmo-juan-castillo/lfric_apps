@@ -7,6 +7,10 @@
 !>
 module lfric2lfric_regrid_mod
 
+  use base_mesh_config_mod,     only: geometry_spherical,      &
+                                      geometry_planar,         &
+                                      topology_fully_periodic, &
+                                      topology_non_periodic
   use constants_mod,            only: str_def, i_def
   use driver_modeldb_mod,       only: modeldb_type
   use field_parent_mod,         only: field_parent_type
@@ -23,6 +27,7 @@ module lfric2lfric_regrid_mod
                                       log_level_info, &
                                       log_scratch_space
   use mesh_collection_mod,      only: mesh_collection
+  use mesh_mod,                 only: mesh_type
   use model_clock_mod,          only: model_clock_type
   use namelist_mod,             only: namelist_type
 
@@ -85,6 +90,7 @@ contains
     integer(kind=i_def)                :: fs
     type(function_space_type), pointer :: fs_w3_src, fs_w3_dst
     type(function_space_type), pointer :: fs_wth_src, fs_wth_dst
+    type(mesh_type),           pointer :: mesh_dst
 
     character(len=str_def)   :: mesh_names(2)
     integer(kind=i_def)      :: element_order_h
@@ -101,8 +107,6 @@ contains
     ! Obtain namelist parameters
     mesh_names(dst) = modeldb%config%lfric2lfric%destination_mesh_name()
     mesh_names(src) = modeldb%config%lfric2lfric%source_mesh_name()
-    geometry = modeldb%config%lfric2lfric%destination_geometry()
-    topology = modeldb%config%lfric2lfric%destination_topology()
     element_order_h = modeldb%config%finite_element%element_order_h()
     element_order_v = modeldb%config%finite_element%element_order_v()
 
@@ -119,6 +123,19 @@ contains
     fs_wth_dst => function_space_collection%get_fs(                  &
                           mesh_collection%get_mesh(mesh_names(dst)), &
                           element_order_h, element_order_v, Wtheta)
+
+    ! Get the geometry and topology of the destination mesh
+    mesh_dst      => mesh_collection%get_mesh(trim(mesh_names(dst)))
+    if (mesh_dst%is_geometry_spherical()) then
+      geometry = geometry_spherical
+    else if (mesh_dst%is_geometry_planar()) then
+      geometry = geometry_planar
+    end if
+    if (mesh_dst%is_topology_periodic()) then
+      topology = topology_fully_periodic
+    else if (mesh_dst%is_topology_non_periodic()) then
+      topology = topology_non_periodic
+    end if
 
     ! Main loop over fields to be processed
     call iter%initialise(source_fields)
