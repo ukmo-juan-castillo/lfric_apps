@@ -25,6 +25,7 @@
 module lfric2lfric_init_mesh_mod
 
   use add_mesh_map_mod,            only: assign_mesh_maps
+  use config_mod,                  only: config_type
   use constants_mod,               only: i_def, l_def, str_max_filename
   use check_local_mesh_mod,        only: check_local_mesh
   use create_mesh_mod,             only: create_mesh
@@ -37,17 +38,10 @@ module lfric2lfric_init_mesh_mod
                                          log_level_info,    &
                                          log_level_error,   &
                                          log_level_debug
-  use namelist_collection_mod,     only: namelist_collection_type
-  use namelist_item_mod,           only: namelist_item_type
-  use namelist_mod,                only: namelist_type
-  use panel_decomposition_mod,     only: lfric2lfric_lbc_decomposition_type, &
-                                         panel_decomposition_type
-  use partitioning_config_mod,     only: panel_decomposition_auto
-  use partition_mod,               only: partitioner_lfric2lfric_lbc, &
-                                         partitioner_interface
+  use panel_decomposition_mod,     only: panel_decomposition_type
+  use partition_mod,               only: partitioner_interface
   use runtime_partition_mod,       only: mesh_cubedsphere,       &
                                          mesh_planar,            &
-                                         mesh_lfric2lfric_lbc,   &
                                          create_local_mesh_maps, &
                                          create_local_mesh
   use runtime_partition_lfric_mod, only: get_partition_parameters
@@ -72,32 +66,35 @@ contains
 !===============================================================================
 !> @brief  Generates mesh(es) from mesh input file(s) on a given extrusion.
 !>
-!> @param[in] configuration          Application configuration object.
-!>                                   This configuration object should contain the
-!>                                   following defined namelist objects:
-!>                                      * partititioning
-!> @param[in] local_rank             The MPI rank of this process.
-!> @param[in] total_ranks            Total number of MPI ranks in this job.
-!> @param[in] mesh_names             Mesh names to load from the mesh input file(s).
-!> @param[in] extrusion              Extrusion object to be applied to meshes.
-!> @param[in] stencil_depths_in      Required stencil depth for the application
-!!                                   for each mesh.
-!> @param[in] regrid_method          Apply check for even partitions with the
-!>                                   configured partition strategy if the
-!>                                   regridding method is 'map'.
-!>                                   (unpartitioned mesh input only)
+!> @param[in] config             Application configuration object.
+!>                               This configuration object should contain the
+!>                               following defined namelist objects:
+!>                                 * partititioning
+!> @param[in] local_rank         The MPI rank of this process.
+!> @param[in] total_ranks        Total number of MPI ranks in this job.
+!> @param[in] mesh_names         Mesh names to load from the mesh input file(s).
+!> @param[in] extrusion          Extrusion object to be applied to meshes.
+!> @param[in] stencil_depths_in  Required stencil depth for the application
+!!                               for each mesh.
+!> @param[in] regrid_method      Apply check for even partitions with the
+!>                               configured partition strategy if the
+!>                               regridding method is 'map'.
+!>                               (unpartitioned mesh input only)
 !===============================================================================
-subroutine init_mesh( configuration,           &
+subroutine init_mesh( config,                  &
                       local_rank, total_ranks, &
                       mesh_names,              &
                       extrusion,               &
                       stencil_depths_in,       &
                       regrid_method )
 
+  use partitioning_nml_iterator_mod, only: partitioning_nml_iterator_type
+  use partitioning_nml_mod,          only: partitioning_nml_type
+
   implicit none
 
   ! Arguments
-  type(namelist_collection_type) :: configuration
+  type(config_type),     intent(in) :: config
 
   integer(kind=i_def),   intent(in) :: local_rank
   integer(kind=i_def),   intent(in) :: total_ranks
@@ -114,12 +111,13 @@ subroutine init_mesh( configuration,           &
   integer(kind=i_def), parameter :: lbc = 3
 
   ! Namelist variables
-  type(namelist_type), pointer :: lfric2lfric_nml      => null()
-  type(namelist_type), pointer :: src_partitioning_nml => null()
-  type(namelist_type), pointer :: dst_partitioning_nml => null()
+  type(partitioning_nml_type), pointer :: partitioning
+  type(partitioning_nml_type), pointer :: src_partitioning_nml
+  type(partitioning_nml_type), pointer :: dst_partitioning_nml
+  type(partitioning_nml_type), pointer :: lbc_partitioning_nml
 
   ! partitioning namelist variables
-  logical(l_def)                   :: generate_inner_halos(2)
+  logical(l_def)                   :: generate_inner_halos(3)
 
   ! lfric2lfric namelist variables
   logical(kind=l_def)              :: prepartitioned
@@ -144,39 +142,61 @@ subroutine init_mesh( configuration,           &
                                                   decomposition_dst, &
                                                   decomposition_lbc
 
+  type(partitioning_nml_iterator_type) :: iter
+
+
+  ! Read lfric2lfric namelist
+  prepartitioned       = config%lfric2lfric%prepartitioned_meshes()
+  meshfile_prefix(src) = config%lfric2lfric%source_meshfile_prefix()
+  meshfile_prefix(dst) = config%lfric2lfric%destination_meshfile_prefix()
+  geometry(src)        = config%lfric2lfric%source_geometry()
+  geometry(dst)        = config%lfric2lfric%destination_geometry()
+  topology(src)        = config%lfric2lfric%source_topology()
+  topology(dst)        = config%lfric2lfric%destination_topology()
+  mode                 = config%lfric2lfric%mode()
+
+  ! Decide if a lbc mesh has to be set up
+  read_lbc_mesh = .false.
+  if (mode == mode_lbc) then
+    if (mesh_names(lbc) /= mesh_names(dst)) then
+      read_lbc_mesh = .true.
+    end if
+  end if
 
   !============================================================================
   ! Extract and check configuration variables
   !============================================================================
-  ! Read partitioning namelist for source and destination meshes
-  src_partitioning_nml  => configuration%get_namelist('partitioning', &
-                                                      'source')
-  call src_partitioning_nml%get_value( 'generate_inner_halos', &
-                                        generate_inner_halos(src) )
+  call iter%initialise(config%partitioning)
+  do while (iter%has_next())
 
-  dst_partitioning_nml  => configuration%get_namelist('partitioning', &
-                                                      'destination')
-  call dst_partitioning_nml%get_value( 'generate_inner_halos', &
-                                        generate_inner_halos(dst) )
+    partitioning => iter%next()
 
-  ! Read lfric2lfric namelist
-  lfric2lfric_nml    => configuration%get_namelist('lfric2lfric')
+    if (trim(partitioning%get_profile_name()) == 'source') then
+      src_partitioning_nml => partitioning
+    else if (trim(partitioning%get_profile_name()) == 'destination') then
+      dst_partitioning_nml => partitioning
+      if (read_lbc_mesh) then
+        lbc_partitioning_nml => partitioning
+      end if
+    end if
+  end do
 
-  call lfric2lfric_nml%get_value( 'prepartitioned_meshes', &
-                                   prepartitioned )
-  call lfric2lfric_nml%get_value( 'destination_meshfile_prefix', &
-                                   meshfile_prefix(dst) )
-  call lfric2lfric_nml%get_value( 'destination_geometry', &
-                                   geometry(dst) )
-  call lfric2lfric_nml%get_value( 'destination_topology', &
-                                   topology(dst) )
-  call lfric2lfric_nml%get_value( 'source_meshfile_prefix', &
-                                   meshfile_prefix(src) )
-  call lfric2lfric_nml%get_value( 'source_geometry', &
-                                   geometry(src) )
-  call lfric2lfric_nml%get_value( 'source_topology', &
-                                   topology(src) )
-  call lfric2lfric_nml%get_value( 'mode', mode )
+  if (.not. associated(src_partitioning_nml)) then
+    write( log_scratch_space, '(A)' )                                     &
+         'Source mesh partitioning namelist (partitioning:source) not found.'
+    call log_event(log_scratch_space, log_level_error)
+  end if
+  if (.not. associated(dst_partitioning_nml)) then
+    write( log_scratch_space, '(A)' )                                          &
+         'Destination mesh partitioning namelist (partitioning:destination) not found.'
+    call log_event(log_scratch_space, log_level_error)
+  end if
+
+  generate_inner_halos(src) = src_partitioning_nml%generate_inner_halos()
+  generate_inner_halos(dst) = dst_partitioning_nml%generate_inner_halos()
+  if (read_lbc_mesh) then
+    generate_inner_halos(lbc) = lbc_partitioning_nml%generate_inner_halos()
+  end if
 
   if ( regrid_method == regrid_method_map .and. &
      trim(meshfile_prefix(src)) /= trim(meshfile_prefix(dst)) ) then
@@ -203,13 +223,14 @@ subroutine init_mesh( configuration,           &
     call log_event(log_scratch_space, log_level_error)
   end if
 
-  ! Decide if a lbc mesh has to be set up
-  read_lbc_mesh = .false.
-  if (mode == mode_lbc) then
-    if (mesh_names(lbc) /= mesh_names(dst)) then
-      read_lbc_mesh = .true.
+  ! Check stencil depths are valid
+  do i = 1, size(stencil_depths)
+    if (stencil_depths(i) < 0_i_def) then
+      write(log_scratch_space,'(A)') &
+        'Standard partitioned meshes must support a not -ve stencil_depth'
+      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
     end if
-  end if
+  end do
 
   !===========================================================================
   ! Create local mesh objects:
@@ -272,7 +293,7 @@ subroutine init_mesh( configuration,           &
     ! meshes are suitable for the supplied application
     ! configuration.
     !===========================================================
-    call check_local_mesh( configuration,  &
+    call check_local_mesh( config,         &
                            stencil_depths, &
                            mesh_names )
 
@@ -311,13 +332,9 @@ subroutine init_mesh( configuration,           &
       call log_event( "Setting up planar partition mesh(es)", &
                       log_level_debug )
     end if
-    if (mode == mode_lbc) then
-      if (mesh_names(lbc) == mesh_names(dst)) then
-        mesh_selection(lbc) = mesh_selection(dst)
-      else
-        mesh_selection(lbc) = mesh_lfric2lfric_lbc
-      end if
-      call log_event( "Setting up planar lbc partition mesh(es)", &
+    if (read_lbc_mesh) then
+      mesh_selection(lbc) = mesh_selection(dst)
+      call log_event( "Setting up lbc partition mesh(es)", &
                       log_level_debug )
     end if
 
@@ -334,10 +351,11 @@ subroutine init_mesh( configuration,           &
                                    partitioner_src )
 
     if (read_lbc_mesh) then
-      decomposition_lbc = lfric2lfric_lbc_decomposition_type()
-      partitioner_lbc => partitioner_lfric2lfric_lbc
-      call log_event( "Using lfric2lfric lbc mesh partitioner ", &
-                      log_level_debug )
+      call get_partition_parameters( lbc_partitioning_nml, &
+                                     mesh_selection(lbc),  &
+                                     total_ranks,          &
+                                     decomposition_lbc,    &
+                                     partitioner_lbc )
     end if
 
     call get_partition_parameters( dst_partitioning_nml, &
@@ -364,7 +382,7 @@ subroutine init_mesh( configuration,           &
     call create_local_mesh( mesh_names(dst:dst),           &
                             local_rank, total_ranks,       &
                             decomposition_dst,             &
-                            stencil_depths,                &
+                            stencil_depths(dst:dst),       &
                             generate_inner_halos(dst),     &
                             partitioner_dst )
 
@@ -372,7 +390,7 @@ subroutine init_mesh( configuration,           &
       call create_local_mesh( mesh_names(lbc:lbc),         &
                               local_rank, total_ranks,     &
                               decomposition_lbc,           &
-                              stencil_depths,              &
+                              stencil_depths(lbc:lbc),     &
                               generate_inner_halos(dst),   &
                               partitioner_lbc )
     end if
@@ -380,7 +398,7 @@ subroutine init_mesh( configuration,           &
     call create_local_mesh( mesh_names(src:src),           &
                             local_rank, total_ranks,       &
                             decomposition_src,             &
-                            stencil_depths,                &
+                            stencil_depths(src:src),       &
                             generate_inner_halos(src),     &
                             partitioner_src )
 

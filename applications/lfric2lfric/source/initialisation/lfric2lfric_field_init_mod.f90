@@ -24,7 +24,6 @@ module lfric2lfric_field_init_mod
                                                 checkpoint_read_xios
   use lfric_xios_write_mod,               only: write_field_generic, &
                                                 checkpoint_write_xios
-  use lfric2lfric_config_mod,             only: mode_ics, mode_lbc
   use log_mod,                            only: log_event,         &
                                                 log_scratch_space, &
                                                 log_level_info,    &
