@@ -78,15 +78,15 @@ contains
 
     type(field_collection_iterator_type) :: iter
 
-    class(field_parent_type),  pointer :: field     => null()
-    type(field_type),          pointer :: field_src => null()
-    type(field_type),          pointer :: field_dst => null()
+    class(field_parent_type),  pointer :: field
+    type(field_type),          pointer :: field_src
+    type(field_type),          pointer :: field_dst
 
     type(field_type),          target  :: u_in_w3_src,  u_in_w3_dst
     type(field_type),          target  :: v_in_w3_src,  v_in_w3_dst
     type(field_type),          target  :: w_in_wth_src, w_in_wth_dst
 
-    integer(kind=i_def)                :: fs
+    integer(kind=i_def)                :: fs_id
     type(function_space_type), pointer :: fs_w3_src, fs_w3_dst
     type(function_space_type), pointer :: fs_wth_src, fs_wth_dst
     type(mesh_type),           pointer :: mesh_dst
@@ -124,7 +124,7 @@ contains
                           element_order_h, element_order_v, Wtheta)
 
     ! Get the geometry and topology of the destination mesh
-    mesh_dst      => mesh_collection%get_mesh(trim(mesh_names(dst)))
+    mesh_dst => mesh_collection%get_mesh(trim(mesh_names(dst)))
     if (mesh_dst%is_geometry_spherical()) then
       geometry = geometry_spherical
     else if (mesh_dst%is_geometry_planar()) then
@@ -152,8 +152,8 @@ contains
       call log_event(log_scratch_space, log_level_info)
 
       ! Convert W2 fields to a set of W3 and Wtheta fields
-      fs = field_src%which_function_space()
-      if (fs == W2) then
+      fs_id = field_src%which_function_space()
+      if (fs_id == W2) then
         call u_in_w3_src%initialise(vector_space=fs_w3_src,   &
                                     name="u_in_w3_src")
         call v_in_w3_src%initialise(vector_space=fs_w3_src,   &
@@ -174,7 +174,7 @@ contains
       ! Regrid source field depending on regrid method
       select case (regrid_method)
         case (regrid_method_map)
-          if (fs == W2) then
+          if (fs_id == W2) then
             call lfric2lfric_map_regrid(u_in_w3_dst, u_in_w3_src)
             call lfric2lfric_map_regrid(v_in_w3_dst, v_in_w3_src)
             call lfric2lfric_map_regrid(w_in_wth_dst, w_in_wth_src)
@@ -191,7 +191,7 @@ contains
 
         case (regrid_method_oasis)
 #ifdef MCT
-          if (fs == W2) then
+          if (fs_id == W2) then
             call lfric2lfric_oasis_regrid(modeldb, oasis_clock, &
                                   u_in_w3_dst, u_in_w3_src)
             call lfric2lfric_oasis_regrid(modeldb, oasis_clock, &
@@ -206,7 +206,7 @@ contains
       end select
 
       ! Rebuild the W2 fields from a set of W3 and Wtheta fields
-      if (fs == W2) then
+      if (fs_id == W2) then
         call interp_w3wth_to_w2_alg(field_dst, u_in_w3_dst,    &
                                     v_in_w3_dst, w_in_wth_dst, &
                                     geometry, topology)

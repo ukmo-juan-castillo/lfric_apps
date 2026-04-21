@@ -125,8 +125,8 @@ module interpolation_alg_mod
   !> @param[in]      u_in_w3  Zonal component on W3 to interpolate from
   !> @param[in]      v_in_w3  Meridional component on W3 to interpolate from
   !> @param[in]      w_in_wth Vertical component on Wtheta to interpolate from
-  !> @param[in]      geometry Mesh geometry
-  !> @param[in]      topology Mesh topology
+  !> @param[in]      geometry Mesh geometry enumeration value
+  !> @param[in]      topology Mesh topology enumeration value
   subroutine interp_w3wth_to_w2_alg(u_in_w2, u_in_w3, v_in_w3, w_in_wth, &
                                     geometry, topology)
 
