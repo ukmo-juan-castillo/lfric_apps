@@ -18,6 +18,8 @@ module lfric2lfric_regrid_mod
   use field_collection_mod,     only: field_collection_type
   use field_collection_iterator_mod, only: &
                                       field_collection_iterator_type
+  use field_parent_mod,         only: read_interface, &
+                                      write_interface
   use fs_continuity_mod,        only: W2, W3, Wtheta
   use function_space_collection_mod, only: function_space_collection
   use function_space_mod,       only: function_space_type
@@ -41,10 +43,17 @@ module lfric2lfric_regrid_mod
   use lfric2lfric_no_regrid_mod,      only: lfric2lfric_no_regrid
   use lfric2lfric_oasis_regrid_mod,   only: lfric2lfric_oasis_regrid
 
+  use lfric_xios_read_mod,  only: read_field_generic
+  use lfric_xios_write_mod, only: write_field_generic
+
   implicit none
 
   private
   public lfric2lfric_regrid
+
+  type(field_type), target, public :: u_in_w3_src,  u_in_w3_dst
+  type(field_type), target, public :: v_in_w3_src,  v_in_w3_dst
+  type(field_type), target, public :: w_in_wth_src, w_in_wth_dst
 
 contains
 
@@ -65,7 +74,8 @@ contains
   !> @param [in]     regrid_method           Method for regridding between the
   !>                                         source and destination meshes
   subroutine lfric2lfric_regrid( modeldb, oasis_clock,            &
-                  source_fields, target_fields, regrid_method )
+                  source_fields, target_fields, regrid_method, &
+                  fields_u_src, fields_u_dst )
 
     implicit none
 
@@ -74,6 +84,8 @@ contains
     type(field_collection_type), pointer, intent(in)    :: source_fields
     type(field_collection_type), pointer, intent(inout) :: target_fields
     integer(kind=i_def),                  intent(in)    :: regrid_method
+    type(field_collection_type), pointer, intent(inout) :: fields_u_src
+    type(field_collection_type), pointer, intent(inout) :: fields_u_dst
 
 
     type(field_collection_iterator_type) :: iter
@@ -81,10 +93,6 @@ contains
     class(field_parent_type),  pointer :: field
     type(field_type),          pointer :: field_src
     type(field_type),          pointer :: field_dst
-
-    type(field_type),          target  :: u_in_w3_src,  u_in_w3_dst
-    type(field_type),          target  :: v_in_w3_src,  v_in_w3_dst
-    type(field_type),          target  :: w_in_wth_src, w_in_wth_dst
 
     integer(kind=i_def)                :: fs_id
     type(function_space_type), pointer :: fs_w3_src, fs_w3_dst
@@ -102,6 +110,11 @@ contains
     integer(kind=i_def), parameter :: dst = 1
     integer(kind=i_def), parameter :: src = 2
 
+    procedure(write_interface), pointer :: write_behaviour
+    procedure(read_interface),  pointer :: read_behaviour
+
+    write_behaviour    => write_field_generic
+    read_behaviour     => read_field_generic
 
     ! Obtain namelist parameters
     mesh_names(dst) = modeldb%config%lfric2lfric%destination_mesh_name()
@@ -153,7 +166,7 @@ contains
 
       ! Convert W2 fields to a set of W3 and Wtheta fields
       fs_id = field_src%which_function_space()
-      if (fs_id == W2) then
+      if (fs_id == W2 .and. trim(field_name) == "u") then
         call u_in_w3_src%initialise(vector_space=fs_w3_src,   &
                                     name="u_in_w3_src")
         call v_in_w3_src%initialise(vector_space=fs_w3_src,   &
@@ -166,9 +179,27 @@ contains
                                     name="v_in_w3_dst")
         call w_in_wth_dst%initialise(vector_space=fs_wth_dst, &
                                     name="w_in_wth_dst")
+        call u_in_w3_src%set_read_behaviour(read_behaviour)
+        call u_in_w3_src%set_write_behaviour(write_behaviour)
+        call v_in_w3_src%set_read_behaviour(read_behaviour)
+        call v_in_w3_src%set_write_behaviour(write_behaviour)
+        call w_in_wth_src%set_read_behaviour(read_behaviour)
+        call w_in_wth_src%set_write_behaviour(write_behaviour)
+
+        call u_in_w3_dst%set_read_behaviour(read_behaviour)
+        call u_in_w3_dst%set_write_behaviour(write_behaviour)
+        call v_in_w3_dst%set_read_behaviour(read_behaviour)
+        call v_in_w3_dst%set_write_behaviour(write_behaviour)
+        call w_in_wth_dst%set_read_behaviour(read_behaviour)
+        call w_in_wth_dst%set_write_behaviour(write_behaviour)
 
         call interp_w2_to_w3wth_alg(field_src, u_in_w3_src,   &
                                     v_in_w3_src, w_in_wth_src)
+        if(trim(field_name)=="u") then
+          call fields_u_src%add_field(u_in_w3_src)
+          call fields_u_src%add_field(v_in_w3_src)
+          call fields_u_src%add_field(w_in_wth_src)
+        end if
       end if
 
       ! Regrid source field depending on regrid method
@@ -206,7 +237,12 @@ contains
       end select
 
       ! Rebuild the W2 fields from a set of W3 and Wtheta fields
-      if (fs_id == W2) then
+      if (fs_id == W2 .and. trim(field_name) == "u") then
+        if(trim(field_name)=="u") then
+          call fields_u_dst%add_field(u_in_w3_dst)
+          call fields_u_dst%add_field(v_in_w3_dst)
+          call fields_u_dst%add_field(w_in_wth_dst)
+        end if
         call interp_w3wth_to_w2_alg(field_dst, u_in_w3_dst,    &
                                     v_in_w3_dst, w_in_wth_dst, &
                                     geometry, topology)

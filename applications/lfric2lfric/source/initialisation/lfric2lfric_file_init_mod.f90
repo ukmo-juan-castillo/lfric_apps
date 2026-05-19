@@ -81,6 +81,13 @@ module lfric2lfric_file_init_mod
                                   freq=diagnostic_frequency) )
       end if
 
+      call files_list%insert_item(                               &
+          lfric_xios_file_type( "u_src",       &
+                                xios_id="u_src", &
+                                io_mode=FILE_MODE_WRITE,         &
+                                freq=diagnostic_frequency) )
+
+
       ! Setup orography ancillary file
       if ( orog_init_option == orog_init_option_ancil ) then
         ! Set orography ancil filename from namelist
@@ -132,6 +139,13 @@ module lfric2lfric_file_init_mod
                                   io_mode=FILE_MODE_WRITE,   &
                                   freq=diagnostic_frequency) )
       end if
+
+      call files_list%insert_item(                               &
+          lfric_xios_file_type( "u_dst",       &
+                                xios_id="u_dst", &
+                                io_mode=FILE_MODE_WRITE,         &
+                                freq=diagnostic_frequency) )
+
 
       if (mode == mode_ics) then
 
