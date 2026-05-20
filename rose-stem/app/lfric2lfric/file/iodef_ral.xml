@@ -195,9 +195,9 @@
       <file id="u_src" name="u_src" mode="write" output_freq="1ts" convention="UGRID" enabled=".TRUE.">
 
         <!-- Atmosphere fields -->
-        <field id="u_in_w3_src" name="u_in_w3_src" long_name="u_in_w3_src" standard_name="u_in_w3_src" unit="kg m-3" domain_ref="checkpoint_W3" operation="once" />
-        <field id="v_in_w3_src" name="v_in_w3_src" long_name="v_in_w3_src" standard_name="v_in_w3_src" unit="kg m-3" domain_ref="checkpoint_W3" operation="once" />
-        <field id="w_in_wth_src" name="w_in_wth_src" long_name="w_in_wth_src" standard_name="w_in_wth_src" unit="K" domain_ref="checkpoint_Wtheta" operation="once" />
+        <field id="u_in_w3_src" name="u_in_w3_src" long_name="u_in_w3_src" standard_name="u_in_w3_src" unit="m s-1" domain_ref="checkpoint_W3" operation="once" />
+        <field id="v_in_w3_src" name="v_in_w3_src" long_name="v_in_w3_src" standard_name="v_in_w3_src" unit="m s-1" domain_ref="checkpoint_W3" operation="once" />
+        <field id="w_in_wth_src" name="w_in_wth_src" long_name="w_in_wth_src" standard_name="w_in_wth_src" unit="m s-1" domain_ref="checkpoint_Wtheta" operation="once" />
       </file>
     </file_definition>
   </context>
@@ -391,9 +391,9 @@
       <file id="u_dst" name="u_dst" mode="write" output_freq="1ts" convention="UGRID" enabled=".TRUE.">
 
         <!-- Atmosphere fields -->
-        <field id="u_in_w3_dst" name="u_in_w3_dst" long_name="u_in_w3_dst" standard_name="u_in_w3_dst" unit="kg m-3" domain_ref="checkpoint_W3" operation="once" />
-        <field id="v_in_w3_dst" name="v_in_w3_dst" long_name="v_in_w3_dst" standard_name="v_in_w3_dst" unit="kg m-3" domain_ref="checkpoint_W3" operation="once" />
-        <field id="w_in_wth_dst" name="w_in_wth_dst" long_name="w_in_wth_dst" standard_name="w_in_wth_dst" unit="K" domain_ref="checkpoint_Wtheta" operation="once" />
+        <field id="u_in_w3_dst" name="u_in_w3_dst" long_name="u_in_w3_dst" standard_name="u_in_w3_dst" unit="m s-1" domain_ref="checkpoint_W3" operation="once" />
+        <field id="v_in_w3_dst" name="v_in_w3_dst" long_name="v_in_w3_dst" standard_name="v_in_w3_dst" unit="m s-1" domain_ref="checkpoint_W3" operation="once" />
+        <field id="w_in_wth_dst" name="w_in_wth_dst" long_name="w_in_wth_dst" standard_name="w_in_wth_dst" unit="m s-1" domain_ref="checkpoint_Wtheta" operation="once" />
       </file>
     </file_definition>
   </context>

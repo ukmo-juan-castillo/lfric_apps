@@ -101,9 +101,6 @@ contains
 
     type(lfric_xios_context_type), pointer :: io_context
 
-    type(field_collection_type), pointer :: fields_u_src
-    type(field_collection_type), pointer :: fields_u_dst
-
     ! Extract configuration variables
     start_dump_filename  = modeldb%config%files%start_dump_filename()
     checkpoint_stem_name = modeldb%config%files%checkpoint_stem_name()
@@ -115,32 +112,19 @@ contains
     source_fields => modeldb%fields%get_field_collection(source_collection_name)
     target_fields => modeldb%fields%get_field_collection(target_collection_name)
 
-    call modeldb%fields%add_empty_field_collection("fields_u_src")
-    fields_u_src => modeldb%fields%get_field_collection("fields_u_src")
-    call modeldb%fields%add_empty_field_collection("fields_u_dst")
-    fields_u_dst => modeldb%fields%get_field_collection("fields_u_dst")
-
     ! Read fields and perform the regridding
     if (mode == mode_ics) then
       call read_state(source_fields, prefix='restart_')
 
       call lfric2lfric_regrid(modeldb, oasis_clock, source_fields,   &
-                              target_fields, regrid_method, &
-                              fields_u_src, fields_u_dst)
+                              target_fields, regrid_method)
 
-      call modeldb%io_contexts%get_io_context(context_src, io_context)
-      call io_context%set_current()
-!      call advance(io_context, modeldb%clock)
-      write(0,*) "JMCS src:", fields_u_src%get_length(), fields_u_src%field_exists("u_in_w3_src")
-      call write_state(fields_u_src)
       ! Write output
       call modeldb%io_contexts%get_io_context(context_dst, io_context)
       call io_context%set_current()
 
       checkpoint_times(1) = modeldb%clock%seconds_from_steps(modeldb%clock%get_step())
       call write_state(target_fields, prefix='checkpoint_')
-      write(0,*) "JMCS dst:", fields_u_dst%get_length(), fields_u_dst%field_exists("u_in_w3_dst")
-      call write_state(fields_u_dst)
 
     else if (mode == mode_lbc) then
       time_steps = modeldb%clock%get_last_step() - &
@@ -156,8 +140,7 @@ contains
         call read_state(source_fields)
 
         call lfric2lfric_regrid(modeldb, oasis_clock, source_fields, &
-                                target_fields, regrid_method, &
-                                fields_u_src, fields_u_dst)
+                                target_fields, regrid_method)
 
         is_running = modeldb%clock%tick()
 

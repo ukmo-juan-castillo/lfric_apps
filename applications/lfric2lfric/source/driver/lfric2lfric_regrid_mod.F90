@@ -39,21 +39,20 @@ module lfric2lfric_regrid_mod
   use lfric2lfric_config_mod,         only: regrid_method_map,         &
                                             regrid_method_lfric2lfric, &
                                             regrid_method_oasis
+  use lfric2lfric_infrastructure_mod, only: context_dst, context_src
   use lfric2lfric_map_regrid_mod,     only: lfric2lfric_map_regrid
   use lfric2lfric_no_regrid_mod,      only: lfric2lfric_no_regrid
   use lfric2lfric_oasis_regrid_mod,   only: lfric2lfric_oasis_regrid
 
+!  use lfric_xios_action_mod,    only: advance
+  use lfric_xios_context_mod,   only: lfric_xios_context_type
   use lfric_xios_read_mod,  only: read_field_generic
-  use lfric_xios_write_mod, only: write_field_generic
+  use lfric_xios_write_mod, only: write_field_generic, write_state
 
   implicit none
 
   private
   public lfric2lfric_regrid
-
-  type(field_type), target, public :: u_in_w3_src,  u_in_w3_dst
-  type(field_type), target, public :: v_in_w3_src,  v_in_w3_dst
-  type(field_type), target, public :: w_in_wth_src, w_in_wth_dst
 
 contains
 
@@ -74,8 +73,7 @@ contains
   !> @param [in]     regrid_method           Method for regridding between the
   !>                                         source and destination meshes
   subroutine lfric2lfric_regrid( modeldb, oasis_clock,            &
-                  source_fields, target_fields, regrid_method, &
-                  fields_u_src, fields_u_dst )
+                  source_fields, target_fields, regrid_method )
 
     implicit none
 
@@ -84,9 +82,6 @@ contains
     type(field_collection_type), pointer, intent(in)    :: source_fields
     type(field_collection_type), pointer, intent(inout) :: target_fields
     integer(kind=i_def),                  intent(in)    :: regrid_method
-    type(field_collection_type), pointer, intent(inout) :: fields_u_src
-    type(field_collection_type), pointer, intent(inout) :: fields_u_dst
-
 
     type(field_collection_iterator_type) :: iter
 
@@ -110,11 +105,25 @@ contains
     integer(kind=i_def), parameter :: dst = 1
     integer(kind=i_def), parameter :: src = 2
 
+    type(field_type), target :: u_in_w3_src,  u_in_w3_dst
+    type(field_type), target :: v_in_w3_src,  v_in_w3_dst
+    type(field_type), target :: w_in_wth_src, w_in_wth_dst
+
     procedure(write_interface), pointer :: write_behaviour
     procedure(read_interface),  pointer :: read_behaviour
 
+    type(field_collection_type), pointer :: fields_u_src
+    type(field_collection_type), pointer :: fields_u_dst
+
+    type(lfric_xios_context_type), pointer :: io_context
+
     write_behaviour    => write_field_generic
     read_behaviour     => read_field_generic
+
+    call modeldb%fields%add_empty_field_collection("fields_u_src")
+    fields_u_src => modeldb%fields%get_field_collection("fields_u_src")
+    call modeldb%fields%add_empty_field_collection("fields_u_dst")
+    fields_u_dst => modeldb%fields%get_field_collection("fields_u_dst")
 
     ! Obtain namelist parameters
     mesh_names(dst) = modeldb%config%lfric2lfric%destination_mesh_name()
@@ -199,6 +208,11 @@ contains
           call fields_u_src%add_field(u_in_w3_src)
           call fields_u_src%add_field(v_in_w3_src)
           call fields_u_src%add_field(w_in_wth_src)
+          call modeldb%io_contexts%get_io_context(context_src, io_context)
+          call io_context%set_current()
+!          call advance(io_context, modeldb%clock)
+!          stop
+          call write_state(fields_u_src)
         end if
       end if
 
@@ -242,6 +256,12 @@ contains
           call fields_u_dst%add_field(u_in_w3_dst)
           call fields_u_dst%add_field(v_in_w3_dst)
           call fields_u_dst%add_field(w_in_wth_dst)
+          call modeldb%io_contexts%get_io_context(context_dst, io_context)
+          call io_context%set_current()
+!          call advance(io_context, modeldb%clock)
+          call write_state(fields_u_dst)
+          call modeldb%io_contexts%get_io_context(context_src, io_context)
+          call io_context%set_current()
         end if
         call interp_w3wth_to_w2_alg(field_dst, u_in_w3_dst,    &
                                     v_in_w3_dst, w_in_wth_dst, &
